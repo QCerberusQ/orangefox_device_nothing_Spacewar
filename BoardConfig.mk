@@ -1,6 +1,4 @@
-TW_THEME := portrait_hdpi
-TARGET_SCREEN_WIDTH := 1080
-TARGET_SCREEN_HEIGHT := 2400
+
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
