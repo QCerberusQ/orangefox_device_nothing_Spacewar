@@ -2,7 +2,6 @@ import /init.recovery.qcom_decrypt.rc
 
 on early-init
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
-    # create symlink for vendor mount points
     symlink /vendor/firmware_mnt /firmware
     symlink /vendor/bt_firmware /bt_firmware
     symlink /vendor/dsp /dsp
@@ -17,8 +16,10 @@ on init
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
+
     mkdir /firmware
-    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} \
+        /firmware ro context=u:object_r:firmware_file:s0
 
 on late-fs
     start keymasterd
@@ -27,46 +28,36 @@ on late-fs
 on post-fs
     start boot-hal-1-1
 
+    # ✅ vendor_dlkm OTOMATİK mount edilir (fstab)
+    # modüller hazır mı?
+    wait /vendor_dlkm/lib/modules/5.4-gki/modules.dep
+
+    # modprobe vendor_dlkm kökünü kullansın
+    export MODPROBE_OPTIONS "-d /vendor_dlkm/lib/modules/5.4-gki"
+
+    # DSP / Audio / Display stack
+    exec u:r:recovery:s0 -- /system/bin/modprobe -a \
+        q6_pdr_dlkm \
+        q6_notifier_dlkm \
+        snd_event_dlkm \
+        apr_dlkm \
+        adsp_loader_dlkm \
+        msm_drm
+
+    # Touch öncesi kısa gecikme
+    exec u:r:recovery:s0 -- /system/bin/sleep 1
+
+    # Touch panel
+    exec u:r:recovery:s0 -- /system/bin/modprobe fts_tp
+
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     chmod 0777 /system/bin/wrappedkey-fix.sh
     start wrapped-key
 
-service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
-    user root
-    group root
-    disabled
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
-    seclabel u:r:recovery:s0
-
-service wrapped-key /system/bin/wrappedkey-fix.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
 on boot
-    start vendor.qti.vibrator
     setprop sys.usb.config adb
-
-# 🔴 KRİTİK DEĞİŞİKLİK: vendor → vendor_dlkm
-on property:modem.partition.mounted=1
-    mkdir /vendor_dlkm
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
-
-    # modprobe vendor_dlkm kökünü kullanacak
-    export MODPROBE_OPTIONS "-d /vendor_dlkm"
-
-    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
-
-    # ⏳ Touch öncesi kısa gecikme (stock davranış)
-    exec u:r:recovery:s0 -- /system/bin/sleep 1
-
-    insmod /vendor_dlkm/lib/modules/fts_tp.ko
+    write /sys/class/leds/vibrator/activate 0
+    write /sys/class/leds/vibrator/enable 0
 
 on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
@@ -87,13 +78,20 @@ service set_permissive /system/bin/set_permissive.sh
     seclabel u:r:recovery:s0
 
 service keymasterd /system/bin/keymasterd
-     user root
-     group root
-     disabled
-     seclabel u:r:recovery:s0
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
 
 service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
     user root
     group root
     disabled
+    seclabel u:r:recovery:s0
+
+service wrapped-key /system/bin/wrappedkey-fix.sh
+    user root
+    group root
+    disabled
+    oneshot
     seclabel u:r:recovery:s0
