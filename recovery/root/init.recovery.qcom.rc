@@ -49,13 +49,24 @@ on boot
     start vendor.qti.vibrator
     setprop sys.usb.config adb
 
+# 🔴 KRİTİK DEĞİŞİKLİK: vendor → vendor_dlkm
 on property:modem.partition.mounted=1
-    insmod /vendor/lib/modules/q6_pdr_dlkm.ko
-    insmod /vendor/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor/lib/modules/snd_event_dlkm.ko
-    insmod /vendor/lib/modules/apr_dlkm.ko
-    insmod /vendor/lib/modules/adsp_loader_dlkm.ko
-    insmod /vendor/lib/modules/fts_tp.ko
+    mkdir /vendor_dlkm
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+    # modprobe vendor_dlkm kökünü kullanacak
+    export MODPROBE_OPTIONS "-d /vendor_dlkm"
+
+    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
+
+    # ⏳ Touch öncesi kısa gecikme (stock davranış)
+    exec u:r:recovery:s0 -- /system/bin/sleep 1
+
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
 
 on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
@@ -86,4 +97,3 @@ service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
     group root
     disabled
     seclabel u:r:recovery:s0
-
