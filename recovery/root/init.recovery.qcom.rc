@@ -30,6 +30,7 @@ on post-fs
 
     # ✅ vendor_dlkm OTOMATİK mount edilir (fstab)
     # modüller hazır mı?
+    wait /dev/block/mapper/vendor_dlkm
     wait /vendor_dlkm/lib/modules/5.4-gki/modules.dep
 
     # modprobe vendor_dlkm kökünü kullansın
