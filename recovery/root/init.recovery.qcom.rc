@@ -33,26 +33,28 @@ on post-fs
     wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # modüller gerçekten var mı?
+    # modüller hazır mı?
     wait /vendor_dlkm/lib/modules/5.4-gki/modules.dep
 
     # modprobe doğru dizini kullansın
     export MODPROBE_OPTIONS "-d /vendor_dlkm/lib/modules/5.4-gki"
 
-    # DSP / Audio / Display
+    # DSP / ADSP / Audio (ÖNCE)
     exec u:r:recovery:s0 -- /system/bin/modprobe -a \
         q6_pdr_dlkm \
         q6_notifier_dlkm \
         snd_event_dlkm \
         apr_dlkm \
-        adsp_loader_dlkm \
-        msm_drm
+        adsp_loader_dlkm
 
-    # touch için kısa bekleme
+    # Touch panel (DISPLAY'DEN ÖNCE)
+    exec u:r:recovery:s0 -- /system/bin/modprobe fts_tp
+
+    # kısa bekleme
     exec u:r:recovery:s0 -- /system/bin/sleep 1
 
-    # Touch panel
-    exec u:r:recovery:s0 -- /system/bin/modprobe fts_tp
+    # Display (EN SON)
+    exec u:r:recovery:s0 -- /system/bin/modprobe msm_drm
 
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     chmod 0777 /system/bin/wrappedkey-fix.sh
