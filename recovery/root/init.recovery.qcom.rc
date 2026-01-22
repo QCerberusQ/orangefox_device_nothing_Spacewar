@@ -28,15 +28,18 @@ on late-fs
 on post-fs
     start boot-hal-1-1
 
-    # ✅ vendor_dlkm OTOMATİK mount edilir (fstab)
-    # modüller hazır mı?
-    wait /dev/block/mapper/vendor_dlkm
+    # 🔥 vendor_dlkm MANUEL mount (zorunlu)
+    mkdir /vendor_dlkm
+    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+    # modüller gerçekten var mı?
     wait /vendor_dlkm/lib/modules/5.4-gki/modules.dep
 
-    # modprobe vendor_dlkm kökünü kullansın
+    # modprobe doğru dizini kullansın
     export MODPROBE_OPTIONS "-d /vendor_dlkm/lib/modules/5.4-gki"
 
-    # DSP / Audio / Display stack
+    # DSP / Audio / Display
     exec u:r:recovery:s0 -- /system/bin/modprobe -a \
         q6_pdr_dlkm \
         q6_notifier_dlkm \
@@ -45,7 +48,7 @@ on post-fs
         adsp_loader_dlkm \
         msm_drm
 
-    # Touch öncesi kısa gecikme
+    # touch için kısa bekleme
     exec u:r:recovery:s0 -- /system/bin/sleep 1
 
     # Touch panel
