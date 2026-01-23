@@ -1,13 +1,24 @@
 import /init.recovery.qcom_decrypt.rc
 
+on early-init
+    exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
+
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
-    write /sys/class/power_supply/usb/otg_switch 1
     setprop sys.usb.configfs 1
 
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
+    mkdir /vendor_dlkm
+    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+on post-fs
+    wait /vendor_dlkm/lib/modules/fts_tp.ko
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
+
 on boot
     setprop sys.usb.config adb
+    write /sys/class/leds/vibrator/enable 0
