@@ -70,7 +70,16 @@ TW_NO_SCREEN_BLANK := true
 TW_EXCLUDE_APEX := true
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
-TW_LOAD_VENDOR_MODULES := $(shell cat $(LOCAL_PATH)/modules.load.recovery)
+
+TW_LOAD_VENDOR_MODULES := \
+    q6_pdr_dlkm.ko \
+    q6_notifier_dlkm.ko \
+    snd_event_dlkm.ko \
+    apr_dlkm.ko \
+    adsp_loader_dlkm.ko \
+    msm_drm.ko \
+    fts_tp.ko
+
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
 
@@ -79,10 +88,6 @@ TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
-
-# 🔴 ÖNEMLİ:
-# vendor_dlkm cihazı olduğu için TW_LOAD_VENDOR_MODULES KULLANILMAZ
-# Modüller init.rc içinde, vendor_dlkm mount edildikten sonra yüklenir
 
 # Haptics fix
 TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
