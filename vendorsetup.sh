@@ -19,7 +19,9 @@ export OF_SCREEN_H=2400
 export OF_SCREEN_W=1080
 export OF_STATUS_H=100
 export TW_THEME=portrait_hdpi
-
+# Screen brightness
+export TW_MAX_BRIGHTNESS=2047
+export TW_DEFAULT_BRIGHTNESS=1200
 # Status bar layout
 export OF_STATUS_INDENT_LEFT=165
 export OF_STATUS_INDENT_RIGHT=48
