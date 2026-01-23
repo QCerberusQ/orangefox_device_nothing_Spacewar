@@ -9,6 +9,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
 LOCAL_PATH := device/nothing/Spacewar
 
+
 # A/B
 AB_OTA_POSTINSTALL_CONFIG += \
     RUN_POSTINSTALL_system=true \
@@ -69,6 +70,9 @@ TW_NO_SCREEN_BLANK := true
 TW_EXCLUDE_APEX := true
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
+TW_LOAD_VENDOR_MODULES := $(shell cat $(LOCAL_PATH)/modules.load.recovery)
+TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
+
 
 # Crypto
 TW_INCLUDE_CRYPTO := true
