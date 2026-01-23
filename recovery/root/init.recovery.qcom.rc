@@ -1,103 +1,38 @@
-import /init.recovery.qcom_decrypt.rc
-
-on early-init
-    exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
-    symlink /vendor/firmware_mnt /firmware
-    symlink /vendor/bt_firmware /bt_firmware
-    symlink /vendor/dsp /dsp
-    write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
+# Copyright (c) 2017-2018,2020 The Linux Foundation. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of The Linux Foundation nor
+#       the names of its contributors may be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
 
 on init
-    mount_all /vendor/etc/charger_fw_fstab.qti --early
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
-    write /sys/class/power_supply/usb/otg_switch 1
+
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
 
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
-
-    mkdir /firmware
-    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} \
-        /firmware ro context=u:object_r:firmware_file:s0
-
-on late-fs
-    start keymasterd
-    start set_permissive
-
-on post-fs
-    start boot-hal-1-1
-
-    # 🔥 vendor_dlkm MANUEL mount (zorunlu)
-    mkdir /vendor_dlkm
-    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
-
-    # modüller hazır mı?
-    wait /vendor_dlkm/lib/modules/5.4-gki/modules.dep
-
-    # modprobe doğru dizini kullansın
-    export MODPROBE_OPTIONS "-d /vendor_dlkm/lib/modules/5.4-gki"
-
-    # DSP / ADSP / Audio (ÖNCE)
-    exec u:r:recovery:s0 -- /system/bin/modprobe -a \
-        q6_pdr_dlkm \
-        q6_notifier_dlkm \
-        snd_event_dlkm \
-        apr_dlkm \
-        adsp_loader_dlkm
-
-    # Touch panel (DISPLAY'DEN ÖNCE)
-    exec u:r:recovery:s0 -- /system/bin/modprobe fts_tp
-
-    # kısa bekleme
-    exec u:r:recovery:s0 -- /system/bin/sleep 1
-
-    # Display (EN SON)
-    exec u:r:recovery:s0 -- /system/bin/modprobe msm_drm
-
-on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-    chmod 0777 /system/bin/wrappedkey-fix.sh
-    start wrapped-key
-
-on boot
-    setprop sys.usb.config adb
-    write /sys/class/leds/vibrator/activate 0
-    write /sys/class/leds/vibrator/enable 0
-
-on property:dev.mnt.blk.firmware=*
-    wait /sys/kernel/boot_adsp/boot
-    write /sys/kernel/boot_adsp/boot 1
-    wait /sys/class/power_supply/battery
-    start health-hal-2-1
-
-on property:ro.boot.usbcontroller=*
-    setprop sys.usb.controller ${ro.boot.usbcontroller}
-    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
-    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
-
-service set_permissive /system/bin/set_permissive.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-service keymasterd /system/bin/keymasterd
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-service wrapped-key /system/bin/wrappedkey-fix.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
