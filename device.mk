@@ -2,6 +2,11 @@
 # Copyright (C) 2021 The TWRP Open Source Project
 #
 
+$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
+
+
 LOCAL_PATH := device/nothing/Spacewar
 
 
