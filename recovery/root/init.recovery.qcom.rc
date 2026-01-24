@@ -1,27 +1,19 @@
+#
+# OrangeFox Recovery Project
+# Device: Nothing Phone (1) - Spacewar
+# Type: vendor_boot recovery
+#
+
 import /init.recovery.qcom_decrypt.rc
 
-on init
-    write /sys/class/backlight/panel0-backlight/brightness 200
-    setprop sys.usb.configfs 1
-
-on fs
-    wait /dev/block/platform/soc/${ro.boot.bootdevice}
-    symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
-
-    # Vendor_dlkm mount et - KRİTİK
-    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
-
-on post-fs
-    # Touch driver'ları yükle - post-fs doğru yer
-    insmod /vendor_dlkm/lib/modules/fts_tp.ko
-    insmod /vendor_dlkm/lib/modules/msm_drm.ko
-    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+on early-fs
+    # Scheduler hint for sideload / updater
+    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
+    write /proc/sys/kernel/sched_lib_mask_force 255
 
 on boot
-    setprop sys.usb.config adb
-    
-    # Touchscreen test
-    exec u:r:recovery:s0 -- /system/bin/sh -c "echo 'Touch modules loaded' > /dev/kmsg"
+    # Safe default brightness
+    write /sys/class/backlight/panel0-backlight/brightness 200
+
+    # Debug marker
+    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[OrangeFox] Spacewar vendor_boot recovery started' > /dev/kmsg"
