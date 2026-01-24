@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
+
 # Device
 $(call inherit-product, device/nothing/Spacewar/device.mk)
 
