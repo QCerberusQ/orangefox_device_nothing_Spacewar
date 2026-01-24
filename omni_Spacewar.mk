@@ -11,6 +11,8 @@ $(call inherit-product, vendor/omni/config/common.mk)
 # Device-specific configuration
 $(call inherit-product, device/nothing/Spacewar/device.mk)
 
+BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
+
 # Device identifiers
 PRODUCT_DEVICE := Spacewar
 PRODUCT_NAME := omni_Spacewar
