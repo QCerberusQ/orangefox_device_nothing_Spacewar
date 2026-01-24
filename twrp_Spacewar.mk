@@ -13,14 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-# Storage & A/B
-$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
-
-# GSI / AVB keys (optional ama OK)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
-
 # Device
 $(call inherit-product, device/nothing/Spacewar/device.mk)
 
