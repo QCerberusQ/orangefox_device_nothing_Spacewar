@@ -75,16 +75,16 @@ TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 1200
 
 
-#TW_LOAD_VENDOR_MODULES := \
-#    q6_pdr_dlkm.ko \
-#    q6_notifier_dlkm.ko \
-#    snd_event_dlkm.ko \
-#    apr_dlkm.ko \
-#    adsp_loader_dlkm.ko \
-#    msm_drm.ko \
-#    fts_tp.ko
+TW_LOAD_VENDOR_MODULES := \
+    q6_pdr_dlkm.ko \
+    q6_notifier_dlkm.ko \
+   snd_event_dlkm.ko \
+    apr_dlkm.ko \
+    adsp_loader_dlkm.ko \
+    msm_drm.ko \
+    fts_tp.ko
 
-#TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
+TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
 # A/B
 AB_OTA_UPDATER := true
