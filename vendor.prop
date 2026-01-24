@@ -3,3 +3,19 @@ vendor.gatekeeper.disable_spu=true
 
 # USB Config
 vendor.usb.use_ffs_mtp=1
+
+# Display
+ro.sf.lcd_density=420
+ro.opengles.version=196610
+
+# Product identification
+ro.product.vendor.device=Spacewar
+ro.product.vendor.name=Spacewar
+ro.product.vendor.brand=Nothing
+ro.product.vendor.manufacturer=Nothing
+ro.vendor.build.security_patch=2099-12-31
+
+# Recovery
+ro.vendor.recovery.force_nq_crypto=1
+ro.vendor.recovery.poweroff_charge=true
+ro.vendor.recovery.enable_adb_init=true
