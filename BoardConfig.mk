@@ -54,7 +54,10 @@ TARGET_COPY_OUT_VENDOR := vendor
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 BOARD_HAS_LARGE_FILESYSTEM := true
 TARGET_NO_KERNEL := true
-BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+ifeq ($(TARGET_BUILD_RECOVERY_IMAGE),true)
+  BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+endif
+
 # Do NOT force vendor_boot or boot recovery here (Unified OrangeFox handles this)
 # -----------------------------------------------------------------------------
 
