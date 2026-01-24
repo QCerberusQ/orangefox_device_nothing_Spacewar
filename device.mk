@@ -86,6 +86,21 @@ TW_DEFAULT_BRIGHTNESS := 1200
 
 #TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
+# A/B
+AB_OTA_UPDATER := true
+
+AB_OTA_PARTITIONS += \
+    boot \
+    dtbo \
+    odm \
+    product \
+    system \
+    system_ext \
+    vbmeta \
+    vbmeta_system \
+    vendor \
+    vendor_boot
+
 
 # Crypto
 TW_INCLUDE_CRYPTO := true
