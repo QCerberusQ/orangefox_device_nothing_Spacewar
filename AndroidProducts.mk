@@ -15,4 +15,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-     $(LOCAL_DIR)/omni_Spacewar.mk
+     $(LOCAL_DIR)/twrp_Spacewar.mk
