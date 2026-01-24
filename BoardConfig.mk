@@ -3,6 +3,7 @@
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
+OF_USE_UNIFIED_VENDOR_BOOT := 1
 
 # Architecture
 TARGET_ARCH := arm64
