@@ -8,15 +8,20 @@ on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-on post-fs
-    # vendor_dlkm hazır mı?
+    # Vendor_dlkm mount et - KRİTİK
     wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    wait /vendor_dlkm/lib/modules/fts_tp.ko
-
-    # Touch
+on post-fs
+    # Touch driver'ları yükle - post-fs doğru yer
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
+    insmod /vendor_dlkm/lib/modules/msm_drm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
 
 on boot
     setprop sys.usb.config adb
+    
+    # Touchscreen test
+    exec u:r:recovery:s0 -- /system/bin/sh -c "echo 'Touch modules loaded' > /dev/kmsg"
