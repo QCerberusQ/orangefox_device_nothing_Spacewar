@@ -65,6 +65,11 @@ BOARD_KERNEL_CMDLINE += swiotlb=0
 
 BOARD_RAMDISK_USE_LZ4 := true
 
+# OrangeFox vendor_boot support
+OF_USE_VENDOR_BOOT := 1
+OF_VENDOR_BOOT_PARTITION := vendor_boot
+OF_NO_FASTBOOT_BOOT := 1
+
 # Metadata
 BOARD_USES_METADATA_PARTITION := true
 
