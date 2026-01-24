@@ -11,6 +11,8 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 # Device
 $(call inherit-product, device/nothing/Spacewar/device.mk)
 
+BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
+
 # Device identifiers
 PRODUCT_DEVICE := Spacewar
 PRODUCT_NAME := twrp_Spacewar
