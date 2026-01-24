@@ -59,3 +59,9 @@ BOARD_USES_METADATA_PARTITION := true
 
 # VINTF
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
+
+PRODUCT_PACKAGES += \
+    recovery \
+    adbd \
+    toolbox \
+    toybox
