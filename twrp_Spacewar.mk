@@ -5,17 +5,15 @@
 # Recovery type: vendor_boot-as-recovery
 #
 
-# Inherit from Omni / OrangeFox base
-$(call inherit-product, vendor/omni/config/common.mk)
+# Inherit TWRP / OrangeFox base
+$(call inherit-product, vendor/twrp/config/common.mk)
 
-# Device-specific configuration
+# Device
 $(call inherit-product, device/nothing/Spacewar/device.mk)
-
-BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
 
 # Device identifiers
 PRODUCT_DEVICE := Spacewar
-PRODUCT_NAME := omni_Spacewar
+PRODUCT_NAME := twrp_Spacewar
 PRODUCT_BRAND := Nothing
 PRODUCT_MODEL := A063
 PRODUCT_MANUFACTURER := Nothing
