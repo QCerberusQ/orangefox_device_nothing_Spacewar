@@ -1,19 +1,23 @@
 #
 # OrangeFox Recovery Project
 # Device: Nothing Phone (1) - Spacewar
-# Type: vendor_boot recovery
+# Goal: Maximum ROM compatibility
 #
 
 import /init.recovery.qcom_decrypt.rc
 
 on early-fs
-    # Scheduler hint for sideload / updater
+    # Improve updater / sideload scheduling
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
+
+# Decrypt fallback (safe for all ROMs)
+on property:prepdecrypt.vendor_mounted=1
+    setprop crypto.ready 1
 
 on boot
     # Safe default brightness
     write /sys/class/backlight/panel0-backlight/brightness 200
 
     # Debug marker
-    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[OrangeFox] Spacewar vendor_boot recovery started' > /dev/kmsg"
+    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[OrangeFox] Spacewar unified-compatible recovery started' > /dev/kmsg"
