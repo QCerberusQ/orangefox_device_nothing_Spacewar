@@ -2,6 +2,7 @@
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
+BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
 
 # Architecture
 TARGET_ARCH := arm64
