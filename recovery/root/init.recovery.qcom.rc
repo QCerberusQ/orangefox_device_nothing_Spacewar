@@ -1,23 +1,60 @@
-#
-# OrangeFox Recovery Project
-# Device: Nothing Phone (1) - Spacewar
-# Goal: Maximum ROM compatibility
-#
-
+# -----------------------------------------------------------------------------
+# Import QCOM decrypt support
+# -----------------------------------------------------------------------------
 import /init.recovery.qcom_decrypt.rc
 
+# -----------------------------------------------------------------------------
+# Init
+# -----------------------------------------------------------------------------
+on init
+    write /sys/class/backlight/panel0-backlight/brightness 200
+    setprop sys.usb.configfs 1
+
+# -----------------------------------------------------------------------------
+# Filesystem setup
+# -----------------------------------------------------------------------------
+on fs
+    # Library path (alioth-style, safe)
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
+
+    # bootdevice symlink (required)
+    wait /dev/block/platform/soc/${ro.boot.bootdevice}
+    symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
+
+    # vendor_dlkm mount (CRITICAL)
+    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+# -----------------------------------------------------------------------------
+# Early FS (scheduler hint – harmless, useful)
+# -----------------------------------------------------------------------------
 on early-fs
-    # Improve updater / sideload scheduling
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
 
-# Decrypt fallback (safe for all ROMs)
+# -----------------------------------------------------------------------------
+# Post-FS
+# -----------------------------------------------------------------------------
+on post-fs
+    # Touch / display / audio related modules
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
+    insmod /vendor_dlkm/lib/modules/msm_drm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+
+# -----------------------------------------------------------------------------
+# Decryption fallback (alioth model – IMPORTANT)
+# -----------------------------------------------------------------------------
+# Some ROMs do not set crypto.ready early enough on flashed recovery
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
 
+# -----------------------------------------------------------------------------
+# Boot
+# -----------------------------------------------------------------------------
 on boot
-    # Safe default brightness
-    write /sys/class/backlight/panel0-backlight/brightness 200
+    setprop sys.usb.config adb
 
     # Debug marker
-    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[OrangeFox] Spacewar unified-compatible recovery started' > /dev/kmsg"
+    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[recovery] vendor_dlkm + modules loaded' > /dev/kmsg"
