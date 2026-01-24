@@ -1,173 +1,117 @@
+#
+# BoardConfig.mk for Nothing Phone (1) - Spacewar
+# Unified OrangeFox (Android 13 / 14)
+#
 
+DEVICE_PATH := device/nothing/Spacewar
 
-# For building with minimal manifest
-ALLOW_MISSING_DEPENDENCIES := true
-BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
-
-OF_USE_UNIFIED_VENDOR_BOOT := 1
-
+# -----------------------------------------------------------------------------
 # Architecture
+# -----------------------------------------------------------------------------
 TARGET_ARCH := arm64
-TARGET_ARCH_VARIANT := armv8-2a-dotprod
+TARGET_ARCH_VARIANT := armv8-2a
 TARGET_CPU_ABI := arm64-v8a
-TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := cortex-a76
 
 TARGET_2ND_ARCH := arm
 TARGET_2ND_ARCH_VARIANT := armv8-a
 TARGET_2ND_CPU_ABI := armeabi-v7a
-TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := cortex-a76
 
-# APEX image
-#DEXPREOPT_GENERATE_APEX_IMAGE := true
+TARGET_SUPPORTS_64_BIT_APPS := true
+TARGET_IS_64_BIT := true
 
-# Assert
-TARGET_OTA_ASSERT_DEVICE := Spacewar
-
-# A/B
-AB_OTA_UPDATER := true
-
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    odm \
-    product \
-    system \
-    system_ext \
-    vbmeta \
-    vbmeta_system \
-    vendor \
-    vendor_boot
-
-# Kernel
-#BOARD_KERNEL_BASE := 0x00000000
-#BOARD_KERNEL_IMAGE_NAME := Image
-#BOARD_KERNEL_PAGESIZE := 4096
-
-#BOARD_KERNEL_SEPARATED_DTBO := true
-#BOARD_BOOT_HEADER_VERSION := 4
-#BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-
-#BOARD_KERNEL_CMDLINE += androidboot.console=ttyMSM0
-#BOARD_KERNEL_CMDLINE += androidboot.hardware=qcom
-#BOARD_KERNEL_CMDLINE += androidboot.memcg=1
-##BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
-#BOARD_KERNEL_CMDLINE += androidboot.usbcontroller=a600000.dwc3
-#BOARD_KERNEL_CMDLINE += cgroup.memory=nokmem,nosocket
-#BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200n8
-#BOARD_KERNEL_CMDLINE += earlycon=msm_geni_serial,0x880000
-#BOARD_KERNEL_CMDLINE += ip6table_raw.raw_before_defrag=1
-#BOARD_KERNEL_CMDLINE += iptable_raw.raw_before_defrag=1
-#BOARD_KERNEL_CMDLINE += lpm_levels.sleep_disabled=1
-#BOARD_KERNEL_CMDLINE += msm_rtb.filter=0x237
-#BOARD_KERNEL_CMDLINE += pcie_ports=compat
-#BOARD_KERNEL_CMDLINE += service_locator.enable=1
-#BOARD_KERNEL_CMDLINE += swiotlb=0
-
-BOARD_RAMDISK_USE_LZ4 := true
-
-# OrangeFox vendor_boot support
-#OF_USE_VENDOR_BOOT := 1
-OF_VENDOR_BOOT_PARTITION := vendor_boot
-OF_NO_FASTBOOT_BOOT := 1
-
-# Add TW_DEVICE_VERSION
-TW_DEVICE_VERSION  := Beta
-TW_USE_LEGACY_BATTERY_SERVICES := true
-
-# Fix Android 14 Decryption
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-PLATFORM_VERSION := 99.87.36
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-
-# File systems
-BOARD_FLASH_BLOCK_SIZE := 262144
-BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
-BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
-BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
-TARGET_COPY_OUT_VENDOR := vendor
-TARGET_VENDOR_PROP += ./device/nothing/Spacewar/vendor.prop
-
-BOARD_USES_VENDOR_DLKMIMAGE := true
-TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
-BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
-
-
+# -----------------------------------------------------------------------------
 # Platform
+# -----------------------------------------------------------------------------
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOARD_PLATFORM := lahaina
+TARGET_BOOTLOADER_BOARD_NAME := lahaina
 
-# Recovery
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+# -----------------------------------------------------------------------------
+# A/B + Dynamic partitions
+# -----------------------------------------------------------------------------
+AB_OTA_UPDATER := true
+BOARD_USES_METADATA_PARTITION := true
+
+# -----------------------------------------------------------------------------
+# File systems
+# -----------------------------------------------------------------------------
+BOARD_FLASH_BLOCK_SIZE := 262144
+
+BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
-# Verified Boot
+TARGET_COPY_OUT_VENDOR := vendor
+
+# -----------------------------------------------------------------------------
+# Recovery
+# -----------------------------------------------------------------------------
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+BOARD_HAS_LARGE_FILESYSTEM := true
+
+# Do NOT force vendor_boot or boot recovery here (Unified OrangeFox handles this)
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# UI / TWRP / OrangeFox
+# -----------------------------------------------------------------------------
+TW_THEME := portrait_hdpi
+TARGET_SCREEN_WIDTH := 1080
+TARGET_SCREEN_HEIGHT := 2400
+
+RECOVERY_SDCARD_ON_DATA := true
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+TW_MAX_BRIGHTNESS := 2047
+TW_DEFAULT_BRIGHTNESS := 1200
+
+TW_EXTRA_LANGUAGES := true
+TW_USE_TOOLBOX := true
+TW_INCLUDE_NTFS_3G := true
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
+TARGET_USES_MKE2FS := true
+TW_EXCLUDE_APEX := true
+TW_NO_SCREEN_BLANK := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+
+# -----------------------------------------------------------------------------
+# Crypto / Decryption (very important)
+# -----------------------------------------------------------------------------
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
+TW_USE_FSCRYPT_POLICY := 1
+TW_PREPARE_DATA_MEDIA_EARLY := true
+
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+
+# -----------------------------------------------------------------------------
+# Android 13 / 14 decryption workaround (standard OrangeFox practice)
+# -----------------------------------------------------------------------------
+PLATFORM_SECURITY_PATCH := 2099-12-31
+PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
+
+# -----------------------------------------------------------------------------
+# AVB (system side only, safe for recovery)
+# -----------------------------------------------------------------------------
 BOARD_AVB_ENABLE := true
-BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
 BOARD_AVB_VBMETA_SYSTEM := system system_ext product
 BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
 BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA2048
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
 
-# Crypto
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_CRYPTO_FBE := true
-BOARD_USES_QCOM_FBE_DECRYPTION := true
-BOARD_USES_METADATA_PARTITION := true
-TW_USE_FSCRYPT_POLICY := 1
-TW_PREPARE_DATA_MEDIA_EARLY := true
-PRODUCT_ENFORCE_VINTF_MANIFEST := true
-
-# TWRP specific build flags
-TW_THEME := portrait_hdpi
-TARGET_SCREEN_WIDTH := 1080
-TARGET_SCREEN_HEIGHT := 2400
-RECOVERY_SDCARD_ON_DATA := true
-TARGET_RECOVERY_QCOM_RTC_FIX := true
-TW_EXCLUDE_DEFAULT_USB_INIT := true
-TW_EXTRA_LANGUAGES := true
-TW_INCLUDE_NTFS_3G := true
-TW_USE_TOOLBOX := true
-TW_INPUT_BLACKLIST := "hbtp_vm"
-TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
-TW_MAX_BRIGHTNESS := 2047
-TW_DEFAULT_BRIGHTNESS := 1200
-TWRP_INCLUDE_LOGCAT := true
-TW_INCLUDE_PYTHON := true
-TARGET_USES_LOGD := true
-TARGET_USES_MKE2FS := true
-TW_EXCLUDE_TWRPAPP := true
-TW_OVERRIDE_SYSTEM_PROPS := "ro.build.date.utc;ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
-TW_Y_OFFSET := 20
-TW_H_OFFSET := -20
-TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
-
-# Vibrator
-TW_SUPPORT_INPUT_AIDL_HAPTICS := true
-TW_SKIP_ADDITIONAL_FSTAB := true
-
-TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
-BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
-#TARGET_NO_RECOVERY := true
-TARGET_NO_KERNEL := true
-BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
-#TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
-#TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
-#TARGET_KERNEL_ARCH := arm64
-#TARGET_KERNEL_HEADER_ARCH := arm64
-#TARGET_KERNEL_CLANG_COMPILE := true
-BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
-VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true
-BOARD_PREBUILT_VENDOR_RAMDISK := device/nothing/Spacewar/prebuilt/vendor-ramdisk
-
-
-TARGET_SUPPORTS_64_BIT_APPS := true
+# -----------------------------------------------------------------------------
+# Build relaxations (recovery builds need this)
+# -----------------------------------------------------------------------------
+ALLOW_MISSING_DEPENDENCIES := true
+BUILD_BROKEN_DUP_RULES := true
+BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
