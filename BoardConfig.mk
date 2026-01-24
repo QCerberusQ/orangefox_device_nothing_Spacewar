@@ -164,4 +164,4 @@ VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true
 BOARD_PREBUILT_VENDOR_RAMDISK := device/nothing/Spacewar/prebuilt/vendor-ramdisk
 
 
-TARGET_SUPPORTS_64_BIT_APPS := false
+TARGET_SUPPORTS_64_BIT_APPS := true
