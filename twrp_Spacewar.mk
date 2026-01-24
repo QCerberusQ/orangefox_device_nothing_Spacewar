@@ -4,7 +4,7 @@
 # Codename: Spacewar
 # Recovery type: vendor_boot-as-recovery
 #
-
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 # Inherit TWRP / OrangeFox base
 $(call inherit-product, vendor/twrp/config/common.mk)
 
