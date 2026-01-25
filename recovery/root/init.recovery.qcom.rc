@@ -1,70 +1,15 @@
 import /init.recovery.qcom_decrypt.rc
 
-# -----------------------------------------------------------------------------
-# Init
-# -----------------------------------------------------------------------------
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
-# -----------------------------------------------------------------------------
-# Filesystem
-# -----------------------------------------------------------------------------
 on fs
-    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # vendor_dlkm (CRITICAL)
-    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
-    mkdir /vendor_dlkm
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+on boot
+    setprop sys.usb.config adb
 
-# -----------------------------------------------------------------------------
-# Early FS – scheduler hint
-# -----------------------------------------------------------------------------
-on early-fs
-    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
-    write /proc/sys/kernel/sched_lib_mask_force 255
-
-# -----------------------------------------------------------------------------
-# Post FS – load kernel modules
-# -----------------------------------------------------------------------------
-on post-fs
-    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/fts_tp.ko
-    insmod /vendor_dlkm/lib/modules/msm_drm.ko
-
-# -----------------------------------------------------------------------------
-# Decryption fallback (VERY IMPORTANT)
-# -----------------------------------------------------------------------------
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
-
-# -----------------------------------------------------------------------------
-# Services
-# -----------------------------------------------------------------------------
-service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-# -----------------------------------------------------------------------------
-# Boot
-# -----------------------------------------------------------------------------
-on boot
-    start vendor.qti.vibrator
-    start health-hal-2-1
-    setprop sys.usb.config adb
