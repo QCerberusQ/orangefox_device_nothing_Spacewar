@@ -2,7 +2,7 @@
 # OrangeFox Recovery Project
 # vendorsetup.sh for Nothing Phone (1)
 # Codename: Spacewar
-# Recovery type: vendor_boot-as-recovery (v2)
+# Recovery type: bootimage-as-recovery
 #
 
 # -----------------------------------------------------------------------------
@@ -19,14 +19,14 @@ fi
 export LC_ALL="C"
 
 # -----------------------------------------------------------------------------
-# Device identity (CRITICAL)
+# Device identity
 # -----------------------------------------------------------------------------
 export FOX_BUILD_DEVICE=Spacewar
 export FOX_TARGET_DEVICES=Spacewar,spacewar
 export TARGET_DEVICE_ALT=Spacewar,spacewar
 
 # -----------------------------------------------------------------------------
-# A/B & Virtual A/B
+# A/B
 # -----------------------------------------------------------------------------
 export FOX_VIRTUAL_AB_DEVICE=1
 export FOX_AB_DEVICE=1
@@ -45,11 +45,9 @@ export OF_SCREEN_W=1080
 export OF_STATUS_H=100
 export TW_THEME=portrait_hdpi
 
-# Brightness
 export TW_MAX_BRIGHTNESS=2047
 export TW_DEFAULT_BRIGHTNESS=1200
 
-# Status bar / notch
 export OF_STATUS_INDENT_LEFT=165
 export OF_STATUS_INDENT_RIGHT=48
 export OF_CLOCK_POS=0
@@ -63,7 +61,7 @@ export FOX_ENABLE_APP_MANAGER=1
 export FOX_DELETE_AROMAFM=1
 
 # -----------------------------------------------------------------------------
-# Tooling (alioth-style, SAFE)
+# Tooling
 # -----------------------------------------------------------------------------
 export FOX_USE_BASH_SHELL=1
 export FOX_ASH_IS_BASH=1
@@ -83,18 +81,7 @@ export OF_NO_SPLASH_CHANGE=1
 export OF_DEFAULT_KEYMASTER_VERSION=4.1
 
 # -----------------------------------------------------------------------------
-# Magisk / vbmeta (IMPORTANT)
+# Magisk / vbmeta
 # -----------------------------------------------------------------------------
-# Always patch vbmeta header when patching recovery / vendor_boot
 export FOX_PATCH_VBMETA_FLAG="1"
-
-# Use latest magiskboot
 export FOX_USE_UPDATED_MAGISKBOOT=1
-
-# -----------------------------------------------------------------------------
-# vendor_boot-as-recovery (v2)
-# -----------------------------------------------------------------------------
-if [ "$FOX_VENDOR_BOOT_RECOVERY" = "1" ]; then
-    export FOX_VARIANT="vBaR"
-    export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
-fi
