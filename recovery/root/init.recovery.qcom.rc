@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Import QCOM decrypt support
+# QCOM decrypt
 # -----------------------------------------------------------------------------
 import /init.recovery.qcom_decrypt.rc
 
@@ -11,32 +11,25 @@ on init
     setprop sys.usb.configfs 1
 
 # -----------------------------------------------------------------------------
-# Filesystem setup
+# FS
 # -----------------------------------------------------------------------------
 on fs
-    # Library path (alioth-style, safe)
-    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-
-    # bootdevice symlink (required)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # vendor_dlkm mount (CRITICAL)
-    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
-
 # -----------------------------------------------------------------------------
-# Early FS (scheduler hint – harmless, useful)
-# -----------------------------------------------------------------------------
-on early-fs
-    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
-    write /proc/sys/kernel/sched_lib_mask_force 255
-
-# -----------------------------------------------------------------------------
-# Post-FS
+# Post-FS (DOĞRU FAZ)
 # -----------------------------------------------------------------------------
 on post-fs
-    # Touch / display / audio related modules
+    # vendor_dlkm
+    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    mkdir /vendor_dlkm
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+    # wait for required modules
+    wait /vendor_dlkm/lib/modules/fts_tp.ko
+
+    # touch / display / audio
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
@@ -44,9 +37,8 @@ on post-fs
     insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
 
 # -----------------------------------------------------------------------------
-# Decryption fallback (alioth model – IMPORTANT)
+# Decryption fallback (CRITICAL)
 # -----------------------------------------------------------------------------
-# Some ROMs do not set crypto.ready early enough on flashed recovery
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
 
@@ -55,6 +47,4 @@ on property:prepdecrypt.vendor_mounted=1
 # -----------------------------------------------------------------------------
 on boot
     setprop sys.usb.config adb
-
-    # Debug marker
-    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[recovery] vendor_dlkm + modules loaded' > /dev/kmsg"
+    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[recovery] vendor_dlkm mounted, modules loaded' > /dev/kmsg"
