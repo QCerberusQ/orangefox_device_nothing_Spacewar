@@ -4,7 +4,9 @@
 
 LOCAL_PATH := device/nothing/Spacewar
 
+# -----------------------------------------------------------------------------
 # Base
+# -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
@@ -87,7 +89,7 @@ TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 1200
 
 # -----------------------------------------------------------------------------
-# Vendor modules
+# Vendor DLKM modules (bootimage modelde OK)
 # -----------------------------------------------------------------------------
 TW_LOAD_VENDOR_MODULES := \
     q6_pdr_dlkm.ko \
@@ -101,7 +103,7 @@ TW_LOAD_VENDOR_MODULES := \
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
 # -----------------------------------------------------------------------------
-# A/B
+# A/B partitions (vendor_boot YOK)
 # -----------------------------------------------------------------------------
 AB_OTA_UPDATER := true
 
@@ -114,8 +116,7 @@ AB_OTA_PARTITIONS += \
     system_ext \
     vbmeta \
     vbmeta_system \
-    vendor \
-    vendor_boot
+    vendor
 
 # -----------------------------------------------------------------------------
 # Crypto
@@ -165,25 +166,3 @@ PRODUCT_PACKAGES += \
 # VINTF
 # -----------------------------------------------------------------------------
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
-
-# -----------------------------------------------------------------------------
-# vendor_boot (OrangeFox v2 – alioth model)
-# -----------------------------------------------------------------------------
-ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
-
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
-
-PRODUCT_PACKAGES += \
-    linker.vendor_ramdisk \
-    e2fsck.vendor_ramdisk \
-    resize2fs.vendor_ramdisk \
-    fsck.vendor_ramdisk \
-    tune2fs.vendor_ramdisk
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery/root/recovery.fstab:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.qcom
-
-endif
-# end vendor_boot
