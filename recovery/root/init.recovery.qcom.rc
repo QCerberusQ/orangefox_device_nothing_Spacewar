@@ -1,6 +1,3 @@
-# -----------------------------------------------------------------------------
-# QCOM decrypt
-# -----------------------------------------------------------------------------
 import /init.recovery.qcom_decrypt.rc
 
 # -----------------------------------------------------------------------------
@@ -11,40 +8,63 @@ on init
     setprop sys.usb.configfs 1
 
 # -----------------------------------------------------------------------------
-# FS
+# Filesystem
 # -----------------------------------------------------------------------------
 on fs
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
+
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-# -----------------------------------------------------------------------------
-# Post-FS (DOĞRU FAZ)
-# -----------------------------------------------------------------------------
-on post-fs
-    # vendor_dlkm
+    # vendor_dlkm (CRITICAL)
     wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
     mkdir /vendor_dlkm
     mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # wait for required modules
-    wait /vendor_dlkm/lib/modules/fts_tp.ko
-
-    # touch / display / audio
-    insmod /vendor_dlkm/lib/modules/fts_tp.ko
-    insmod /vendor_dlkm/lib/modules/msm_drm.ko
-    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+# -----------------------------------------------------------------------------
+# Early FS – scheduler hint
+# -----------------------------------------------------------------------------
+on early-fs
+    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
+    write /proc/sys/kernel/sched_lib_mask_force 255
 
 # -----------------------------------------------------------------------------
-# Decryption fallback (CRITICAL)
+# Post FS – load kernel modules
+# -----------------------------------------------------------------------------
+on post-fs
+    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
+    insmod /vendor_dlkm/lib/modules/msm_drm.ko
+
+# -----------------------------------------------------------------------------
+# Decryption fallback (VERY IMPORTANT)
 # -----------------------------------------------------------------------------
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
 
 # -----------------------------------------------------------------------------
+# Services
+# -----------------------------------------------------------------------------
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
+
+service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
+
+# -----------------------------------------------------------------------------
 # Boot
 # -----------------------------------------------------------------------------
 on boot
+    start vendor.qti.vibrator
+    start health-hal-2-1
     setprop sys.usb.config adb
-    exec u:r:recovery:s0 -- /system/bin/sh -c "echo '[recovery] vendor_dlkm mounted, modules loaded' > /dev/kmsg"
