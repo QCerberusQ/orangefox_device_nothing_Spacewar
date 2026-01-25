@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 
-# -----------------------------------------------------------------------------
-# Global / build sanity
-# -----------------------------------------------------------------------------
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
 
@@ -70,20 +67,25 @@ BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 
 # -----------------------------------------------------------------------------
-# Kernel / boot image
+# Kernel / boot image (PREBUILT)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_SEPARATED_DTBO := true
 
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+OF_FORCE_PREBUILT_KERNEL := 1
+
+# -----------------------------------------------------------------------------
+# Boot / vendor_boot headers
+# -----------------------------------------------------------------------------
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_VENDOR_BOOTIMAGE_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 # -----------------------------------------------------------------------------
-# IMPORTANT:
-# Kernel cmdline is NOT used in v2 (vendor_boot handles cmdline)
+# NO kernel cmdline (vendor_boot handles it)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_CMDLINE :=
 
@@ -106,7 +108,7 @@ VENDOR_CMDLINE += androidboot.init_fatal_reboot_target=recovery
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 
 # -----------------------------------------------------------------------------
-# Prebuilt vendor_boot (REQUIRED – v2)
+# Prebuilt vendor_boot (BASE)
 # -----------------------------------------------------------------------------
 BOARD_PREBUILT_VENDOR_BOOTIMAGE := $(DEVICE_PATH)/prebuilt/vendor_boot.img
 
@@ -118,21 +120,12 @@ BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
 
 # -----------------------------------------------------------------------------
-# Kernel build (UNCHANGED – user requested same paths)
-# -----------------------------------------------------------------------------
-TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
-TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
-TARGET_KERNEL_CLANG_COMPILE := true
-
-# -----------------------------------------------------------------------------
 # Metadata
 # -----------------------------------------------------------------------------
 BOARD_USES_METADATA_PARTITION := true
 
 # -----------------------------------------------------------------------------
-# File systems / partitions
+# File systems
 # -----------------------------------------------------------------------------
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
@@ -151,7 +144,7 @@ TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 
 # -----------------------------------------------------------------------------
-# Recovery / display
+# Recovery / UI
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 TARGET_USERIMAGES_USE_EXT4 := true
@@ -188,7 +181,7 @@ PLATFORM_VERSION := 99.87.36
 PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 
 # -----------------------------------------------------------------------------
-# OrangeFox / TWRP UI
+# OrangeFox UI
 # -----------------------------------------------------------------------------
 TW_THEME := portrait_hdpi
 TARGET_SCREEN_WIDTH := 1080
