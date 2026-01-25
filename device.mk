@@ -73,3 +73,84 @@ PRODUCT_PACKAGES_DEBUG += \
 
 # -----------------------------------------------------------------------------
 # TWRP / OrangeFox UI & tools
+# -----------------------------------------------------------------------------
+TW_THEME := portrait_hdpi
+RECOVERY_SDCARD_ON_DATA := true
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+TW_EXCLUDE_DEFAULT_USB_INIT := true
+TW_EXTRA_LANGUAGES := true
+TW_INCLUDE_NTFS_3G := true
+TW_USE_TOOLBOX := true
+TW_INCLUDE_RESETPROP := true
+TW_INCLUDE_REPACKTOOLS := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
+TARGET_USES_MKE2FS := true
+TW_NO_SCREEN_BLANK := true
+TW_EXCLUDE_APEX := true
+TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
+TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
+
+# -----------------------------------------------------------------------------
+# Crypto / Decryption
+# -----------------------------------------------------------------------------
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+
+PRODUCT_PACKAGES += \
+    android.system.keystore2 \
+    qcom_decrypt \
+    qcom_decrypt_fbe
+
+# -----------------------------------------------------------------------------
+# Vendor DLKM modules (STABLE SET)
+# -----------------------------------------------------------------------------
+TW_LOAD_VENDOR_MODULES := \
+    modules.load \
+    adsp_loader_dlkm.ko \
+    msm_drm.ko \
+    q6_notifier_dlkm.ko \
+    q6_pdr_dlkm.ko \
+    sensors_ssc.ko \
+    qti_battery_charger_main.ko \
+    fts_tp.ko
+
+TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
+
+# -----------------------------------------------------------------------------
+# Display / Recovery libraries
+# -----------------------------------------------------------------------------
+TARGET_RECOVERY_DEVICE_MODULES += \
+    libandroidicu \
+    libdisplayconfig.qti \
+    libion \
+    vendor.display.config@1.0 \
+    vendor.display.config@2.0
+
+RECOVERY_LIBRARY_SOURCE_FILES += \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/libdisplayconfig.qti.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@1.0.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
+
+# -----------------------------------------------------------------------------
+# Health HAL
+# -----------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    android.hardware.health@2.1-impl \
+    android.hardware.health@2.1-service \
+    libhealthd.$(PRODUCT_PLATFORM)
+
+# -----------------------------------------------------------------------------
+# VINTF
+# -----------------------------------------------------------------------------
+PRODUCT_ENFORCE_VINTF_MANIFEST := true
+
+# -----------------------------------------------------------------------------
+# Haptics fix
+# -----------------------------------------------------------------------------
+TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
