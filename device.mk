@@ -5,9 +5,10 @@
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
-# Base
+# Base product configs
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
@@ -27,8 +28,7 @@ PRODUCT_PACKAGES += \
 # Boot control HAL
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
-    android.hardware.boot@1.1-impl \
-    android.hardware.boot@1.1-service \
+    android.hardware.boot@1.1-impl-qti.recovery \
     bootctrl.lahaina.recovery
 
 PRODUCT_PACKAGES_DEBUG += \
@@ -78,48 +78,32 @@ TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+
 TWRP_INCLUDE_LOGCAT := true
 TARGET_USES_LOGD := true
 TARGET_USES_MKE2FS := true
 TW_NO_SCREEN_BLANK := true
-TW_EXCLUDE_APEX := true
+
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
-TW_MAX_BRIGHTNESS := 2047
-TW_DEFAULT_BRIGHTNESS := 1200
 
 # -----------------------------------------------------------------------------
-# Vendor DLKM modules (bootimage modelde OK)
+# Vendor kernel modules (vendor_dlkm)
 # -----------------------------------------------------------------------------
 TW_LOAD_VENDOR_MODULES := \
-    q6_pdr_dlkm.ko \
-    q6_notifier_dlkm.ko \
-    snd_event_dlkm.ko \
-    apr_dlkm.ko \
+    goodix_fp.ko \
     adsp_loader_dlkm.ko \
     msm_drm.ko \
+    q6_notifier_dlkm.ko \
+    q6_pdr_dlkm.ko \
+    sensors_ssc.ko \
+    qti_battery_charger_main.ko \
     fts_tp.ko
 
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
 # -----------------------------------------------------------------------------
-# A/B partitions (vendor_boot YOK)
-# -----------------------------------------------------------------------------
-AB_OTA_UPDATER := true
-
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    odm \
-    product \
-    system \
-    system_ext \
-    vbmeta \
-    vbmeta_system \
-    vendor
-
-# -----------------------------------------------------------------------------
-# Crypto
+# Crypto / Decryption
 # -----------------------------------------------------------------------------
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
@@ -136,8 +120,8 @@ TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_DEVICE_MODULES += \
     libandroidicu \
-    libdisplayconfig.qti \
     libion \
+    libdisplayconfig.qti \
     vendor.display.config@1.0 \
     vendor.display.config@2.0
 
@@ -160,7 +144,8 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
-    android.hardware.health@2.1-service
+    android.hardware.health@2.1-service \
+    libhealthd.$(PRODUCT_PLATFORM)
 
 # -----------------------------------------------------------------------------
 # VINTF
