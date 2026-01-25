@@ -1,15 +1,42 @@
+# -----------------------------------------------------------------------------
+# Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
+# boot.img as recovery (Android 12+ SAFE)
+# -----------------------------------------------------------------------------
+
 import /init.recovery.qcom_decrypt.rc
 
+# -----------------------------------------------------------------------------
+# Init
+# -----------------------------------------------------------------------------
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
+# -----------------------------------------------------------------------------
+# Filesystem
+# -----------------------------------------------------------------------------
 on fs
+    # bootdevice symlink (REQUIRED)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-on boot
-    setprop sys.usb.config adb
+    # vendor_dlkm mount (CRITICAL)
+    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    mkdir /vendor_dlkm
+    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
+# -----------------------------------------------------------------------------
+# Decryption fallback (IMPORTANT)
+# -----------------------------------------------------------------------------
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
+
+# Extra safety for some ROMs
+on property:ro.crypto.state=encrypted
+    setprop crypto.ready 1
+
+# -----------------------------------------------------------------------------
+# Boot
+# -----------------------------------------------------------------------------
+on boot
+    setprop sys.usb.config adb
