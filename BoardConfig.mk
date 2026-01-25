@@ -45,8 +45,7 @@ AB_OTA_PARTITIONS += \
     system_ext \
     vbmeta \
     vbmeta_system \
-    vendor \
-    vendor_boot
+    vendor
 
 # -----------------------------------------------------------------------------
 # Platform
@@ -57,67 +56,50 @@ TARGET_NO_BOOTLOADER := true
 TARGET_USES_UEFI := true
 
 # -----------------------------------------------------------------------------
-# OrangeFox vendor_boot recovery (ALIOTH MODEL)
+# Recovery = boot.img
 # -----------------------------------------------------------------------------
-FOX_VENDOR_BOOT_RECOVERY := 1
-
-BOARD_USES_RECOVERY_AS_BOOT :=
-TARGET_NO_RECOVERY := true
-BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
-BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+BOARD_USES_RECOVERY_AS_BOOT := true
+TARGET_NO_RECOVERY := false
 
 # -----------------------------------------------------------------------------
-# Kernel / boot image (PREBUILT)
+# Kernel (PREBUILT)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x00000000
+
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image
+TARGET_FORCE_PREBUILT_KERNEL := true
+
 BOARD_KERNEL_SEPARATED_DTBO := true
-
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
-OF_FORCE_PREBUILT_KERNEL := 1
+BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
 # -----------------------------------------------------------------------------
-# Boot / vendor_boot headers
+# Boot image header
 # -----------------------------------------------------------------------------
-BOARD_BOOT_HEADER_VERSION := 4
-BOARD_VENDOR_BOOTIMAGE_HEADER_VERSION := 4
+BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 # -----------------------------------------------------------------------------
-# NO kernel cmdline (vendor_boot handles it)
+# Kernel cmdline (BOOTIMAGE MODEL)
 # -----------------------------------------------------------------------------
-BOARD_KERNEL_CMDLINE :=
+BOARD_KERNEL_CMDLINE := console=ttyMSM0,115200n8
+BOARD_KERNEL_CMDLINE += androidboot.hardware=qcom
+BOARD_KERNEL_CMDLINE += androidboot.console=ttyMSM0
+BOARD_KERNEL_CMDLINE += androidboot.memcg=1
+BOARD_KERNEL_CMDLINE += androidboot.usbcontroller=a600000.dwc3
+BOARD_KERNEL_CMDLINE += cgroup.memory=nokmem,nosocket
+BOARD_KERNEL_CMDLINE += earlycon=msm_geni_serial,0x880000
+BOARD_KERNEL_CMDLINE += lpm_levels.sleep_disabled=1
+BOARD_KERNEL_CMDLINE += msm_rtb.filter=0x237
+BOARD_KERNEL_CMDLINE += service_locator.enable=1
+BOARD_KERNEL_CMDLINE += pcie_ports=compat
+BOARD_KERNEL_CMDLINE += swiotlb=0
 
 # -----------------------------------------------------------------------------
-# vendor_boot cmdline (alioth-style)
+# Ramdisk
 # -----------------------------------------------------------------------------
-VENDOR_CMDLINE := console=ttyMSM0,115200n8
-VENDOR_CMDLINE += androidboot.hardware=qcom
-VENDOR_CMDLINE += androidboot.console=ttyMSM0
-VENDOR_CMDLINE += androidboot.memcg=1
-VENDOR_CMDLINE += lpm_levels.sleep_disabled=1
-VENDOR_CMDLINE += msm_rtb.filter=0x237
-VENDOR_CMDLINE += service_locator.enable=1
-VENDOR_CMDLINE += androidboot.usbcontroller=a600000.dwc3
-VENDOR_CMDLINE += swiotlb=2048
-VENDOR_CMDLINE += cgroup.memory=nokmem,nosocket
-VENDOR_CMDLINE += reboot=panic_warm
-VENDOR_CMDLINE += androidboot.init_fatal_reboot_target=recovery
-
-BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
-
-# -----------------------------------------------------------------------------
-# Prebuilt vendor_boot (BASE)
-# -----------------------------------------------------------------------------
-BOARD_PREBUILT_VENDOR_BOOTIMAGE := $(DEVICE_PATH)/prebuilt/vendor_boot.img
-
-# -----------------------------------------------------------------------------
-# DTB
-# -----------------------------------------------------------------------------
-TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
-BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
+BOARD_RAMDISK_USE_LZ4 := true
 
 # -----------------------------------------------------------------------------
 # Metadata
@@ -129,7 +111,6 @@ BOARD_USES_METADATA_PARTITION := true
 # -----------------------------------------------------------------------------
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
-BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
 
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
@@ -144,12 +125,11 @@ TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 
 # -----------------------------------------------------------------------------
-# Recovery / UI
+# Recovery UI
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
-BOARD_RAMDISK_USE_LZ4 := true
 
 # -----------------------------------------------------------------------------
 # AVB
@@ -163,7 +143,7 @@ BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
 
 # -----------------------------------------------------------------------------
-# Crypto / FBE
+# Crypto
 # -----------------------------------------------------------------------------
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
