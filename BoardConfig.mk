@@ -149,7 +149,7 @@ PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
 PLATFORM_VERSION := 99.87.36
 PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-
+PLATFORM_SECURITY_PATCH_TIMESTAMP := 4102444800
 # -----------------------------------------------------------------------------
 # UI
 # -----------------------------------------------------------------------------
