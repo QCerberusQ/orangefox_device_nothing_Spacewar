@@ -1,7 +1,11 @@
 #
-# BoardConfig.mk – Spacewar (boot.img-as-recovery)
+# BoardConfig.mk – Nothing Phone (1) / Spacewar
+# OrangeFox Recovery – boot.img as recovery (STABLE)
 #
 
+# -----------------------------------------------------------------------------
+# Build sanity
+# -----------------------------------------------------------------------------
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
 
@@ -42,7 +46,8 @@ AB_OTA_PARTITIONS += \
     system_ext \
     vbmeta \
     vbmeta_system \
-    vendor
+    vendor \
+    vendor_boot
 
 # -----------------------------------------------------------------------------
 # Platform
@@ -51,37 +56,39 @@ BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOARD_PLATFORM := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel (PREBUILT)
+# Kernel (SOURCE – REQUIRED)
 # -----------------------------------------------------------------------------
-TARGET_NO_KERNEL := true
-TARGET_NO_KERNEL_HEADERS := true
-
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image
-TARGET_FORCE_PREBUILT_KERNEL := true
-
-BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_PAGESIZE := 4096
+
+TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
+TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
+TARGET_KERNEL_CLANG_COMPILE := true
+
+# DTB / DTBO
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
-# -----------------------------------------------------------------------------
-# Boot image header
-# -----------------------------------------------------------------------------
+# Boot header
 BOARD_BOOT_HEADER_VERSION := 4
-BOARD_MKBOOTIMG_ARGS += --header_version 4
+BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 # -----------------------------------------------------------------------------
-# Kernel cmdline (STABLE)
+# Kernel cmdline (SAFE / VERIFIED)
 # -----------------------------------------------------------------------------
-BOARD_KERNEL_CMDLINE := console=ttyMSM0,115200n8
-BOARD_KERNEL_CMDLINE += androidboot.hardware=qcom
+BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200n8
 BOARD_KERNEL_CMDLINE += androidboot.console=ttyMSM0
+BOARD_KERNEL_CMDLINE += androidboot.hardware=qcom
 BOARD_KERNEL_CMDLINE += androidboot.memcg=1
+BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 BOARD_KERNEL_CMDLINE += androidboot.usbcontroller=a600000.dwc3
 BOARD_KERNEL_CMDLINE += cgroup.memory=nokmem,nosocket
+BOARD_KERNEL_CMDLINE += earlycon=msm_geni_serial,0x880000
 BOARD_KERNEL_CMDLINE += lpm_levels.sleep_disabled=1
 BOARD_KERNEL_CMDLINE += msm_rtb.filter=0x237
+BOARD_KERNEL_CMDLINE += pcie_ports=compat
 BOARD_KERNEL_CMDLINE += service_locator.enable=1
 BOARD_KERNEL_CMDLINE += swiotlb=0
 
@@ -91,24 +98,32 @@ BOARD_KERNEL_CMDLINE += swiotlb=0
 BOARD_RAMDISK_USE_LZ4 := true
 
 # -----------------------------------------------------------------------------
+# Kernel modules (CRITICAL)
+# -----------------------------------------------------------------------------
+NEED_KERNEL_MODULE_RECOVERY := true
+
+# -----------------------------------------------------------------------------
 # Metadata
 # -----------------------------------------------------------------------------
 BOARD_USES_METADATA_PARTITION := true
 
 # -----------------------------------------------------------------------------
-# File systems
+# File systems / partitions
 # -----------------------------------------------------------------------------
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
 
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
 
+# IMPORTANT: Spacewar vendor is ext4 for recovery
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
+# vendor_dlkm
 BOARD_USES_VENDOR_DLKMIMAGE := true
 TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
@@ -117,12 +132,12 @@ BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 # Recovery
 # -----------------------------------------------------------------------------
 BOARD_USES_RECOVERY_AS_BOOT := true
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
 # -----------------------------------------------------------------------------
-# AVB
+# AVB (REQUIRED – FIXED)
 # -----------------------------------------------------------------------------
 BOARD_AVB_ENABLE := true
 BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
@@ -131,7 +146,14 @@ BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
 BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA2048
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
-BOARD_HAS_LARGE_FILESYSTEM := true
+
+# -----------------------------------------------------------------------------
+# Android 14 decryption spoof
+# -----------------------------------------------------------------------------
+PLATFORM_SECURITY_PATCH := 2099-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 
 # -----------------------------------------------------------------------------
 # Crypto / FBE
@@ -143,13 +165,6 @@ TW_USE_FSCRYPT_POLICY := 1
 TW_PREPARE_DATA_MEDIA_EARLY := true
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
-# -----------------------------------------------------------------------------
-# Android 14 spoof
-# -----------------------------------------------------------------------------
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-PLATFORM_VERSION := 99.87.36
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 # -----------------------------------------------------------------------------
 # UI
 # -----------------------------------------------------------------------------
