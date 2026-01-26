@@ -77,7 +77,7 @@ TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 # -----------------------------------------------------------------------------
 # DTB / DTBO (Alioth Standardı)
 # -----------------------------------------------------------------------------
-BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+#BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 
 # DTBO Dosyasının Yeri
@@ -220,3 +220,9 @@ BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 # AVB Anahtarlarını Taşı - EKLENECEK
 BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
+
+# 1. Recovery Ramdisk'in vendor_boot içinde olduğunu kesinleştirir:
+VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true
+
+# 2. DTB dosyasını boot.img yerine vendor_boot.img içine gömer:
+BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
