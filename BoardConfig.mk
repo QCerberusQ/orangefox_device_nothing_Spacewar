@@ -77,7 +77,7 @@ TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 # -----------------------------------------------------------------------------
 # DTB / DTBO (Alioth Standardı)
 # -----------------------------------------------------------------------------
-#BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 
 # DTBO Dosyasının Yeri
