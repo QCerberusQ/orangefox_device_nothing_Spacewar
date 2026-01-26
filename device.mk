@@ -17,7 +17,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 # -----------------------------------------------------------------------------
 # Kernel (SOURCE – REQUIRED)
 # -----------------------------------------------------------------------------
-include kernel/nothing/sm7325/Android.mk
+#include kernel/nothing/sm7325/Android.mk
 
 # -----------------------------------------------------------------------------
 # A/B postinstall
