@@ -193,3 +193,8 @@ TW_EXCLUDE_TWRPAPP := true
 # -----------------------------------------------------------------------------
 TW_SUPPORT_INPUT_AIDL_HAPTICS := true
 TW_SKIP_ADDITIONAL_FSTAB := true
+
+#Vendorboot
+
+BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
