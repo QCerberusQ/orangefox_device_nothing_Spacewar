@@ -194,7 +194,15 @@ TW_EXCLUDE_TWRPAPP := true
 TW_SUPPORT_INPUT_AIDL_HAPTICS := true
 TW_SKIP_ADDITIONAL_FSTAB := true
 
-#Vendorboot
-
+# -----------------------------------------------------------------------------
+# Vendor Boot & GKI Configuration (Alioth Style)
+# -----------------------------------------------------------------------------
+# Recovery kaynaklarını vendor_boot'a taşı (Zaten eklemiştin, kalsın)
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+
+# GKI (Generic Kernel Image) Yapısı - EKLENECEK
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
+
+# AVB Anahtarlarını Taşı - EKLENECEK
+BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
