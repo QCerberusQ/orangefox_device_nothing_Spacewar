@@ -53,7 +53,7 @@ AB_OTA_PARTITIONS += \
 TARGET_BOARD_PLATFORM := lahaina
 BOARD_USES_QCOM_HARDWARE := true
 
-# Unified Build için Header v4 Zorluyoruz (Cihaz v3 olsa bile)
+# Unified Build için Header v4 Zorluyoruz
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
@@ -86,7 +86,8 @@ BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
 # DTB Dosyası (Klasör yerine direkt dosya vererek BootImg hatasını aşıyoruz)
-BOARD_PREBUILT_DTBIMAGE := $(KERNEL_PATH)/dtbs/Spacewar.dtb
+TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
+BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
 # Boot.img içine DTB koyma komutunu kapattık (Vendor Boot olduğu için)
 # BOARD_INCLUDE_DTB_IN_BOOTIMG := true
