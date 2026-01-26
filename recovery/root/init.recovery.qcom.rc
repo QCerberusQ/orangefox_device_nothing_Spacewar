@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# boot.img as recovery (Android 12+ SAFE)
+# Optimized for Vendor Boot & Module Loading
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
@@ -12,21 +12,46 @@ on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
+    # Firmware klasörlerini oluştur (Decryption için gerekli olabilir)
+    mkdir /firmware
+    mkdir /vendor/firmware_mnt
+
 # -----------------------------------------------------------------------------
-# Filesystem
+# Filesystem & Module Loading (KRİTİK BÖLÜM)
 # -----------------------------------------------------------------------------
 on fs
-    # bootdevice symlink (REQUIRED)
+    # 1. Bootdevice Symlink (Sistemin diskleri bulması için şart)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # vendor_dlkm mount (CRITICAL)
-    wait /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix}
+    # 2. Vendor DLKM'yi Mount Et
+    # (Önce klasörü oluştur, sonra bölümü bağla)
     mkdir /vendor_dlkm
-    mount erofs /dev/block/mapper/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+    wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
+    mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+
+    # 3. Kernel Modüllerini Yükle (device.mk listesine göre)
+    # Dokunmatik ve ekranın çalışması için bu sıra çok önemli!
+    
+    # Temel Grafikler ve DRM
+    insmod /vendor_dlkm/lib/modules/msm_drm.ko
+    
+    # İşlemci ve DSP Haberleşmesi
+    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
+    
+    # Sensörler (Bazen ekran döndürme için gerekir)
+    insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
+    
+    # Pil ve Şarj (Recovery'de şarj göstergesi için)
+    insmod /vendor_dlkm/lib/modules/qti_battery_charger_main.ko
+    
+    # DOKUNMATİK EKRAN (En kritiği bu)
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
 
 # -----------------------------------------------------------------------------
-# Decryption fallback (IMPORTANT)
+# Decryption fallback
 # -----------------------------------------------------------------------------
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
