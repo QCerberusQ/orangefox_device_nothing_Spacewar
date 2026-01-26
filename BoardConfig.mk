@@ -75,6 +75,8 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 #BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 #TARGET_NO_DTBO := true
+TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
+BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
 # Boot header
 BOARD_BOOT_HEADER_VERSION := 4
