@@ -1,6 +1,7 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
-# Fixed for Header v3 Compliance (Ramdisk in Boot)
+# UNIFIED / VENDOR_BOOT EDITION (COMPLETE)
+# Includes: VendorDLKM, Real CMDLINE, Decryption, Header v4 Override
 #
 
 # -----------------------------------------------------------------------------
@@ -30,26 +31,43 @@ TARGET_SUPPORTS_64_BIT_APPS := true
 TARGET_IS_64_BIT := true
 
 # -----------------------------------------------------------------------------
-# Bootloader & Kernel (Header v3 Config)
+# Assert & OTA
+# -----------------------------------------------------------------------------
+TARGET_OTA_ASSERT_DEVICE := Spacewar
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS += \
+    boot \
+    dtbo \
+    odm \
+    product \
+    system \
+    system_ext \
+    vbmeta \
+    vbmeta_system \
+    vendor \
+    vendor_boot
+
+# -----------------------------------------------------------------------------
+# Platform & Bootloader (UNIFIED LOGIC)
 # -----------------------------------------------------------------------------
 TARGET_BOARD_PLATFORM := lahaina
 BOARD_USES_QCOM_HARDWARE := true
 
-# Header Version 3 (Magisk ile doğrulandı)
-BOARD_BOOT_HEADER_VERSION := 3
+# Unified Build için Header v4 Zorluyoruz (Cihaz v3 olsa bile)
+BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
-# Sayfa Boyutu
+# -----------------------------------------------------------------------------
+# Kernel & CMDLINE (REAL DATA)
+# -----------------------------------------------------------------------------
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_IMAGE_NAME := Image
 
-# CMDLINE (Magisk ile doğrulandı)
+# Magiskboot Loglarından Alınan GERÇEK Kodlar (Ölümcül Önemli)
 BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1
 
-# -----------------------------------------------------------------------------
-# Kernel (Prebuilt + Source Headers)
-# -----------------------------------------------------------------------------
+# Kernel Kaynakları
 KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
 
@@ -60,23 +78,25 @@ TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 # -----------------------------------------------------------------------------
 # DTB / DTBO Configuration
 # -----------------------------------------------------------------------------
-# Header 3 olduğu için DTB boot içine de eklenebilir, 
-# ancak vendor_boot içinde DTB'yi tutmak için aşağıdaki ayar kalabilir.
-BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+# Vendor Boot yapısı için DTB ayarları
+BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 
 # DTBO Dosyası
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
-# DTB Klasörü (Spacewar.dtb)
-BOARD_PREBUILT_DTBIMAGE_DIR := $(KERNEL_PATH)/dtbs
+# DTB Dosyası (Klasör yerine direkt dosya vererek BootImg hatasını aşıyoruz)
+BOARD_PREBUILT_DTBIMAGE := $(KERNEL_PATH)/dtbs/Spacewar.dtb
+
+# Boot.img içine DTB koyma komutunu kapattık (Vendor Boot olduğu için)
+# BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 
 # -----------------------------------------------------------------------------
 # Partitions & Filesystems
 # -----------------------------------------------------------------------------
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
-# Header v3'te ramdisk boot.img içindedir, bu yüzden boot partition boyutu önemlidir.
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
 
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
@@ -87,45 +107,64 @@ BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
-# Vendor Boot (Sadece DTB ve Modüller için kalır)
-TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
-BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 100663296
+# Vendor DLKM (Senin istediğin eksik parça)
+BOARD_USES_VENDOR_DLKMIMAGE := true
+TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
+BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 
-# Ramdisk Sıkıştırma
+# Vendor Boot & Ramdisk
+TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
 BOARD_RAMDISK_USE_LZ4 := true
 
 # -----------------------------------------------------------------------------
-# Recovery (Header v3: Recovery as Boot)
+# Recovery Resources (VENDOR_BOOT MODE)
 # -----------------------------------------------------------------------------
-# DÜZELTME: Header 3 olduğu için Ramdisk BOOT.IMG içindedir.
-BOARD_USES_RECOVERY_AS_BOOT := true
+# Alioth/Unified Stili: Recovery kaynaklarını vendor_boot'a zorla
+BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true
 
-# HATA VEREN KOMUTLAR SİLİNDİ:
-# BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true  <-- SİLİNDİ
-# BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true   <-- SİLİNDİ
-# VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true               <-- SİLİNDİ
+# GSI AVB Anahtarları
+BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
 
 # -----------------------------------------------------------------------------
-# Recovery UI & Crypto
+# Crypto / FBE
 # -----------------------------------------------------------------------------
-TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
-BOARD_USES_METADATA_PARTITION := true
-
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
 TW_USE_FSCRYPT_POLICY := 1
+TW_PREPARE_DATA_MEDIA_EARLY := true
+PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
+# Android 14 Spoofing
+PLATFORM_SECURITY_PATCH := 2099-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
+
+# -----------------------------------------------------------------------------
+# UI & Tools
+# -----------------------------------------------------------------------------
 TW_THEME := portrait_hdpi
 RECOVERY_SDCARD_ON_DATA := true
+TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_INCLUDE_NTFS_3G := true
 TW_USE_TOOLBOX := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
+
+# Ekran Parlaklığı ve Haptics
 TW_BRIGHTNESS_PATH :=
 TW_NO_SCREEN_BLANK := true
+TW_SUPPORT_INPUT_AIDL_HAPTICS := true
+TW_SKIP_ADDITIONAL_FSTAB := true
+
+# Loglama
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
+TARGET_USES_MKE2FS := true
+TW_EXCLUDE_TWRPAPP := true
 
 # -----------------------------------------------------------------------------
 # AVB
