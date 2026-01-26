@@ -12,7 +12,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
-
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 # -----------------------------------------------------------------------------
 # Kernel (SOURCE – REQUIRED)
 # -----------------------------------------------------------------------------
@@ -155,3 +156,20 @@ PRODUCT_ENFORCE_VINTF_MANIFEST := true
 # Haptics fix
 # -----------------------------------------------------------------------------
 TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+
+
+# -----------------------------------------------------------------------------
+# Vendor_boot, Ramdisk
+# -----------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    linker.vendor_ramdisk \
+    e2fsck.vendor_ramdisk \
+    fsck.vendor_ramdisk \
+    tune2fs.vendor_ramdisk
+
+# -----------------------------------------------------------------------------
+# Snapshot
+# -----------------------------------------------------------------------------
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.virtual_ab.skip_snapshot_creation=true \
+    ro.virtual_ab.skip_verify_source_hash=true
