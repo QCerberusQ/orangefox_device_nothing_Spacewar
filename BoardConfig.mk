@@ -1,6 +1,6 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
-# Fixed for Header v3 & Real Cmdline
+# Fixed for Header v3 & Vendor Definition
 #
 
 # -----------------------------------------------------------------------------
@@ -35,16 +35,16 @@ TARGET_IS_64_BIT := true
 TARGET_BOARD_PLATFORM := lahaina
 BOARD_USES_QCOM_HARDWARE := true
 
-# Header Version 3 (Loglardan doğrulandı!)
+# Header Version 3 (Magiskboot ile doğrulandı)
 BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
-# Sayfa Boyutu (Loglardan doğrulandı!)
+# Sayfa Boyutu
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_IMAGE_NAME := Image
 
-# CMDLINE (Loglardan kopyalandı!)
+# CMDLINE (Magiskboot ile doğrulandı)
 BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1
 
 # -----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels
 KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
 
-# Decryption Header'ları için kaynak kod (Github Action'da indiriliyor)
+# Decryption Header'ları için kaynak kod
 TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
 TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 
@@ -79,7 +79,16 @@ BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+
+# Vendor Image Ayarları (EKSİK OLAN KISIM BURASIYDI)
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_COPY_OUT_VENDOR := vendor
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
+
+# vendor_dlkm (Varsa ekleyelim, yoksa zarar gelmez)
+BOARD_USES_VENDOR_DLKMIMAGE := true
+TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
+BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 
 # Vendor Boot & Ramdisk
 TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
