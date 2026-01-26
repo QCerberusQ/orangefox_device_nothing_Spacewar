@@ -58,28 +58,29 @@ BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOARD_PLATFORM := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel (SOURCE – REQUIRED)
+# Kernel (HİBRİT YAPILANDIRMA)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_PAGESIZE := 4096
 
+# 1. BOOT İÇİN: Lineage Kernel (Cihazın açılmasını garanti eder)
 KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
 
-#TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
-#TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
-#TARGET_KERNEL_CLANG_COMPILE := true
+# 2. DERLEME (HEADERS) İÇİN: Kaynak Kod (Decryption modülü için ŞART)
+# Bu satırları açmazsan "generated_kernel_includes" hatası alırsın.
+TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
+TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
+# TARGET_KERNEL_CLANG_COMPILE := true (Buna gerek yok, sadece header okuyacağız)
 
-# DTB / DTBO
+# -----------------------------------------------------------------------------
+# DTB / DTBO (Alioth Standardı)
+# -----------------------------------------------------------------------------
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
-#BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
-#TARGET_NO_DTBO := true
-#TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
-#BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
-# DTBO Dosyasının Yeri (Varsa)
+# DTBO Dosyasının Yeri
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
 # DTB Klasörünün Yeri (Sistem içindeki .dtb dosyasını otomatik bulur)
