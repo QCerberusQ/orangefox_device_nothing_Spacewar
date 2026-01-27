@@ -88,7 +88,8 @@ PRODUCT_PACKAGES += \
     fastbootd
 
 PRODUCT_PACKAGES_DEBUG += \
-    bootctl
+    bootctl \
+    update_engine_client
 
 # -----------------------------------------------------------------------------
 # Crypto / Decryption (Android 14 Ready)
