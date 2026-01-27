@@ -93,20 +93,31 @@ else
 endif
 
 # -----------------------------------------------------------------------------
-# DTB / DTBO (Ortak Ayarlar ve Manual Force)
+# DTB / DTBO Configuration (ABSOLUTE FINAL FIX)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
-# DTB DOSYASINI AYARLAMA (Ninja Hatasını Çözen Kısım)
+# DTB Dosyasının Yolu
+TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+
 ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
-    # v4 Modu: Sistem kuralını kullan (Vendor boot için sorun çıkarmaz)
-    BOARD_PREBUILT_DTBIMAGE := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+    # --- MOD 1: Header v4 (Vendor Boot) ---
+    # Vendor Boot içinde DTB olmalı
+    BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
+    
+    # Bu modda, sistem "dtb.img" kuralı arar.
+    # Ona hazır dosyayı vererek kuralı tatmin ediyoruz.
+    BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
+    
 else
-    # v3 Modu: Manuel Enjeksiyon (Sistemi by-pass ediyoruz)
-    # Bu sayede "missing rule" hatası almadan boot.img içine DTB gömülür.
-    TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
-    BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
+    # --- MOD 2: Header v3 (Boot Image) ---
+    # Boot Image içinde DTB olmalı
+    BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+    
+    # Bu modda da aynı değişkeni kullanarak sistemin
+    # dosyayı otomatik bulmasını sağlıyoruz.
+    BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
 endif
 
 # -----------------------------------------------------------------------------
