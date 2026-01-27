@@ -1,6 +1,6 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# Alioth Style Conditional Logic
+# Alioth Style Conditional Logic & NP1 Native Boot Control
 #
 
 LOCAL_PATH := device/nothing/Spacewar
@@ -63,11 +63,11 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab
 
 # -----------------------------------------------------------------------------
-# Boot Control & OTA Tools
+# Boot Control & OTA Tools (NP1 İÇİN DÜZELTİLDİ)
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.1-impl-qti.recovery \
-    bootctrl.lahaina.recovery \
+    libgptutils.nothing \
     bootctl \
     otapreopt_script \
     update_engine \
@@ -75,6 +75,10 @@ PRODUCT_PACKAGES += \
     update_verifier \
     update_engine_client \
     checkpoint_gc
+
+# NOT: 'bootctrl.lahaina.recovery' kaldırıldı. 
+# Çünkü 'android.hardware.boot@1.1-impl-qti' zaten bizim 'libgptutils.nothing' 
+# kütüphanemizi kullanacak şekilde ayarlandı. Çakışma olmaması için sildik.
 
 # -----------------------------------------------------------------------------
 # Fastbootd
@@ -145,7 +149,6 @@ PRODUCT_ENFORCE_VINTF_MANIFEST := true
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
-
 
 # Unified Scripts
 PRODUCT_COPY_FILES += \
