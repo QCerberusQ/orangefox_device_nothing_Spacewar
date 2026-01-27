@@ -1,6 +1,5 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# Hybrid Logic: Alioth Features + Spacewar Hardware
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
@@ -9,58 +8,36 @@ import /init.recovery.qcom_decrypt.rc
 # Init & Environment
 # -----------------------------------------------------------------------------
 on init
-    # Ekran parlaklığı (Nothing Phone 1 için güvenli değer)
     write /sys/class/backlight/panel0-backlight/brightness 200
-    
-    # USB Ayarları
     setprop sys.usb.configfs 1
-
-    # Firmware klasörleri (Decryption için)
     mkdir /firmware
     mkdir /vendor/firmware_mnt
 
 # -----------------------------------------------------------------------------
-# Filesystem & Symlinks
+# Filesystem
 # -----------------------------------------------------------------------------
 on fs
-    # Alioth'tan alındı: Kütüphane yolları (Servislerin çalışması için şart)
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
-
-    # Bootdevice Symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # -------------------------------------------------------------------------
-    # Vendor DLKM & Modules (SENİN CİHAZIN İÇİN EN KRİTİK BÖLÜM)
-    # -------------------------------------------------------------------------
-    # Klasörü oluştur ve mount et
+    # Vendor DLKM Mount
     mkdir /vendor_dlkm
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # Kernel Modüllerini Yükle (Sıralama Önemli)
-    
-    # 1. Grafik ve DRM
+    # Modüller
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
-    
-    # 2. İşlemci Haberleşmesi
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
     insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
-    
-    # 3. Sensörler
     insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
-    
-    # 4. Pil ve Şarj
     insmod /vendor_dlkm/lib/modules/qti_battery_charger_main.ko
-    
-    # 5. DOKUNMATİK (Touch)
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
 
 # -----------------------------------------------------------------------------
-# Services (Alioth'tan Alınan Pro Özellikler)
+# Services
 # -----------------------------------------------------------------------------
-# Titreşim Motoru Servisi
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
@@ -68,33 +45,6 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
     seclabel u:r:recovery:s0
 
-# -----------------------------------------------------------------------------
-# Post-FS & Boot Triggers
-# -----------------------------------------------------------------------------
-on post-fs
-    # Slot değiştirmek için gerekli servis (A/B Cihazlar için ŞART)
-    start boot-hal-1-1
-
-on boot
-    # Batarya yüzdesini doğru göstermek için gerekli
-    start health-hal-2-1
-    
-    # Titreşimi başlat
-    start vendor.qti.vibrator
-    
-    # ADB'yi aç
-    setprop sys.usb.config adb
-
-# -----------------------------------------------------------------------------
-# Decryption Logic
-# -----------------------------------------------------------------------------
-on property:prepdecrypt.vendor_mounted=1
-    setprop crypto.ready 1
-
-on property:ro.crypto.state=encrypted
-    setprop crypto.ready 1
-
-# Unified Script Servisi
 service unified-script /system/bin/unified-script.sh
     user root
     group root
@@ -102,11 +52,28 @@ service unified-script /system/bin/unified-script.sh
     oneshot
     seclabel u:r:recovery:s0
 
-# Boot tetikleyicisi
+# -----------------------------------------------------------------------------
+# Post-FS & Boot
+# -----------------------------------------------------------------------------
+on post-fs
+    start boot-hal-1-1
+
 on boot
-    # Scriptlere çalıştırma izni ver
+    start health-hal-2-1
+    start vendor.qti.vibrator
+    setprop sys.usb.config adb
+
+    # SADECE UNIFIED SCRIPT (Alioth Tarzı)
     chmod 0777 /system/bin/unified-script.sh
-    
-    # Scripti başlat
     start unified-script
     
+    # RunAtBoot İPTAL EDİLDİ (Riskli olabilir)
+
+# -----------------------------------------------------------------------------
+# Decryption
+# -----------------------------------------------------------------------------
+on property:prepdecrypt.vendor_mounted=1
+    setprop crypto.ready 1
+
+on property:ro.crypto.state=encrypted
+    setprop crypto.ready 1
