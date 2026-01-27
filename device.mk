@@ -1,36 +1,69 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# Cleaned & Optimized for Unified Build
+# Alioth Style Conditional Logic
 #
 
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
-# Base / Product Configuration
+# Base Configuration (Her iki mod için ortak)
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
-# Unified / Vendor Boot için kritik:
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
+# API & Performance
+PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+TW_FRAMERATE := 120
 
 # -----------------------------------------------------------------------------
-# Fstab & Init Scripts (KRİTİK EKSİKTİ)
+# CONDITIONAL LOGIC (Alioth'un Sırrı Burada)
 # -----------------------------------------------------------------------------
-# recovery.fstab dosyasının cihaz ağacında olduğundan emin ol!
+# Eğer BoardConfig'de veya YAML'da FOX_VENDOR_BOOT_RECOVERY=1 dediysen burası çalışır:
+ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
+    # --- HEADER v4 / UNIFIED MOD ---
+    $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+    $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
+    
+    # Vendor Ramdisk Araçları (Sadece v4 modunda gerekir)
+    PRODUCT_PACKAGES += \
+        linker.vendor_ramdisk \
+        e2fsck.vendor_ramdisk \
+        fsck.vendor_ramdisk \
+        tune2fs.vendor_ramdisk \
+        resize2fs.vendor_ramdisk
+else
+    # --- HEADER v3 / STABLE MOD ---
+    # Burası boş kalabilir veya eski usul ramdisk ayarları yapılabilir.
+    # Base configuration zaten boot.img için yeterlidir.
+endif
+
+# -----------------------------------------------------------------------------
+# A/B Partitions (Alioth Gibi Eksiksiz Liste)
+# -----------------------------------------------------------------------------
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS += \
+    boot \
+    dtbo \
+    system \
+    system_ext \
+    product \
+    vendor \
+    vendor_boot \
+    odm \
+    vbmeta \
+    vbmeta_system
+
+# -----------------------------------------------------------------------------
+# Fstab Copy (Kritik)
+# -----------------------------------------------------------------------------
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab
 
 # -----------------------------------------------------------------------------
-# Dynamic Partitions
-# -----------------------------------------------------------------------------
-PRODUCT_USE_DYNAMIC_PARTITIONS := true
-
-# -----------------------------------------------------------------------------
-# Boot Control & OTA
+# Boot Control & OTA Tools
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.1-impl-qti.recovery \
@@ -40,7 +73,8 @@ PRODUCT_PACKAGES += \
     update_engine \
     update_engine_sideload \
     update_verifier \
-    update_engine_client
+    update_engine_client \
+    checkpoint_gc
 
 # -----------------------------------------------------------------------------
 # Fastbootd
@@ -58,10 +92,8 @@ PRODUCT_PACKAGES += \
     qcom_decrypt_fbe
 
 # -----------------------------------------------------------------------------
-# Vendor DLKM Modules (Touch & Display)
+# Vendor DLKM Modules (Senin Cihazına Özel)
 # -----------------------------------------------------------------------------
-# Bu modüllerin cihaz ağacında "recovery/root/vendor/lib/modules" 
-# veya "prebuilt/modules" içinde olduğundan emin ol.
 TW_LOAD_VENDOR_MODULES := \
     modules.load \
     adsp_loader_dlkm.ko \
@@ -75,7 +107,7 @@ TW_LOAD_VENDOR_MODULES := \
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
 # -----------------------------------------------------------------------------
-# Display / libraries
+# Recovery Libraries & Display
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_DEVICE_MODULES += \
     libandroidicu \
@@ -96,30 +128,20 @@ RECOVERY_LIBRARY_SOURCE_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
     android.hardware.health@2.1-service \
-    libhealthd.$(PRODUCT_PLATFORM)
+    libhealthd.$(PRODUCT_PLATFORM) \
+    vendor.qti.hardware.vibrator.service
 
 # -----------------------------------------------------------------------------
-# Soong Namespaces
+# Soong & VINTF
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH) \
     hardware/qcom-caf/bootctrl \
     vendor/qcom/opensource/commonsys-intf/display
 
-# -----------------------------------------------------------------------------
-# Additional Tools
-# -----------------------------------------------------------------------------
-PRODUCT_PACKAGES += \
-    linker.vendor_ramdisk \
-    e2fsck.vendor_ramdisk \
-    fsck.vendor_ramdisk \
-    tune2fs.vendor_ramdisk
-
-# -----------------------------------------------------------------------------
-# VINTF & Properties
-# -----------------------------------------------------------------------------
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
+# Snapshot Hatalarını Önleme (Alioth'tan alındı)
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
