@@ -1,46 +1,37 @@
 # Android fstab file.
-# Spacewar - Final Cleaned & Corrected
-# Decryption: WrappedKey Enabled | Structure: Dual (EROFS+EXT4)
+# Spacewar - Final Fix (No Slotselect on Logical)
 
 #<src>                                  <mnt_point>            <type>  <mnt_flags>                                                      <fs_mgr_flags>
 
 # -----------------------------------------------------------------------------
-# Logical Partitions (Sistem Bölümleri - Hem EROFS hem EXT4 destekler)
+# Logical Partitions (DİKKAT: 'slotselect' kaldırıldı, sadece 'logical' kaldı)
 # -----------------------------------------------------------------------------
-system                                   /system                ext4    ro,barrier=1,discard                                             wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
-system_ext                               /system_ext            ext4    ro,barrier=1,discard                                             wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
-product                                  /product               ext4    ro,barrier=1,discard                                             wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+system                                   /system                ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+system_ext                               /system_ext            ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+product                                  /product               ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+vendor                                   /vendor                ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+vendor_dlkm                              /vendor_dlkm           ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+odm                                      /odm                   ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
 
-# Vendor & ODM (Çift giriş sayesinde her türlü ROM'u açar)
-vendor                                   /vendor                erofs   ro                                                               wait,slotselect,avb,logical,first_stage_mount
-vendor                                   /vendor                ext4    ro,barrier=1,discard                                             wait,slotselect,avb,logical,first_stage_mount
-vendor_dlkm                              /vendor_dlkm           erofs   ro                                                               wait,slotselect,avb,logical,first_stage_mount
-vendor_dlkm                              /vendor_dlkm           ext4    ro,barrier=1,discard                                             wait,slotselect,avb,logical,first_stage_mount
-odm                                      /odm                   erofs   ro                                                               wait,slotselect,avb,logical,first_stage_mount
-odm                                      /odm                   ext4    ro,barrier=1,discard                                             wait,slotselect,avb,logical,first_stage_mount
+# İpucu: EROFS satırlarını sildim. Eğer Stok ROM kullanıyorsan ve açılmazsa, 
+# yukarıdaki 'ext4' yazan yerleri 'erofs' yapman yeterli. Ama Recovery genelde ext4 bekler.
 
 # -----------------------------------------------------------------------------
-# Physical Partitions & Decryption (KRİTİK BÖLÜM)
+# Physical Partitions (Bunlarda slotselect OLACAK)
 # -----------------------------------------------------------------------------
-# Metadata (Gatekeeper için 'wrappedkey' bayrağı ŞART)
 /dev/block/by-name/metadata              /metadata              ext4    noatime,nosuid,nodev,discard                                     wait,check,formattable,wrappedkey,first_stage_mount
-
-# Data (Şifreleme bayrakları QTI servisiyle tam uyumlu)
 /dev/block/bootdevice/by-name/userdata   /data                  f2fs    noatime,nosuid,nodev,discard,inlinecrypt,reserve_root=32768,resgid=1065,fsync_mode=nobarrier    latemount,wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=aes-256-xts:wrappedkey_v0,quota,reservedsize=128M,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,checkpoint=fs,readahead_size_kb=128
 
 # -----------------------------------------------------------------------------
-# Firmware & Misc (Gatekeeper Servisinin Çalışması İçin Gerekli)
+# Firmware & Misc
 # -----------------------------------------------------------------------------
 /dev/block/bootdevice/by-name/misc       /misc                  emmc    defaults                                                         defaults
 /dev/block/bootdevice/by-name/persist    /mnt/vendor/persist    ext4    noatime,nosuid,nodev,barrier=1                                   wait
-
-# Modem ve DSP (Bunlar olmadan şifre çözülemez)
 /dev/block/bootdevice/by-name/modem      /vendor/firmware_mnt   vfat    ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0 wait,slotselect
 /dev/block/bootdevice/by-name/dsp        /vendor/dsp            ext4    ro,nosuid,nodev,barrier=1                                        wait,slotselect
 /dev/block/bootdevice/by-name/bluetooth  /vendor/bt_firmware    vfat    ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0 wait,slotselect
 
 # -----------------------------------------------------------------------------
-# Removable Storage (Temizlendi - Sadece OTG)
+# Removable Storage
 # -----------------------------------------------------------------------------
-# Nothing Phone 1'de SD Kart yok ama OTG var. Listeyi temiz tutuyoruz.
 /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto* /storage/usbotg        vfat    nosuid,nodev                                     wait,voldmanaged=usbotg:auto
