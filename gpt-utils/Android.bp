@@ -17,8 +17,11 @@ cc_library {
         "liblog",
         "libz",
     ],
+    // AŞAĞIDAKİLER AÇIK KALMALI:
     cflags: ["-D_BSG_FRAMEWORK_KERNEL_HEADERS"],
     owner: "qti",
     export_include_dirs: ["."],
-    header_libs: ["generated_kernel_headers"],
+    
+    // SADECE BU SATIRI SİLMEN VEYA KAPATMAN YETERLİDİR:
+    // header_libs: ["generated_kernel_headers"],
 }
