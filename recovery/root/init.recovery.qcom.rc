@@ -6,60 +6,54 @@
 import /init.recovery.qcom_decrypt.rc
 
 # -----------------------------------------------------------------------------
-# Early Init (Eski Dosyadan: İzinler ve Symlinkler)
+# Early Init
 # -----------------------------------------------------------------------------
 on early-init
-    # SELinux'u Permissive yap (Recovery için hayat kurtarır)
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
 
-    # Firmware klasörleri için Symlinkler (Donanım için ŞART)
+    # Firmware klasörleri
     mkdir /firmware
     mkdir /vendor/firmware_mnt
     symlink /vendor/firmware_mnt /firmware
     symlink /vendor/bt_firmware /bt_firmware
     symlink /vendor/dsp /dsp
     
-    # Firmware yükleme ayarı
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
 # -----------------------------------------------------------------------------
 # Init
 # -----------------------------------------------------------------------------
 on init
-    # Şarj yapılandırmasını yükle
     mount_all /vendor/etc/charger_fw_fstab.qti --early
     
-    # Ekran parlaklığı ve USB
+    # Ekran parlaklığı
     write /sys/class/backlight/panel0-backlight/brightness 200
+    
+    # USB Ayarları
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
-    # Vibratör gücü düşürüldü
-    write /sys/class/leds/vibrator/gain 0x80
+    
+    # NOT: Titreşim ayarını buradan kaldırdık, aşağıda servisten sonraya koyduk.
 
 # -----------------------------------------------------------------------------
-# Filesystem & Mounting (KRİTİK BÖLÜM)
+# Filesystem & Mounting
 # -----------------------------------------------------------------------------
 on fs
-    # Kütüphane yolları
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
 
-    # Boot cihazını bekle
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # 1. VENDOR DLKM MOUNT (Bizim Yöntem - Modules için şart)
-    # Header v4 yapısında modüller burada durur.
+    # 1. Vendor DLKM
     mkdir /vendor_dlkm
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # 2. FIRMWARE MOUNT (Eski Yöntem - ADSP için şart)
-    # Modem bölümünü bağlamazsak sensörler ve dokunmatik çalışmayabilir.
+    # 2. Firmware (Modem)
     mkdir /firmware
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
 
-    # 3. MODÜLLERİ YÜKLE
-    # Not: Vendor DLKM bağlandığı için yolları oradan veriyoruz.
+    # 3. Modüller (Eğer dokunmatik çalışıyorsa buraya dokunma)
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
@@ -78,7 +72,6 @@ on post-fs
     start boot-hal-1-1
     start gatekeeper-1-0
 
-# İzinleri gevşetme servisi
 service set_permissive /system/bin/set_permissive.sh
     user root
     group root
@@ -86,7 +79,6 @@ service set_permissive /system/bin/set_permissive.sh
     oneshot
     seclabel u:r:recovery:s0
 
-# Keymaster (Eski dosya istiyordu, ekledik)
 service keymasterd /system/bin/keymasterd
      user root
      group root
@@ -101,7 +93,6 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
     seclabel u:r:recovery:s0
 
-# Unified Script (Bizim eklediğimiz faydalı script)
 service unified-script /system/bin/unified-script.sh
     user root
     group root
@@ -109,7 +100,6 @@ service unified-script /system/bin/unified-script.sh
     oneshot
     seclabel u:r:recovery:s0
 
-# Wrapped Key Fix (Decryption için Eski Dosyadan)
 service wrapped-key /system/bin/wrappedkey-fix.sh
     user root
     group root
@@ -118,45 +108,53 @@ service wrapped-key /system/bin/wrappedkey-fix.sh
     seclabel u:r:recovery:s0
 
 # -----------------------------------------------------------------------------
-# Boot Triggers (ADSP & Hardware Init)
+# Boot Triggers (Titreşim Düzeltmesi BURADA)
 # -----------------------------------------------------------------------------
 on boot
     start health-hal-2-1
+    
+    # 1. Önce Servisi Başlat
     start vendor.qti.vibrator
-    setprop sys.usb.config adb
+    
+    # 2. Servisin açılması için çok kısa bekle (opsiyonel ama güvenli)
+    wait /sys/class/leds/vibrator/gain
+    
+    # 3. AYARI ŞİMDİ YAP (Servis başladıktan sonra eziyoruz)
+    # 0x80 = 128 (Çok sertti)
+    # 0x30 = 48 (Yumuşak - %20 civarı)
+    write /sys/class/leds/vibrator/gain 0x30
+    
+    # Ekstra Güvenlik: Voltajı da sınırlayalım (2500mv yerine 1200mv)
+    write /sys/class/leds/vibrator/vmax_mv 1200
 
-    # Unified Script Başlat
+    setprop sys.usb.config adb
     chmod 0777 /system/bin/unified-script.sh
     start unified-script
 
-# ADSP BAŞLATMA (Eski Dosyadan - ÇOK ÖNEMLİ)
-# Firmware mount edildiğinde işlemciyi tetikler.
+# ADSP Trigger
 on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
     start health-hal-2-1
 
-# Decryption Fix (Wrapped Key)
+# Decryption Fixes
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     chmod 0777 /system/bin/wrappedkey-fix.sh
     start wrapped-key
 
-# USB Controller Fix (Eski Dosyadan)
 on property:ro.boot.usbcontroller=*
     setprop sys.usb.controller ${ro.boot.usbcontroller}
     wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
     write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
 
-# Decryption Ready Triggers
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
 
 on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
 
-
-# Gatekeeper Servisi (QTI Versiyonu - Şifre Çözmek İçin Şart)
+# Gatekeeper Servisi (Standart)
 service gatekeeper-1-0 /system/bin/android.hardware.gatekeeper@1.0-service
     user root
     group root
