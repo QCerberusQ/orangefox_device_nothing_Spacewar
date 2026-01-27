@@ -19,6 +19,10 @@ export FOX_BUILD_DEVICE="Spacewar"
 export FOX_TARGET_DEVICES="Spacewar,spacewar"
 export TARGET_DEVICE_ALT="Spacewar,spacewar"
 
+# !!! BURAYA EKLİYORSUN !!!
+# Bu satırı eklediğin an sistem "Ben Unified (v4) Recovery yapacağım" der.
+export FOX_VENDOR_BOOT_RECOVERY=1
+
 # Build Info
 export OF_MAINTAINER="QCerberusQ"
 export FOX_BUILD_TYPE="Beta"
@@ -74,8 +78,7 @@ export FOX_AB_DEVICE=1
 # -----------------------------------------------------------------------------
 # CONDITIONAL BUILD LOGIC (Alioth'un Sırrı)
 # -----------------------------------------------------------------------------
-# Eğer BoardConfig.mk'de "FOX_VENDOR_BOOT_RECOVERY=1" dediysen;
-# Bu kısım ZIP dosyasının kurulum scriptini (updater-script) ona göre ayarlar.
+# Yukarıda "export FOX_VENDOR_BOOT_RECOVERY=1" dediğimiz için artık burası çalışacak:
 if [ "$FOX_VENDOR_BOOT_RECOVERY" = "1" ]; then
     # Dosya ismine "vBaR" (Vendor Boot as Recovery) ekle
     export FOX_VARIANT="Unified_v4"
