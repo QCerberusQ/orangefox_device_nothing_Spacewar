@@ -1,67 +1,95 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# Optimized for Vendor Boot & Module Loading
+# Hybrid Logic: Alioth Features + Spacewar Hardware
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
 # -----------------------------------------------------------------------------
-# Init
+# Init & Environment
 # -----------------------------------------------------------------------------
 on init
+    # Ekran parlaklığı (Nothing Phone 1 için güvenli değer)
     write /sys/class/backlight/panel0-backlight/brightness 200
+    
+    # USB Ayarları
     setprop sys.usb.configfs 1
 
-    # Firmware klasörlerini oluştur (Decryption için gerekli olabilir)
+    # Firmware klasörleri (Decryption için)
     mkdir /firmware
     mkdir /vendor/firmware_mnt
 
 # -----------------------------------------------------------------------------
-# Filesystem & Module Loading (KRİTİK BÖLÜM)
+# Filesystem & Symlinks
 # -----------------------------------------------------------------------------
 on fs
-    # 1. Bootdevice Symlink (Sistemin diskleri bulması için şart)
+    # Alioth'tan alındı: Kütüphane yolları (Servislerin çalışması için şart)
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
+
+    # Bootdevice Symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # 2. Vendor DLKM'yi Mount Et
-    # (Önce klasörü oluştur, sonra bölümü bağla)
+    # -------------------------------------------------------------------------
+    # Vendor DLKM & Modules (SENİN CİHAZIN İÇİN EN KRİTİK BÖLÜM)
+    # -------------------------------------------------------------------------
+    # Klasörü oluştur ve mount et
     mkdir /vendor_dlkm
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # 3. Kernel Modüllerini Yükle (device.mk listesine göre)
-    # Dokunmatik ve ekranın çalışması için bu sıra çok önemli!
+    # Kernel Modüllerini Yükle (Sıralama Önemli)
     
-    # Temel Grafikler ve DRM
+    # 1. Grafik ve DRM
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     
-    # İşlemci ve DSP Haberleşmesi
+    # 2. İşlemci Haberleşmesi
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
     insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
     
-    # Sensörler (Bazen ekran döndürme için gerekir)
+    # 3. Sensörler
     insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
     
-    # Pil ve Şarj (Recovery'de şarj göstergesi için)
+    # 4. Pil ve Şarj
     insmod /vendor_dlkm/lib/modules/qti_battery_charger_main.ko
     
-    # DOKUNMATİK EKRAN (En kritiği bu)
+    # 5. DOKUNMATİK (Touch)
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
 
 # -----------------------------------------------------------------------------
-# Decryption fallback
+# Services (Alioth'tan Alınan Pro Özellikler)
+# -----------------------------------------------------------------------------
+# Titreşim Motoru Servisi
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
+    user root
+    group root
+    disabled
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
+    seclabel u:r:recovery:s0
+
+# -----------------------------------------------------------------------------
+# Post-FS & Boot Triggers
+# -----------------------------------------------------------------------------
+on post-fs
+    # Slot değiştirmek için gerekli servis (A/B Cihazlar için ŞART)
+    start boot-hal-1-1
+
+on boot
+    # Batarya yüzdesini doğru göstermek için gerekli
+    start health-hal-2-1
+    
+    # Titreşimi başlat
+    start vendor.qti.vibrator
+    
+    # ADB'yi aç
+    setprop sys.usb.config adb
+
+# -----------------------------------------------------------------------------
+# Decryption Logic
 # -----------------------------------------------------------------------------
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
 
-# Extra safety for some ROMs
 on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
-
-# -----------------------------------------------------------------------------
-# Boot
-# -----------------------------------------------------------------------------
-on boot
-    setprop sys.usb.config adb
