@@ -76,7 +76,7 @@ on fs
 # -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
-    start gatekeeper-1-0
+    start gatekeeper-1-0-qti
 
 # İzinleri gevşetme servisi
 service set_permissive /system/bin/set_permissive.sh
