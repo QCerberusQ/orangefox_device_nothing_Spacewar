@@ -145,3 +145,9 @@ PRODUCT_ENFORCE_VINTF_MANIFEST := true
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
+
+
+# Unified Scripts
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
+    $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
