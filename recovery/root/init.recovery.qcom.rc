@@ -33,6 +33,8 @@ on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
+    # Vibratör gücü düşürüldü
+    write /sys/class/leds/vibrator/gain 0x80
 
 # -----------------------------------------------------------------------------
 # Filesystem & Mounting (KRİTİK BÖLÜM)
