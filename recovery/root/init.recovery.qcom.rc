@@ -153,3 +153,10 @@ on property:prepdecrypt.vendor_mounted=1
 
 on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
+
+
+service gatekeeper-1-0 /system/bin/android.hardware.gatekeeper@1.0-service
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
