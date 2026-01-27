@@ -45,8 +45,8 @@ BOARD_KERNEL_IMAGE_NAME := Image
 
 #KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 #TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
-TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
-TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
+#TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
+#TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 TARGET_KERNEL_ARCH := arm64
