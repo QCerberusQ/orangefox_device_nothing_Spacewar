@@ -106,7 +106,6 @@ service unified-script /system/bin/unified-script.sh
 on boot
     # Scriptlere çalıştırma izni ver
     chmod 0777 /system/bin/unified-script.sh
-    chmod 0777 /system/bin/runatboot.sh
     
     # Scripti başlat
     start unified-script
