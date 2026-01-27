@@ -106,8 +106,7 @@ BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
 # Force DTB Path (Senin 4MB'lık dosyan)
-TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
+BOARD_PREBUILT_DTBIMAGE := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
 
 # -----------------------------------------------------------------------------
 # Partitions
