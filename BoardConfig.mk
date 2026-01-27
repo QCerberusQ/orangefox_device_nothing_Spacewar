@@ -55,15 +55,12 @@ TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 MY_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1
 
 # -----------------------------------------------------------------------------
-# LOGIC SWITCH (Alioth'un "Kandırmaca" Kısmı)
+# LOGIC SWITCH (Alioth'un "Kandırmaca" Kısmı - FİNAL DÜZELTME)
 # -----------------------------------------------------------------------------
-# Eğer Action YAML dosyasında veya terminalde "FOX_VENDOR_BOOT_RECOVERY=1" dersen burası çalışır:
 ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
-    # Header v4 Modu (Vendor Boot)
+    # --- MOD 1: Header v4 (Vendor Boot / Unified) ---
     BOARD_BOOT_HEADER_VERSION := 4
     BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-    
-    # Komutları vendor_cmdline içine göm (Header v4 kuralı)
     BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
     
     # Recovery kaynaklarını vendor_boot'a taşı
@@ -75,38 +72,42 @@ ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
     
     # DTB Ayarları (Vendor Boot için)
     BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
-    # Boot.img içine koyma (Alioth mantığı)
     BOARD_INCLUDE_DTB_IN_BOOTIMG := 
     
-    # Alioth'un koyduğu güvenlik önlemi:
-    # Eğer cihazda v4 header yoksa, recovery kendini flaşlarken bozmasın diye menüyü gizler.
+    # Alioth Güvenlik Önlemi
     ifneq ($(FOX_VENDOR_BOOT_RECOVERY_FULL_REFLASH),1)
         OF_NO_REFLASH_CURRENT_ORANGEFOX := 1
     endif
 
 else
-    # Eğer parametre YOKSA burası çalışır (Eski Usul / Header v3)
-    # Bu sayede crDroid gibi v3 kernel kullanan cihazlarda bootloop olmaz.
+    # --- MOD 2: Header v3 (Boot Image / Bootloop Fix) ---
     BOARD_BOOT_HEADER_VERSION := 3
     BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-    
-    # Komutları klasik kernel_cmdline içine göm
     BOARD_KERNEL_CMDLINE := $(MY_CMDLINE)
-    
     BOARD_USES_RECOVERY_AS_BOOT := true
     
-    # Boot.img içine DTB koy (Eski usul)
-    BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+    # KRİTİK DEĞİŞİKLİK:
+    # Ninja "missing rule" hatası vermesin diye bu satırı KAPATIYORUZ.
+    # Dosyayı aşağıda manuel vereceğiz.
+    # BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 endif
 
 # -----------------------------------------------------------------------------
-# DTB / DTBO (Ortak Ayarlar)
+# DTB / DTBO (Ortak Ayarlar ve Manual Force)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
-# Force DTB Path (Senin 4MB'lık dosyan)
-BOARD_PREBUILT_DTBIMAGE := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+# DTB DOSYASINI AYARLAMA (Ninja Hatasını Çözen Kısım)
+ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
+    # v4 Modu: Sistem kuralını kullan (Vendor boot için sorun çıkarmaz)
+    BOARD_PREBUILT_DTBIMAGE := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+else
+    # v3 Modu: Manuel Enjeksiyon (Sistemi by-pass ediyoruz)
+    # Bu sayede "missing rule" hatası almadan boot.img içine DTB gömülür.
+    TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+    BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
+endif
 
 # -----------------------------------------------------------------------------
 # Partitions
