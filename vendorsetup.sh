@@ -22,7 +22,7 @@ export TARGET_DEVICE_ALT="Spacewar,spacewar"
 # Build Info
 export OF_MAINTAINER="QCerberusQ"
 export FOX_BUILD_TYPE="Beta"
-export FOX_VERSION="R12.1"
+#export FOX_VERSION="R12.1"
 
 # -----------------------------------------------------------------------------
 # Screen Settings (Spacewar Specific)
