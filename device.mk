@@ -1,47 +1,41 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# Alioth Style Conditional Logic & NP1 Native Boot Control
+# PURE VENDOR BOOT EDITION (Merged with Working Config)
 #
 
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
-# Base Configuration (Her iki mod için ortak)
+# Base Configuration
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
-# API & Performance
+# -----------------------------------------------------------------------------
+# VENDOR BOOT CONFIGURATION (MANDATORY FOR V4)
+# -----------------------------------------------------------------------------
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
+
+# Vendor Ramdisk Araçları
+PRODUCT_PACKAGES += \
+    linker.vendor_ramdisk \
+    e2fsck.vendor_ramdisk \
+    fsck.vendor_ramdisk \
+    tune2fs.vendor_ramdisk \
+    resize2fs.vendor_ramdisk
+
+# -----------------------------------------------------------------------------
+# API & Dynamic Partitions
+# -----------------------------------------------------------------------------
 PRODUCT_SHIPPING_API_LEVEL := 31
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 TW_FRAMERATE := 120
 
 # -----------------------------------------------------------------------------
-# CONDITIONAL LOGIC (Alioth'un Sırrı Burada)
-# -----------------------------------------------------------------------------
-# Eğer BoardConfig'de veya YAML'da FOX_VENDOR_BOOT_RECOVERY=1 dediysen burası çalışır:
-ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
-    # --- HEADER v4 / UNIFIED MOD ---
-    $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
-    $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
-    
-    # Vendor Ramdisk Araçları (Sadece v4 modunda gerekir)
-    PRODUCT_PACKAGES += \
-        linker.vendor_ramdisk \
-        e2fsck.vendor_ramdisk \
-        fsck.vendor_ramdisk \
-        tune2fs.vendor_ramdisk \
-        resize2fs.vendor_ramdisk
-else
-    # --- HEADER v3 / STABLE MOD ---
-    # Burası boş kalabilir veya eski usul ramdisk ayarları yapılabilir.
-    # Base configuration zaten boot.img için yeterlidir.
-endif
-
-# -----------------------------------------------------------------------------
-# A/B Partitions (Alioth Gibi Eksiksiz Liste)
+# A/B Partitions & Postinstall (Eski Dosyadan Eklendi)
 # -----------------------------------------------------------------------------
 AB_OTA_UPDATER := true
 AB_OTA_PARTITIONS += \
@@ -56,15 +50,18 @@ AB_OTA_PARTITIONS += \
     vbmeta \
     vbmeta_system
 
-# -----------------------------------------------------------------------------
-# Fstab Copy (Kritik)
-# -----------------------------------------------------------------------------
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab
+# Postinstall Config (Eskisinde vardı, ekledik)
+AB_OTA_POSTINSTALL_CONFIG += \
+    RUN_POSTINSTALL_system=true \
+    POSTINSTALL_PATH_system=system/bin/otapreopt_script \
+    FILESYSTEM_TYPE_system=ext4 \
+    POSTINSTALL_OPTIONAL_system=true
 
 # -----------------------------------------------------------------------------
-# Boot Control & OTA Tools (NP1 İÇİN DÜZELTİLDİ)
+# Boot Control (Custom NP1 Implementation)
 # -----------------------------------------------------------------------------
+# Not: Eski dosyada 'bootctrl.lahaina' vardı ama biz 'libgptutils.nothing' 
+# ile daha gelişmiş bir yapı kurduk. Bunu koruyoruz.
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.1-impl-qti.recovery \
     libgptutils.nothing \
@@ -76,9 +73,9 @@ PRODUCT_PACKAGES += \
     update_engine_client \
     checkpoint_gc
 
-# NOT: 'bootctrl.lahaina.recovery' kaldırıldı. 
-# Çünkü 'android.hardware.boot@1.1-impl-qti' zaten bizim 'libgptutils.nothing' 
-# kütüphanemizi kullanacak şekilde ayarlandı. Çakışma olmaması için sildik.
+PRODUCT_PACKAGES_DEBUG += \
+    bootctl \
+    update_engine_client
 
 # -----------------------------------------------------------------------------
 # Fastbootd
@@ -87,12 +84,8 @@ PRODUCT_PACKAGES += \
     android.hardware.fastboot@1.0-impl-mock \
     fastbootd
 
-PRODUCT_PACKAGES_DEBUG += \
-    bootctl \
-    update_engine_client
-
 # -----------------------------------------------------------------------------
-# Crypto / Decryption (Android 14 Ready)
+# Crypto / Decryption
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.system.keystore2 \
@@ -100,7 +93,7 @@ PRODUCT_PACKAGES += \
     qcom_decrypt_fbe
 
 # -----------------------------------------------------------------------------
-# Vendor DLKM Modules (Senin Cihazına Özel)
+# Vendor DLKM Modules (Eski Dosyadan 'goodix_fp' Eklendi)
 # -----------------------------------------------------------------------------
 TW_LOAD_VENDOR_MODULES := \
     modules.load \
@@ -110,7 +103,8 @@ TW_LOAD_VENDOR_MODULES := \
     q6_pdr_dlkm.ko \
     sensors_ssc.ko \
     qti_battery_charger_main.ko \
-    fts_tp.ko
+    fts_tp.ko \
+    goodix_fp.ko
 
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
@@ -131,7 +125,7 @@ RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # -----------------------------------------------------------------------------
-# Health HAL
+# Health HAL & Vibrator
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
@@ -140,7 +134,7 @@ PRODUCT_PACKAGES += \
     vendor.qti.hardware.vibrator.service
 
 # -----------------------------------------------------------------------------
-# Soong & VINTF
+# Soong Namespaces
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH) \
@@ -149,12 +143,34 @@ PRODUCT_SOONG_NAMESPACES += \
 
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
-# Snapshot Hatalarını Önleme (Alioth'tan alındı)
+# -----------------------------------------------------------------------------
+# Files & Scripts
+# -----------------------------------------------------------------------------
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
+    $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
+    $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
+
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
 
-# Unified Scripts
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
-    $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
+# -----------------------------------------------------------------------------
+# OrangeFox / TWRP Specifics (Eski Dosyadan Tamamlandı)
+# -----------------------------------------------------------------------------
+# Magisk Araçları
+TW_INCLUDE_RESETPROP := true
+TW_INCLUDE_REPACKTOOLS := true
+
+# Yer Tasarrufu
+TW_EXCLUDE_APEX := true
+
+# Batarya ve CPU Yolları (Eskisinden Alındı)
+TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
+TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
+
+# Haptics Fix (Eskisinden Alındı - Önemli Olabilir)
+TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+
+# Ekran Parlaklığı (Eskisinden Alındı)
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
