@@ -1,34 +1,54 @@
 # Android fstab file.
-# Spacewar - NO-WRAPPEDKEY EDITION (Fixed Logical Flags)
+# Spacewar - FINAL FIX for recovery-no-wrappedkey.fstab
+# (Includes: EROFS/EXT4 Hybrid + No Logical Slotselect + Standard Encryption)
 
 #<src>                                  <mnt_point>            <type>  <mnt_flags>                                                      <fs_mgr_flags>
 
 # -----------------------------------------------------------------------------
-# Logical Partitions (DİKKAT: 'slotselect' KALDIRILDI)
+# 1. Logical Partitions (Sistem Bölümleri)
+# DÜZELTME: Senin metnindeki gibi 'slotselect' YOK.
+# EKLEME: Hem EROFS hem EXT4 eklendi.
 # -----------------------------------------------------------------------------
+system                                   /system                erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
 system                                   /system                ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+
+system_ext                               /system_ext            erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
 system_ext                               /system_ext            ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+
+product                                  /product               erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
 product                                  /product               ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+
+vendor                                   /vendor                erofs   ro                                                               wait,avb,logical,first_stage_mount
 vendor                                   /vendor                ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+
+vendor_dlkm                              /vendor_dlkm           erofs   ro                                                               wait,avb,logical,first_stage_mount
 vendor_dlkm                              /vendor_dlkm           ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+
+odm                                      /odm                   erofs   ro                                                               wait,avb,logical,first_stage_mount
 odm                                      /odm                   ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
 
 # -----------------------------------------------------------------------------
-# Physical Partitions (WrappedKey: YOK)
+# 2. Metadata & Userdata (Şifreleme Ayarları - NO WRAPPEDKEY)
+# Bu dosya 'standart' şifreleme içindir.
 # -----------------------------------------------------------------------------
-# Metadata
+# Metadata (WrappedKey bayrağı YOK)
 /dev/block/by-name/metadata              /metadata              ext4    noatime,nosuid,nodev,discard                                     wait,check,formattable,first_stage_mount
 
-# Data (Userdata - Standart Şifreleme)
+# Data (WrappedKey_v0 parametreleri YOK - Standart)
 /dev/block/bootdevice/by-name/userdata   /data                  f2fs    noatime,nosuid,nodev,discard,inlinecrypt,reserve_root=32768,resgid=1065,fsync_mode=nobarrier    latemount,wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128M,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,checkpoint=fs,readahead_size_kb=128
 
 # -----------------------------------------------------------------------------
-# Firmware & Misc (Gatekeeper için ŞART - Eksikti, eklendi)
+# 3. Firmware & Misc
 # -----------------------------------------------------------------------------
 /dev/block/bootdevice/by-name/misc       /misc                  emmc    defaults                                                         defaults
 /dev/block/bootdevice/by-name/persist    /mnt/vendor/persist    ext4    noatime,nosuid,nodev,barrier=1                                   wait
 
-# Firmware (Bunlarda 'slotselect' OLMALIDIR)
+# Firmware (Fiziksel oldukları için 'slotselect' BURADA KALMALI)
 /dev/block/bootdevice/by-name/modem      /vendor/firmware_mnt   vfat    ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0 wait,slotselect
 /dev/block/bootdevice/by-name/dsp        /vendor/dsp            ext4    ro,nosuid,nodev,barrier=1                                        wait,slotselect
 /dev/block/bootdevice/by-name/bluetooth  /vendor/bt_firmware    vfat    ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0 wait,slotselect
+
+# -----------------------------------------------------------------------------
+# 4. Removable Storage
+# -----------------------------------------------------------------------------
+/devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto* /storage/usbotg        vfat    nosuid,nodev                                     wait,voldmanaged=usbotg:auto
