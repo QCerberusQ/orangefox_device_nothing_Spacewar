@@ -93,3 +93,23 @@ on property:prepdecrypt.vendor_mounted=1
 
 on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
+
+# Unified Script Servisi
+service unified-script /system/bin/unified-script.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+# Boot tetikleyicisi
+on boot
+    # Scriptlere çalıştırma izni ver
+    chmod 0777 /system/bin/unified-script.sh
+    chmod 0777 /system/bin/runatboot.sh
+    
+    # Scripti başlat
+    start unified-script
+    
+    # runatboot'u çalıştır (Arka planda)
+    exec u:r:recovery:s0 -- /system/bin/runatboot.sh
