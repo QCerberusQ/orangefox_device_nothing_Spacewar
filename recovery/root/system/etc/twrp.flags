@@ -1,6 +1,6 @@
 # Android fstab file (Flags for OrangeFox GUI)
 # Nothing Phone (1) / Spacewar
-# Ultimate Edition (Alioth Decryption Logic + Spacewar Partitions)
+# Final Merge: Old Repo Keys + Modern Partition Structure
 
 # -----------------------------------------------------------------------------
 # Boot & Vendor Boot
@@ -15,16 +15,16 @@
 /super          emmc    /dev/block/bootdevice/by-name/super         flags=display="Super";backup=1;flashimg=1
 
 # -----------------------------------------------------------------------------
-# Data & Metadata (Alioth Mantığı - Şifre Çözme İçin KRİTİK)
+# Data & Metadata (Eski Repo'dan Alınan KESİN DOĞRU Kodlar)
 # -----------------------------------------------------------------------------
-# Metadata: 'wrappedkey' bayrağı eklendi
-/metadata       ext4    /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey
+# Metadata: 'wrappedkey' bayrağı eklendi (Eski dosyada bu satır eksikti ama Data için şart)
+/metadata       ext4    /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey;wipeingui
 
-# Data: Şifreleme detayları Alioth'tan alındı (Bu satır şifre çözmeyi sağlar)
-/data           f2fs    /dev/block/bootdevice/by-name/userdata      flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption
+# Data: İşte sihirli satır burası! Spacewar için özel şifreleme parametreleri.
+/data           f2fs    /dev/block/bootdevice/by-name/userdata      flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts:wrappedkey_v0
 
-# Internal Storage (Alioth stili bağlama)
-/storage        f2fs    /data/media/0                               flags=backup=1;display="Internal Storage";usermrf;fsflags="bind,utf8";removable
+# Internal Storage (Yedekleme listesinde görünmesi için)
+/storage        f2fs    /data/media/0                               flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
 
 # -----------------------------------------------------------------------------
 # AVB Partitions
@@ -35,7 +35,8 @@
 # -----------------------------------------------------------------------------
 # Firmware & Modem (Decryption Tetikleyici)
 # -----------------------------------------------------------------------------
-# mounttodecrypt bayrağı şifre ekranının gelmesini sağlar
+# DİKKAT: Eski dosya 'ext4' diyordu ama senin cihazın 'vfat'.
+# 'mounttodecrypt' bayrağı şifre ekranının gelmesi için ŞART.
 /firmware       vfat    /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt;fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
 
 # Yedekleme Amaçlı
@@ -48,8 +49,12 @@
 # -----------------------------------------------------------------------------
 /persist        ext4    /dev/block/bootdevice/by-name/persist       flags=display="Persist";fsflags=ro
 /persist_image  emmc    /dev/block/bootdevice/by-name/persist       flags=display="Persist Image";backup=1;flashimg=1
+/prodpersist    ext4    /dev/block/bootdevice/by-name/prodpersist   flags=backup=1;display="Product Persist"
 /misc           emmc    /dev/block/bootdevice/by-name/misc          flags=display="Misc";backup=1
-/logo           emmc    /dev/block/bootdevice/by-name/logo          flags=display="Logo";backup=1;flashimg=1;slotselect
+
+# Logo & Keymaster (Eski dosyada vardı, ekledik)
+/logo           emmc    /dev/block/bootdevice/by-name/logo          flags=display="Boot Logo";backup=1;flashimg=1;slotselect
+/keymaster      emmc    /dev/block/bootdevice/by-name/keymaster     flags=slotselect;backup=1;display="Keymaster"
 
 # -----------------------------------------------------------------------------
 # EFS (IMEI Yedekleme)
