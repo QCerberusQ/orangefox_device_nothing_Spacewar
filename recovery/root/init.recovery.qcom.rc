@@ -110,5 +110,3 @@ on boot
     # Scripti başlat
     start unified-script
     
-    # runatboot'u çalıştır (Arka planda)
-    exec u:r:recovery:s0 -- /system/bin/runatboot.sh
