@@ -1,5 +1,5 @@
 #
-# vendorsetup.sh – Spacewar (Unified Logic / Alioth Style)
+# vendorsetup.sh – Spacewar (Pure Vendor Boot / Optimized UI)
 #
 
 # -----------------------------------------------------------------------------
@@ -18,34 +18,48 @@ export LC_ALL="C"
 export FOX_BUILD_DEVICE="Spacewar"
 export FOX_TARGET_DEVICES="Spacewar,spacewar"
 export TARGET_DEVICE_ALT="Spacewar,spacewar"
-
-# !!! BURAYA EKLİYORSUN !!!
-# Bu satırı eklediğin an sistem "Ben Unified (v4) Recovery yapacağım" der.
-export FOX_VENDOR_BOOT_RECOVERY=1
-
-# Build Info
 export OF_MAINTAINER="QCerberusQ"
 export FOX_BUILD_TYPE="Beta"
-#export FOX_VERSION="R12.1"
 
 # -----------------------------------------------------------------------------
-# Screen Settings (Spacewar Specific)
+# ARCHITECTURE SETTINGS (PURE VENDOR BOOT)
+# -----------------------------------------------------------------------------
+# Bu satır, BoardConfig ve Device tree'deki tüm v4 ayarlarını tetikler.
+export FOX_VENDOR_BOOT_RECOVERY=1
+
+# Kurulum ZIP'i hazırlanırken "vendor_boot" bölümüne kurulacağını belirtir.
+export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
+
+# Versiyon etiketi
+export FOX_VARIANT="VendorBoot"
+
+# -----------------------------------------------------------------------------
+# Screen & UI Settings (Eski Dosyadan Optimize Edildi)
 # -----------------------------------------------------------------------------
 export OF_SCREEN_H=2400
 export OF_SCREEN_W=1080
 export OF_STATUS_H=100
-export OF_STATUS_INDENT_LEFT=48
+
+# KRİTİK AYARLAR (Eski Çalışan Dosyadan):
+# Sol taraftan 165 piksel boşluk bırakır (Kamera deliği için şart)
+export OF_STATUS_INDENT_LEFT=165 
 export OF_STATUS_INDENT_RIGHT=48
 
-# UI Theme & Brightness
+# Çentik Ayarları
+export OF_HIDE_NOTCH=1
+export OF_CLOCK_POS=0 # Saati sola alır
+
+# Tema ve Parlaklık
 export TW_THEME="portrait_hdpi"
 export TW_MAX_BRIGHTNESS=2047
 export TW_DEFAULT_BRIGHTNESS=1200
-# Nothing Phone ledleri için:
 export OF_USE_GREEN_LED=0
 
+# MIUI özelliklerini kapat (Temiz arayüz için eski dosyadan)
+export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
+
 # -----------------------------------------------------------------------------
-# Features & Tools (Alioth Style - Enhanced)
+# Features & Tools (Senin Dosyandan - Gelişmiş Araçlar)
 # -----------------------------------------------------------------------------
 export FOX_USE_BASH_SHELL=1
 export FOX_ASH_IS_BASH=1
@@ -53,7 +67,7 @@ export FOX_USE_NANO_EDITOR=1
 export FOX_ENABLE_APP_MANAGER=1
 export FOX_DELETE_AROMAFM=1
 
-# Advanced Binaries (Yedekleme ve işlem hızı için önemli)
+# Advanced Binaries (Yedekleme hızı için çok önemli)
 export FOX_USE_TAR_BINARY=1
 export FOX_USE_SED_BINARY=1
 export FOX_USE_XZ_UTILS=1
@@ -63,9 +77,14 @@ export FOX_USE_BUSYBOX_BINARY=1
 export FOX_USE_FSCK_EROFS_BINARY=1
 
 # -----------------------------------------------------------------------------
+# Security & Encryption (Eski Dosyadan)
+# -----------------------------------------------------------------------------
+export OF_DEFAULT_KEYMASTER_VERSION=4.1
+
+# -----------------------------------------------------------------------------
 # Magisk & Boot Patching
 # -----------------------------------------------------------------------------
-# Bu ayar Bootloop'u önlemek için VBMeta header'ını otomatik yamalar (Açık kalsın)
+# Bootloop önleyici VBMeta yaması
 export FOX_PATCH_VBMETA_FLAG="1"
 export FOX_USE_UPDATED_MAGISKBOOT=1
 
@@ -74,18 +93,3 @@ export FOX_USE_UPDATED_MAGISKBOOT=1
 # -----------------------------------------------------------------------------
 export FOX_VIRTUAL_AB_DEVICE=1
 export FOX_AB_DEVICE=1
-
-# -----------------------------------------------------------------------------
-# CONDITIONAL BUILD LOGIC (Alioth'un Sırrı)
-# -----------------------------------------------------------------------------
-# Yukarıda "export FOX_VENDOR_BOOT_RECOVERY=1" dediğimiz için artık burası çalışacak:
-if [ "$FOX_VENDOR_BOOT_RECOVERY" = "1" ]; then
-    # Dosya ismine "vBaR" (Vendor Boot as Recovery) ekle
-    export FOX_VARIANT="Unified_v4"
-    
-    # OrangeFox ZIP'ine "Bunu vendor_boot bölümüne kur" emrini ver
-    export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
-else
-    # Standart Boot Modu (Header v3)
-    export FOX_VARIANT="Stable"
-fi
