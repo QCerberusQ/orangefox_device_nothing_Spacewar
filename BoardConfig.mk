@@ -47,6 +47,7 @@ KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
 TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
 TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
+TARGET_NO_KERNEL := true
 
 # -----------------------------------------------------------------------------
 # CMDLINE MAGIC (Alioth'un Sırrı Burada)
@@ -99,7 +100,8 @@ BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
 # DTB Dosyasının Yolu
-TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
+TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
+BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
 ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
     # --- MOD 1: Header v4 (Vendor Boot) ---
