@@ -1,7 +1,6 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
-# UNIFIED / VENDOR_BOOT EDITION (COMPLETE)
-# Includes: VendorDLKM, Real CMDLINE, Decryption, Header v4 Override
+# ALIOTH STYLE LOGIC (Conditional Build)
 #
 
 # -----------------------------------------------------------------------------
@@ -31,69 +30,87 @@ TARGET_SUPPORTS_64_BIT_APPS := true
 TARGET_IS_64_BIT := true
 
 # -----------------------------------------------------------------------------
-# Assert & OTA
-# -----------------------------------------------------------------------------
-TARGET_OTA_ASSERT_DEVICE := Spacewar
-AB_OTA_UPDATER := true
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    odm \
-    product \
-    system \
-    system_ext \
-    vbmeta \
-    vbmeta_system \
-    vendor \
-    vendor_boot
-
-# -----------------------------------------------------------------------------
-# Platform & Bootloader (UNIFIED LOGIC)
+# Bootloader & Platform
 # -----------------------------------------------------------------------------
 TARGET_BOARD_PLATFORM := lahaina
 BOARD_USES_QCOM_HARDWARE := true
-
-# Unified Build için Header v4 Zorluyoruz
-BOARD_BOOT_HEADER_VERSION := 4
-BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+TARGET_BOOTLOADER_BOARD_NAME := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel & CMDLINE (REAL DATA)
+# Kernel Configuration
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_IMAGE_NAME := Image
 
-# Magiskboot Loglarından Alınan GERÇEK Kodlar (Ölümcül Önemli)
-BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1
-
-# Kernel Kaynakları
 KERNEL_PATH := $(DEVICE_PATH)/prebuilt
 TARGET_PREBUILT_KERNEL := $(KERNEL_PATH)/kernel
-
-# Decryption Header'ları için kaynak kod
 TARGET_KERNEL_SOURCE := kernel/nothing/sm7325
 TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 
 # -----------------------------------------------------------------------------
-# DTB / DTBO Configuration
+# CMDLINE MAGIC (Alioth'un Sırrı Burada)
 # -----------------------------------------------------------------------------
-# Vendor Boot yapısı için DTB ayarları
-BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
-BOARD_KERNEL_SEPARATED_DTBO := true
+# 1. Komutları önce genel bir değişkene atıyoruz
+MY_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1
 
-# DTBO Dosyası
+# -----------------------------------------------------------------------------
+# LOGIC SWITCH (Alioth'un "Kandırmaca" Kısmı)
+# -----------------------------------------------------------------------------
+# Eğer Action YAML dosyasında veya terminalde "FOX_VENDOR_BOOT_RECOVERY=1" dersen burası çalışır:
+ifeq ($(FOX_VENDOR_BOOT_RECOVERY),1)
+    # Header v4 Modu (Vendor Boot)
+    BOARD_BOOT_HEADER_VERSION := 4
+    BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+    
+    # Komutları vendor_cmdline içine göm (Header v4 kuralı)
+    BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
+    
+    # Recovery kaynaklarını vendor_boot'a taşı
+    BOARD_USES_RECOVERY_AS_BOOT :=
+    BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+    BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+    BOARD_USES_GENERIC_KERNEL_IMAGE := true
+    BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
+    
+    # DTB Ayarları (Vendor Boot için)
+    BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
+    # Boot.img içine koyma (Alioth mantığı)
+    BOARD_INCLUDE_DTB_IN_BOOTIMG := 
+    
+    # Alioth'un koyduğu güvenlik önlemi:
+    # Eğer cihazda v4 header yoksa, recovery kendini flaşlarken bozmasın diye menüyü gizler.
+    ifneq ($(FOX_VENDOR_BOOT_RECOVERY_FULL_REFLASH),1)
+        OF_NO_REFLASH_CURRENT_ORANGEFOX := 1
+    endif
+
+else
+    # Eğer parametre YOKSA burası çalışır (Eski Usul / Header v3)
+    # Bu sayede crDroid gibi v3 kernel kullanan cihazlarda bootloop olmaz.
+    BOARD_BOOT_HEADER_VERSION := 3
+    BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+    
+    # Komutları klasik kernel_cmdline içine göm
+    BOARD_KERNEL_CMDLINE := $(MY_CMDLINE)
+    
+    BOARD_USES_RECOVERY_AS_BOOT := true
+    
+    # Boot.img içine DTB koy (Eski usul)
+    BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+endif
+
+# -----------------------------------------------------------------------------
+# DTB / DTBO (Ortak Ayarlar)
+# -----------------------------------------------------------------------------
+BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(KERNEL_PATH)/dtbo.img
 
-# DTB Dosyası (Klasör yerine direkt dosya vererek BootImg hatasını aşıyoruz)
-TARGET_PREBUILT_DTB := device/nothing/Spacewar/prebuilt/dtbs/Spacewar.dtb
+# Force DTB Path (Senin 4MB'lık dosyan)
+TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
-# Boot.img içine DTB koyma komutunu kapattık (Vendor Boot olduğu için)
-# BOARD_INCLUDE_DTB_IN_BOOTIMG := true
-
 # -----------------------------------------------------------------------------
-# Partitions & Filesystems
+# Partitions
 # -----------------------------------------------------------------------------
 BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
@@ -103,12 +120,11 @@ BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 
-# Vendor Tanımları
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
-# Vendor DLKM (Senin istediğin eksik parça)
+# Vendor DLKM
 BOARD_USES_VENDOR_DLKMIMAGE := true
 TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
@@ -118,19 +134,13 @@ TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
 BOARD_RAMDISK_USE_LZ4 := true
 
 # -----------------------------------------------------------------------------
-# Recovery Resources (VENDOR_BOOT MODE)
+# Recovery UI & Crypto
 # -----------------------------------------------------------------------------
-# Alioth/Unified Stili: Recovery kaynaklarını vendor_boot'a zorla
-BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
-BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-VENDOR_BOOT_HAS_RECOVERY_RAMDISK := true
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_USERIMAGES_USE_F2FS := true
+BOARD_USES_METADATA_PARTITION := true
 
-# GSI AVB Anahtarları
-BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
-
-# -----------------------------------------------------------------------------
-# Crypto / FBE
-# -----------------------------------------------------------------------------
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
@@ -138,15 +148,6 @@ TW_USE_FSCRYPT_POLICY := 1
 TW_PREPARE_DATA_MEDIA_EARLY := true
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
-# Android 14 Spoofing
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-PLATFORM_VERSION := 99.87.36
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-
-# -----------------------------------------------------------------------------
-# UI & Tools
-# -----------------------------------------------------------------------------
 TW_THEME := portrait_hdpi
 RECOVERY_SDCARD_ON_DATA := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
@@ -154,12 +155,9 @@ TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_INCLUDE_NTFS_3G := true
 TW_USE_TOOLBOX := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
-
-# Ekran Parlaklığı ve Haptics
 TW_BRIGHTNESS_PATH :=
 TW_NO_SCREEN_BLANK := true
 TW_SUPPORT_INPUT_AIDL_HAPTICS := true
-TW_SKIP_ADDITIONAL_FSTAB := true
 
 # Loglama
 TWRP_INCLUDE_LOGCAT := true
