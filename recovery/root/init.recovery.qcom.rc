@@ -1,52 +1,57 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# FINAL FIX: QTI Gatekeeper + User-Controlled Vibrator (No Forced Boot)
+# FINAL STABLE VERSION
+# FBE + WRAPPEDKEY_V0 + QTI GATEKEEPER + SAFE VIBRATOR
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
+# -----------------------------------------------------------------------------
+# Early Init
+# -----------------------------------------------------------------------------
 on early-init
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
 
-    # Firmware klasörleri
+    # Firmware symlinks (fstab mount will be used)
     mkdir /firmware
     mkdir /vendor/firmware_mnt
     symlink /vendor/firmware_mnt /firmware
     symlink /vendor/bt_firmware /bt_firmware
     symlink /vendor/dsp /dsp
-    
+
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
+# -----------------------------------------------------------------------------
+# Init
+# -----------------------------------------------------------------------------
 on init
     mount_all /vendor/etc/charger_fw_fstab.qti --early
-    
-    # Ekran parlaklığı
+
+    # Screen brightness (safe default)
     write /sys/class/backlight/panel0-backlight/brightness 200
-    
-    # USB Ayarları
+
+    # USB configfs
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
 
+# -----------------------------------------------------------------------------
+# FS
+# -----------------------------------------------------------------------------
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
 
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # 1. Vendor DLKM
+    # Vendor DLKM
     mkdir /vendor_dlkm
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # 2. Firmware (Modem)
-    mkdir /firmware
-    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
-
-    # 3. Modüller
+    # Vendor DLKM modules (minimum required set)
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
     insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
     insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
@@ -55,13 +60,21 @@ on fs
     insmod /vendor_dlkm/lib/modules/goodix_fp.ko
 
 # -----------------------------------------------------------------------------
-# Post-FS & Services
+# Post FS
 # -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
-    # Gatekeeper QTI (Doğru İsim)
+
+# -----------------------------------------------------------------------------
+# Post FS Data (CRITICAL FOR DECRYPT)
+# -----------------------------------------------------------------------------
+on post-fs-data
+    # QTI Gatekeeper (must start AFTER metadata & firmware)
     start gatekeeper-1-0-qti
 
+# -----------------------------------------------------------------------------
+# Services
+# -----------------------------------------------------------------------------
 service set_permissive /system/bin/set_permissive.sh
     user root
     group root
@@ -70,12 +83,10 @@ service set_permissive /system/bin/set_permissive.sh
     seclabel u:r:recovery:s0
 
 service keymasterd /system/bin/keymasterd
-     user root
-     group root
-     disabled
-     seclabel u:r:recovery:s0
-
-# Titreşim servisi KAPALI (Manuel kontrol için sildik)
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
 
 service unified-script /system/bin/unified-script.sh
     user root
@@ -92,38 +103,35 @@ service wrapped-key /system/bin/wrappedkey-fix.sh
     seclabel u:r:recovery:s0
 
 # -----------------------------------------------------------------------------
-# Boot Triggers
+# Boot
 # -----------------------------------------------------------------------------
 on boot
     start health-hal-2-1
-    
-    # TİTREŞİM DÜZELTMESİ (ÖNEMLİ DEĞİŞİKLİK)
-    # 'activate 1' ve 'duration' SİLİNDİ.
-    # Artık cihaz açılınca zorla titremeyecek.
-    # Sadece voltajı (gücü) sınırlıyoruz ki çalışırsa YUMUŞAK çalışsın.
-    write /sys/class/leds/vibrator/vmax_mv 1200
-    write /sys/class/leds/vibrator/gain 0x20
 
+    # SAFE vibrator tuning (no forced vibration)
+    wait /sys/class/leds/vibrator/gain
+    write /sys/class/leds/vibrator/vmax_mv 1200
+    write /sys/class/leds/vibrator/gain 32
+
+    # USB / ADB
     setprop sys.usb.config adb
+
     chmod 0777 /system/bin/unified-script.sh
     start unified-script
 
+# -----------------------------------------------------------------------------
 # ADSP Trigger
+# -----------------------------------------------------------------------------
 on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
-    wait /sys/class/power_supply/battery
-    start health-hal-2-1
 
-# Decryption Fixes
-on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
+# -----------------------------------------------------------------------------
+# Decryption Helpers
+# -----------------------------------------------------------------------------
+on property:crypto.ready=0 && property:ro.crypto.state=encrypted
     chmod 0777 /system/bin/wrappedkey-fix.sh
     start wrapped-key
-
-on property:ro.boot.usbcontroller=*
-    setprop sys.usb.controller ${ro.boot.usbcontroller}
-    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
-    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
 
 on property:prepdecrypt.vendor_mounted=1
     setprop crypto.ready 1
@@ -132,9 +140,16 @@ on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
 
 # -----------------------------------------------------------------------------
-# Gatekeeper Servisi (QTI Versiyonu)
+# USB Controller Fix
 # -----------------------------------------------------------------------------
-# Bu servis Data şifresini çözmek için zorunludur.
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
+    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
+
+# -----------------------------------------------------------------------------
+# QTI Gatekeeper Service
+# -----------------------------------------------------------------------------
 service gatekeeper-1-0-qti /vendor/bin/hw/android.hardware.gatekeeper@1.0-service-qti
     user root
     group root
