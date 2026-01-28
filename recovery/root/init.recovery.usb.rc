@@ -28,10 +28,6 @@
 on early-init
     setprop sys.usb.configfs 0
 
-on fs
-    mkdir /dev/usb-ffs/mtp 0770 mtp mtp
-    mount functionfs mtp /dev/usb-ffs/mtp rmode=0770,fmode=0660,uid=1024,gid=1024,no_disconnect=1
-
 on init
     mkdir /config
     mount configfs none /config
