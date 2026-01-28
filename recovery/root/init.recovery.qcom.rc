@@ -127,6 +127,12 @@ on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
 #on property:prepdecrypt.vendor_mounted=1
 #    setprop crypto.ready 1
 
+service keymasterd /system/bin/keymasterd
+     user root
+     group root
+     disabled
+     seclabel u:r:recovery:s0
+
 # -----------------------------------------------------------------------------
 # USB Controller Fix
 # -----------------------------------------------------------------------------
