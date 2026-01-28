@@ -38,7 +38,7 @@ export FOX_VARIANT="VendorBoot"
 # -----------------------------------------------------------------------------
 export OF_SCREEN_H=2400
 export OF_SCREEN_W=1080
-export OF_STATUS_H=100
+export OF_STATUS_H=115
 
 # KRİTİK AYARLAR (Eski Çalışan Dosyadan):
 # Sol taraftan 165 piksel boşluk bırakır (Kamera deliği için şart)
