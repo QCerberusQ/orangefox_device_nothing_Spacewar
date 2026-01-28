@@ -1,19 +1,18 @@
 # =============================================================
 # Nothing Phone (1) - Spacewar
 # FINAL RECOVERY SAFE recovery.fstab
-# OrangeFox / TWRP compatible
-# FBE + WRAPPEDKEY_V0
+# fs_mgr compatible – STORAGE FIXED
 # =============================================================
 
 # -------------------------------------------------------------
-# Dynamic Partitions (READ-ONLY)
+# Dynamic Partitions (EROFS – READ ONLY)
 # -------------------------------------------------------------
-system        /system       erofs   ro                    wait
-system_ext    /system_ext   erofs   ro                    wait
-product       /product      erofs   ro                    wait
-vendor        /vendor       erofs   ro                    wait
-vendor_dlkm   /vendor_dlkm  erofs   ro                    wait
-odm           /odm          erofs   ro                    wait
+system        /system       erofs   ro    wait
+system_ext    /system_ext   erofs   ro    wait
+product       /product      erofs   ro    wait
+vendor        /vendor       erofs   ro    wait
+vendor_dlkm   /vendor_dlkm  erofs   ro    wait
+odm           /odm          erofs   ro    wait
 
 # -------------------------------------------------------------
 # Metadata (FBE – REQUIRED)
@@ -21,9 +20,9 @@ odm           /odm          erofs   ro                    wait
 /dev/block/bootdevice/by-name/metadata  /metadata  ext4  rw,noatime,nosuid,nodev,discard  wait,check,formattable,wrappedkey
 
 # -------------------------------------------------------------
-# Userdata (FBE – WrappedKey v0 – RECOVERY SAFE)
+# Userdata (FBE – WrappedKey v0 – **CRITICAL FIX HERE**)
 # -------------------------------------------------------------
-/dev/block/bootdevice/by-name/userdata  /data  f2fs  rw,noatime,nosuid,nodev,discard,inlinecrypt  wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption
+/dev/block/bootdevice/by-name/userdata  /data  f2fs  rw,noatime,nosuid,nodev,discard,inlinecrypt  latemount,wait,check,formattable,quota,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption
 
 # -------------------------------------------------------------
 # Misc / Persist
@@ -32,7 +31,7 @@ odm           /odm          erofs   ro                    wait
 /dev/block/bootdevice/by-name/persist  /persist  ext4   rw,noatime,nosuid,nodev,discard  wait
 
 # -------------------------------------------------------------
-# Firmware (DECRYPT TRIGGER – KEEP SLOTSELECT)
+# Firmware (Decrypt trigger – KEEP slotselect)
 # -------------------------------------------------------------
 /dev/block/bootdevice/by-name/modem     /vendor/firmware_mnt  vfat  ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0  wait,slotselect,mounttodecrypt
 /dev/block/bootdevice/by-name/dsp       /vendor/dsp           ext4  ro,nosuid,nodev,discard  wait,slotselect
