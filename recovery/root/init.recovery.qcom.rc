@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# FINAL FIX: Gatekeeper Name Match + No-Service Vibrator
+# FINAL FIX: QTI Gatekeeper + User-Controlled Vibrator (No Forced Boot)
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
@@ -59,7 +59,7 @@ on fs
 # -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
-    # DÜZELTME: Aşağıdaki servis tanımıyla İSİM AYNI olmalı!
+    # Gatekeeper QTI (Doğru İsim)
     start gatekeeper-1-0-qti
 
 service set_permissive /system/bin/set_permissive.sh
@@ -75,8 +75,7 @@ service keymasterd /system/bin/keymasterd
      disabled
      seclabel u:r:recovery:s0
 
-# DÜZELTME: Titreşim servisi TAMAMEN İPTAL EDİLDİ (Manuel kontrol için)
-# service vendor.qti.vibrator ... (SİLİNDİ)
+# Titreşim servisi KAPALI (Manuel kontrol için sildik)
 
 service unified-script /system/bin/unified-script.sh
     user root
@@ -98,12 +97,12 @@ service wrapped-key /system/bin/wrappedkey-fix.sh
 on boot
     start health-hal-2-1
     
-    # TİTREŞİM ÇÖZÜMÜ: Servis yok, sadece donanım komutları var.
-    # Bu değerler (0x20) çok yumuşak bir his verir.
+    # TİTREŞİM DÜZELTMESİ (ÖNEMLİ DEĞİŞİKLİK)
+    # 'activate 1' ve 'duration' SİLİNDİ.
+    # Artık cihaz açılınca zorla titremeyecek.
+    # Sadece voltajı (gücü) sınırlıyoruz ki çalışırsa YUMUŞAK çalışsın.
     write /sys/class/leds/vibrator/vmax_mv 1200
     write /sys/class/leds/vibrator/gain 0x20
-    write /sys/class/leds/vibrator/duration 30
-    write /sys/class/leds/vibrator/activate 1
 
     setprop sys.usb.config adb
     chmod 0777 /system/bin/unified-script.sh
@@ -135,7 +134,7 @@ on property:ro.crypto.state=encrypted
 # -----------------------------------------------------------------------------
 # Gatekeeper Servisi (QTI Versiyonu)
 # -----------------------------------------------------------------------------
-# DÜZELTME: QTI servisi tanımlı. Yukarıda 'start gatekeeper-1-0-qti' ile çağrılıyor.
+# Bu servis Data şifresini çözmek için zorunludur.
 service gatekeeper-1-0-qti /vendor/bin/hw/android.hardware.gatekeeper@1.0-service-qti
     user root
     group root
