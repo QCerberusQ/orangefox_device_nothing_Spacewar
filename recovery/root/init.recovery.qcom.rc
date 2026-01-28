@@ -34,7 +34,7 @@ on init
 # Filesystem & Modules
 # -----------------------------------------------------------------------------
 on fs
-    export LD_LIBRARY_PATH export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
 
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
