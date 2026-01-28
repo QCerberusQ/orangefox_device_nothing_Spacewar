@@ -1,70 +1,70 @@
-# Android fstab file (Flags for OrangeFox GUI)
+# Android fstab (TWRP / OrangeFox GUI flags)
 # Nothing Phone (1) / Spacewar
-# Final Merge: Old Repo Keys + Modern Partition Structure
+# FINAL STABLE
 
-# -----------------------------------------------------------------------------
-# Boot & Vendor Boot
-# -----------------------------------------------------------------------------
-/boot           emmc    /dev/block/bootdevice/by-name/boot          flags=slotselect;display="Boot";backup=1;flashimg=1
-/vendor_boot    emmc    /dev/block/bootdevice/by-name/vendor_boot   flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
-/dtbo           emmc    /dev/block/bootdevice/by-name/dtbo          flags=slotselect;display="DTBO";backup=1;flashimg=1
+# -------------------------------------------------------------------------
+# Boot / Vendor Boot
+# -------------------------------------------------------------------------
+/boot           emmc  /dev/block/bootdevice/by-name/boot          flags=slotselect;display="Boot";backup=1;flashimg=1
+/vendor_boot    emmc  /dev/block/bootdevice/by-name/vendor_boot   flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
+/dtbo           emmc  /dev/block/bootdevice/by-name/dtbo          flags=slotselect;display="DTBO";backup=1;flashimg=1
 
-# -----------------------------------------------------------------------------
-# System & Super
-# -----------------------------------------------------------------------------
-/super          emmc    /dev/block/bootdevice/by-name/super         flags=display="Super";backup=1;flashimg=1
+# -------------------------------------------------------------------------
+# Super
+# -------------------------------------------------------------------------
+/super          emmc  /dev/block/bootdevice/by-name/super         flags=display="Super";backup=1;flashimg=1
 
-# -----------------------------------------------------------------------------
-# Data & Metadata (Eski Repo'dan Alınan KESİN DOĞRU Kodlar)
-# -----------------------------------------------------------------------------
-# Metadata: 'wrappedkey' bayrağı eklendi (Eski dosyada bu satır eksikti ama Data için şart)
-/metadata       ext4    /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey;wipeingui
+# -------------------------------------------------------------------------
+# Metadata & Data (DECRYPT SAFE)
+# -------------------------------------------------------------------------
+/metadata       ext4  /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey;wipeingui
 
-# Data: İşte sihirli satır burası! Spacewar için özel şifreleme parametreleri.
-/data           f2fs    /dev/block/bootdevice/by-name/userdata      flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts:wrappedkey_v0
+/data           f2fs  /dev/block/bootdevice/by-name/userdata      flags=display="Data";backup=1;wipeingui; \
+fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0; \
+metadata_encryption=aes-256-xts:wrappedkey_v0; \
+keydirectory=/metadata/vold/metadata_encryption
 
-# Internal Storage (Yedekleme listesinde görünmesi için)
-/storage        f2fs    /data/media/0                               flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
+# Internal Storage (bind mount)
+/storage        f2fs  /data/media/0                               flags=display="Internal Storage";storage;backup=1;fsflags="bind";removable
 
-# -----------------------------------------------------------------------------
-# AVB Partitions
-# -----------------------------------------------------------------------------
-/vbmeta         emmc    /dev/block/bootdevice/by-name/vbmeta        flags=slotselect;display="VBMeta";backup=1;flashimg=1
-/vbmeta_system  emmc    /dev/block/bootdevice/by-name/vbmeta_system flags=slotselect;display="VBMeta System";backup=1;flashimg=1
+# -------------------------------------------------------------------------
+# AVB
+# -------------------------------------------------------------------------
+/vbmeta         emmc  /dev/block/bootdevice/by-name/vbmeta        flags=slotselect;display="VBMeta";backup=1;flashimg=1
+/vbmeta_system  emmc  /dev/block/bootdevice/by-name/vbmeta_system flags=slotselect;display="VBMeta System";backup=1;flashimg=1
 
-# -----------------------------------------------------------------------------
-# Firmware & Modem (Decryption Tetikleyici)
-# -----------------------------------------------------------------------------
-# DİKKAT: Eski dosya 'ext4' diyordu ama senin cihazın 'vfat'.
-# 'mounttodecrypt' bayrağı şifre ekranının gelmesi için ŞART.
-/firmware       vfat    /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt;fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
+# -------------------------------------------------------------------------
+# Firmware (DECRYPT TRIGGER – DO NOT WIPE)
+# -------------------------------------------------------------------------
+/firmware       vfat  /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt; \
+fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
 
-# Yedekleme Amaçlı
-/modem          emmc    /dev/block/bootdevice/by-name/modem         flags=slotselect;backup=1;display="Modem"
-/bluetooth      emmc    /dev/block/bootdevice/by-name/bluetooth     flags=slotselect;backup=1;subpartitionof=/modem
-/dsp            emmc    /dev/block/bootdevice/by-name/dsp           flags=slotselect;backup=1;subpartitionof=/modem
+# Backup-only modem partitions
+/modem          emmc  /dev/block/bootdevice/by-name/modem         flags=slotselect;backup=1;display="Modem"
+/bluetooth      emmc  /dev/block/bootdevice/by-name/bluetooth     flags=slotselect;backup=1;subpartitionof=/modem
+/dsp            emmc  /dev/block/bootdevice/by-name/dsp           flags=slotselect;backup=1;subpartitionof=/modem
 
-# -----------------------------------------------------------------------------
-# Persist & Misc
-# -----------------------------------------------------------------------------
-/persist        ext4    /dev/block/bootdevice/by-name/persist       flags=display="Persist";fsflags=ro
-/persist_image  emmc    /dev/block/bootdevice/by-name/persist       flags=display="Persist Image";backup=1;flashimg=1
-/prodpersist    ext4    /dev/block/bootdevice/by-name/prodpersist   flags=backup=1;display="Product Persist"
-/misc           emmc    /dev/block/bootdevice/by-name/misc          flags=display="Misc";backup=1
+# -------------------------------------------------------------------------
+# Persist / Misc
+# -------------------------------------------------------------------------
+/persist        ext4  /dev/block/bootdevice/by-name/persist       flags=display="Persist";backup=1
+/persist_image  emmc  /dev/block/bootdevice/by-name/persist       flags=display="Persist Image";backup=1;flashimg=1
+/prodpersist    ext4  /dev/block/bootdevice/by-name/prodpersist   flags=display="Product Persist";backup=1
+/misc           emmc  /dev/block/bootdevice/by-name/misc          flags=display="Misc";backup=1
 
-# Logo & Keymaster (Eski dosyada vardı, ekledik)
-/logo           emmc    /dev/block/bootdevice/by-name/logo          flags=display="Boot Logo";backup=1;flashimg=1;slotselect
-/keymaster      emmc    /dev/block/bootdevice/by-name/keymaster     flags=slotselect;backup=1;display="Keymaster"
+/logo           emmc  /dev/block/bootdevice/by-name/logo          flags=display="Boot Logo";backup=1;flashimg=1;slotselect
+/keymaster      emmc  /dev/block/bootdevice/by-name/keymaster     flags=display="Keymaster";backup=1;slotselect
 
-# -----------------------------------------------------------------------------
-# EFS (IMEI Yedekleme)
-# -----------------------------------------------------------------------------
-/efs1           emmc    /dev/block/bootdevice/by-name/modemst1      flags=backup=1;display="EFS"
-/efs2           emmc    /dev/block/bootdevice/by-name/modemst2      flags=backup=1;subpartitionof=/efs1
-/efsc           emmc    /dev/block/bootdevice/by-name/fsc           flags=backup=1;subpartitionof=/efs1
-/efsg           emmc    /dev/block/bootdevice/by-name/fsg           flags=backup=1;subpartitionof=/efs1
+# -------------------------------------------------------------------------
+# EFS (IMEI – BACKUP ONLY)
+# -------------------------------------------------------------------------
+/efs1           emmc  /dev/block/bootdevice/by-name/modemst1      flags=display="EFS";backup=1
+/efs2           emmc  /dev/block/bootdevice/by-name/modemst2      flags=backup=1;subpartitionof=/efs1
+/efsc           emmc  /dev/block/bootdevice/by-name/fsc           flags=backup=1;subpartitionof=/efs1
+/efsg           emmc  /dev/block/bootdevice/by-name/fsg           flags=backup=1;subpartitionof=/efs1
 
-# -----------------------------------------------------------------------------
-# Removable Storage
-# -----------------------------------------------------------------------------
-/usb_otg        auto    /dev/block/sdg1      /dev/block/sdg4        flags=fsflags=utf8;display="USB Storage";storage;wipeingui;removable
+# -------------------------------------------------------------------------
+# USB OTG (VOLD MANAGED – SAFE)
+# -------------------------------------------------------------------------
+/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto* \
+                flags=display="USB Storage";storage;removable
