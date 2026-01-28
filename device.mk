@@ -90,7 +90,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.system.keystore2 \
     android.hardware.gatekeeper@1.0-impl \
-    android.hardware.gatekeeper@1.0-service \
+    android.hardware.gatekeeper@1.0-service-qti \
     qcom_decrypt \
     qcom_decrypt_fbe
 
