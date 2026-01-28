@@ -1,13 +1,10 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# Hybrid Logic: Pure Vendor Boot + Working Hardware Triggers
+# FINAL FIX: Gatekeeper Name Match + No-Service Vibrator
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
-# -----------------------------------------------------------------------------
-# Early Init
-# -----------------------------------------------------------------------------
 on early-init
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
 
@@ -20,9 +17,6 @@ on early-init
     
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
-# -----------------------------------------------------------------------------
-# Init
-# -----------------------------------------------------------------------------
 on init
     mount_all /vendor/etc/charger_fw_fstab.qti --early
     
@@ -32,12 +26,7 @@ on init
     # USB Ayarları
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
-    
-    # NOT: Titreşim ayarını buradan kaldırdık, aşağıda servisten sonraya koyduk.
 
-# -----------------------------------------------------------------------------
-# Filesystem & Mounting
-# -----------------------------------------------------------------------------
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
 
@@ -53,7 +42,7 @@ on fs
     mkdir /firmware
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
 
-    # 3. Modüller (Eğer dokunmatik çalışıyorsa buraya dokunma)
+    # 3. Modüller
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
@@ -70,7 +59,8 @@ on fs
 # -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
-    start gatekeeper-1-0
+    # DÜZELTME: Aşağıdaki servis tanımıyla İSİM AYNI olmalı!
+    start gatekeeper-1-0-qti
 
 service set_permissive /system/bin/set_permissive.sh
     user root
@@ -85,13 +75,8 @@ service keymasterd /system/bin/keymasterd
      disabled
      seclabel u:r:recovery:s0
 
-# Titreşim Servisi
-service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
-    user root
-    group root
-    disabled
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
-    seclabel u:r:recovery:s0
+# DÜZELTME: Titreşim servisi TAMAMEN İPTAL EDİLDİ (Manuel kontrol için)
+# service vendor.qti.vibrator ... (SİLİNDİ)
 
 service unified-script /system/bin/unified-script.sh
     user root
@@ -108,24 +93,17 @@ service wrapped-key /system/bin/wrappedkey-fix.sh
     seclabel u:r:recovery:s0
 
 # -----------------------------------------------------------------------------
-# Boot Triggers (Titreşim Düzeltmesi BURADA)
+# Boot Triggers
 # -----------------------------------------------------------------------------
 on boot
     start health-hal-2-1
     
-    # 1. Önce Servisi Başlat
-    start vendor.qti.vibrator
-    
-    # 2. Servisin açılması için çok kısa bekle (opsiyonel ama güvenli)
-    wait /sys/class/leds/vibrator/gain
-    
-    # 3. AYARI ŞİMDİ YAP (Servis başladıktan sonra eziyoruz)
-    # 0x80 = 128 (Çok sertti)
-    # 0x30 = 48 (Yumuşak - %20 civarı)
-    write /sys/class/leds/vibrator/gain 0x30
-    
-    # Ekstra Güvenlik: Voltajı da sınırlayalım (2500mv yerine 1200mv)
+    # TİTREŞİM ÇÖZÜMÜ: Servis yok, sadece donanım komutları var.
+    # Bu değerler (0x20) çok yumuşak bir his verir.
     write /sys/class/leds/vibrator/vmax_mv 1200
+    write /sys/class/leds/vibrator/gain 0x20
+    write /sys/class/leds/vibrator/duration 30
+    write /sys/class/leds/vibrator/activate 1
 
     setprop sys.usb.config adb
     chmod 0777 /system/bin/unified-script.sh
@@ -154,8 +132,11 @@ on property:prepdecrypt.vendor_mounted=1
 on property:ro.crypto.state=encrypted
     setprop crypto.ready 1
 
-# Gatekeeper Servisi (Standart)
-service gatekeeper-1-0 /system/bin/android.hardware.gatekeeper@1.0-service
+# -----------------------------------------------------------------------------
+# Gatekeeper Servisi (QTI Versiyonu)
+# -----------------------------------------------------------------------------
+# DÜZELTME: QTI servisi tanımlı. Yukarıda 'start gatekeeper-1-0-qti' ile çağrılıyor.
+service gatekeeper-1-0-qti /vendor/bin/hw/android.hardware.gatekeeper@1.0-service-qti
     user root
     group root
     disabled
