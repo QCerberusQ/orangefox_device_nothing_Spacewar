@@ -1,6 +1,6 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
-# "PREVIOUSLY WORKING" BASED EDITION (Pure Vendor Boot)
+# FINAL STABLE – Recovery (Vendor Boot v4)
 #
 
 # -----------------------------------------------------------------------------
@@ -29,14 +29,14 @@ TARGET_SUPPORTS_64_BIT_APPS := true
 TARGET_IS_64_BIT := true
 
 # -----------------------------------------------------------------------------
-# Bootloader & Platform
+# Bootloader / Platform
 # -----------------------------------------------------------------------------
 TARGET_BOARD_PLATFORM := lahaina
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOOTLOADER_BOARD_NAME := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel Configuration (NO KERNEL)
+# Kernel (Recovery only – no kernel build)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_PAGESIZE := 4096
 TARGET_NO_KERNEL := true
@@ -45,42 +45,34 @@ TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
 
 # -----------------------------------------------------------------------------
-# Boot Header & Cmdline (V4 - WORKING CONFIG)
+# Boot Header v4
 # -----------------------------------------------------------------------------
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
-# Çalışan config dosyasındaki Cmdline argümanları (Buraya taşıdık)
-MY_CMDLINE := androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.selinux=permissive androidboot.usbcontroller=a600000.dwc3 cgroup.memory=nokmem,nosocket console=ttyMSM0,115200n8 earlycon=msm_geni_serial,0x880000 ip6table_raw.raw_before_defrag=1 iptable_raw.raw_before_defrag=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 pcie_ports=compat service_locator.enable=1 swiotlb=0
+MY_CMDLINE := androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 cgroup.memory=nokmem,nosocket console=ttyMSM0,115200n8 earlycon=msm_geni_serial,0x880000 ip6table_raw.raw_before_defrag=1 iptable_raw.raw_before_defrag=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 pcie_ports=compat service_locator.enable=1 swiotlb=0
 
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
 
 # -----------------------------------------------------------------------------
-# DTB / DTBO Configuration
+# DTB / DTBO
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 
-# DTB Yolu
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
-
-# Vendor Boot için DTB Ayarları
 BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
 BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 
 # -----------------------------------------------------------------------------
-# Vendor Ramdisk (KILLER FEATURE)
+# Vendor Ramdisk
 # -----------------------------------------------------------------------------
-# Çalışan config dosyasındaki en kritik satır. 
-# Bu dosya yoksa cihaz açılmaz.
 BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
-
 BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
-# BOARD_USES_RECOVERY_AS_BOOT :=  <-- Bu boş kalmalı (V4 için)
 
 # -----------------------------------------------------------------------------
 # Partitions
@@ -93,6 +85,7 @@ BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
@@ -103,12 +96,11 @@ BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
 
 # -----------------------------------------------------------------------------
-# Recovery UI & Security Patch (Decryption Fix)
+# Recovery / Crypto
 # -----------------------------------------------------------------------------
-# Gelecekten gelen yamalar (Android 14/15 Fix)
 PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION := 13
 
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 TARGET_USERIMAGES_USE_EXT4 := true
@@ -119,26 +111,23 @@ TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
 TW_USE_FSCRYPT_POLICY := 1
-TW_PREPARE_DATA_MEDIA_EARLY := true
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
-# OrangeFox/TWRP Specifics
+# -----------------------------------------------------------------------------
+# TWRP / OrangeFox
+# -----------------------------------------------------------------------------
 TW_THEME := portrait_hdpi
 RECOVERY_SDCARD_ON_DATA := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
-TW_INCLUDE_NTFS_3G := true
 TW_USE_TOOLBOX := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_NO_SCREEN_BLANK := true
-TW_SUPPORT_INPUT_AIDL_HAPTICS := true
 
-# Ekran Parlaklığı (Çalışan Config'den)
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
 TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 1200
 
-# Props Override (Decryption için ŞART)
 TW_OVERRIDE_SYSTEM_PROPS := "ro.build.date.utc;ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
 
 # -----------------------------------------------------------------------------
