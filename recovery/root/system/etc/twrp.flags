@@ -1,9 +1,9 @@
 # Android fstab (TWRP / OrangeFox GUI flags)
 # Nothing Phone (1) / Spacewar
-# FINAL STABLE
+# FINAL STABLE – UPSTREAM READY
 
 # -------------------------------------------------------------------------
-# Boot / Vendor Boot
+# Boot / Vendor Boot / DTBO
 # -------------------------------------------------------------------------
 /boot           emmc  /dev/block/bootdevice/by-name/boot          flags=slotselect;display="Boot";backup=1;flashimg=1
 /vendor_boot    emmc  /dev/block/bootdevice/by-name/vendor_boot   flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
@@ -15,14 +15,11 @@
 /super          emmc  /dev/block/bootdevice/by-name/super         flags=display="Super";backup=1;flashimg=1
 
 # -------------------------------------------------------------------------
-# Metadata & Data (DECRYPT SAFE)
+# Metadata & Data (FBE + WRAPPEDKEY)
 # -------------------------------------------------------------------------
 /metadata       ext4  /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey;wipeingui
 
-/data           f2fs  /dev/block/bootdevice/by-name/userdata      flags=display="Data";backup=1;wipeingui; \
-fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0; \
-metadata_encryption=aes-256-xts:wrappedkey_v0; \
-keydirectory=/metadata/vold/metadata_encryption
+/data f2fs /dev/block/bootdevice/by-name/userdata flags=display="Data";backup=1;wipeingui;fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;metadata_encryption=aes-256-xts:wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption
 
 # Internal Storage (bind mount)
 /storage        f2fs  /data/media/0                               flags=display="Internal Storage";storage;backup=1;fsflags="bind";removable
@@ -36,8 +33,7 @@ keydirectory=/metadata/vold/metadata_encryption
 # -------------------------------------------------------------------------
 # Firmware (DECRYPT TRIGGER – DO NOT WIPE)
 # -------------------------------------------------------------------------
-/firmware       vfat  /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt; \
-fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
+/firmware       vfat  /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt;fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
 
 # Backup-only modem partitions
 /modem          emmc  /dev/block/bootdevice/by-name/modem         flags=slotselect;backup=1;display="Modem"
@@ -45,7 +41,7 @@ fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:obje
 /dsp            emmc  /dev/block/bootdevice/by-name/dsp           flags=slotselect;backup=1;subpartitionof=/modem
 
 # -------------------------------------------------------------------------
-# Persist / Misc
+# Persist / Misc / Logo
 # -------------------------------------------------------------------------
 /persist        ext4  /dev/block/bootdevice/by-name/persist       flags=display="Persist";backup=1
 /persist_image  emmc  /dev/block/bootdevice/by-name/persist       flags=display="Persist Image";backup=1;flashimg=1
@@ -66,5 +62,4 @@ fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:obje
 # -------------------------------------------------------------------------
 # USB OTG (VOLD MANAGED – SAFE)
 # -------------------------------------------------------------------------
-/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto* \
-                flags=display="USB Storage";storage;removable
+/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  flags=display="USB Storage";storage;removable
