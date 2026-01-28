@@ -1,54 +1,52 @@
-# Android fstab file.
-# Spacewar - FINAL FIX for recovery-no-wrappedkey.fstab
-# (Includes: EROFS/EXT4 Hybrid + No Logical Slotselect + Standard Encryption)
+# =============================================================
+# Nothing Phone (1) - Spacewar
+# FINAL recovery-no-wrappedkey.fstab
+# OrangeFox / TWRP compatible
+# Standard FBE (NO WRAPPEDKEY)
+# =============================================================
 
-#<src>                                  <mnt_point>            <type>  <mnt_flags>                                                      <fs_mgr_flags>
+# -------------------------------------------------------------
+# Logical Partitions (Dynamic / Super)
+# -------------------------------------------------------------
+system        /system       erofs   ro                                wait,logical
+system        /system       ext4    ro,barrier=1,discard              wait,logical
 
-# -----------------------------------------------------------------------------
-# 1. Logical Partitions (Sistem Bölümleri)
-# DÜZELTME: Senin metnindeki gibi 'slotselect' YOK.
-# EKLEME: Hem EROFS hem EXT4 eklendi.
-# -----------------------------------------------------------------------------
-system                                   /system                erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
-system                                   /system                ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+system_ext    /system_ext   erofs   ro                                wait,logical
+system_ext    /system_ext   ext4    ro,barrier=1,discard              wait,logical
 
-system_ext                               /system_ext            erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
-system_ext                               /system_ext            ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+product       /product      erofs   ro                                wait,logical
+product       /product      ext4    ro,barrier=1,discard              wait,logical
 
-product                                  /product               erofs   ro                                                               wait,avb=vbmeta_system,logical,first_stage_mount
-product                                  /product               ext4    ro,barrier=1,discard                                             wait,avb=vbmeta_system,logical,first_stage_mount
+vendor        /vendor       erofs   ro                                wait,logical
+vendor        /vendor       ext4    ro,barrier=1,discard              wait,logical
 
-vendor                                   /vendor                erofs   ro                                                               wait,avb,logical,first_stage_mount
-vendor                                   /vendor                ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+vendor_dlkm   /vendor_dlkm  erofs   ro                                wait,logical
+vendor_dlkm   /vendor_dlkm  ext4    ro,barrier=1,discard              wait,logical
 
-vendor_dlkm                              /vendor_dlkm           erofs   ro                                                               wait,avb,logical,first_stage_mount
-vendor_dlkm                              /vendor_dlkm           ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+odm           /odm          erofs   ro                                wait,logical
+odm           /odm          ext4    ro,barrier=1,discard              wait,logical
 
-odm                                      /odm                   erofs   ro                                                               wait,avb,logical,first_stage_mount
-odm                                      /odm                   ext4    ro,barrier=1,discard                                             wait,avb,logical,first_stage_mount
+# -------------------------------------------------------------
+# Metadata & Userdata (STANDARD FBE – NO WRAPPEDKEY)
+# -------------------------------------------------------------
+/dev/block/bootdevice/by-name/metadata  /metadata  ext4  noatime,nosuid,nodev,discard  wait,check,formattable
 
-# -----------------------------------------------------------------------------
-# 2. Metadata & Userdata (Şifreleme Ayarları - NO WRAPPEDKEY)
-# Bu dosya 'standart' şifreleme içindir.
-# -----------------------------------------------------------------------------
-# Metadata (WrappedKey bayrağı YOK)
-/dev/block/by-name/metadata              /metadata              ext4    noatime,nosuid,nodev,discard                                     wait,check,formattable,first_stage_mount
+/dev/block/bootdevice/by-name/userdata  /data  f2fs  noatime,nosuid,nodev,discard,inlinecrypt  wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption
 
-# Data (WrappedKey_v0 parametreleri YOK - Standart)
-/dev/block/bootdevice/by-name/userdata   /data                  f2fs    noatime,nosuid,nodev,discard,inlinecrypt,reserve_root=32768,resgid=1065,fsync_mode=nobarrier    latemount,wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128M,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,checkpoint=fs,readahead_size_kb=128
+# -------------------------------------------------------------
+# Misc / Persist
+# -------------------------------------------------------------
+/dev/block/bootdevice/by-name/misc     /misc     emmc   defaults   defaults
+/dev/block/bootdevice/by-name/persist  /persist  ext4   noatime,nosuid,nodev,barrier=1  wait
 
-# -----------------------------------------------------------------------------
-# 3. Firmware & Misc
-# -----------------------------------------------------------------------------
-/dev/block/bootdevice/by-name/misc       /misc                  emmc    defaults                                                         defaults
-/dev/block/bootdevice/by-name/persist    /mnt/vendor/persist    ext4    noatime,nosuid,nodev,barrier=1                                   wait
+# -------------------------------------------------------------
+# Firmware (Physical Partitions – KEEP SLOTSELECT)
+# -------------------------------------------------------------
+/dev/block/bootdevice/by-name/modem      /vendor/firmware_mnt  vfat  ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0  wait,slotselect
+/dev/block/bootdevice/by-name/dsp        /vendor/dsp           ext4  ro,nosuid,nodev,barrier=1  wait,slotselect
+/dev/block/bootdevice/by-name/bluetooth  /vendor/bt_firmware   vfat  ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0  wait,slotselect
 
-# Firmware (Fiziksel oldukları için 'slotselect' BURADA KALMALI)
-/dev/block/bootdevice/by-name/modem      /vendor/firmware_mnt   vfat    ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0 wait,slotselect
-/dev/block/bootdevice/by-name/dsp        /vendor/dsp            ext4    ro,nosuid,nodev,barrier=1                                        wait,slotselect
-/dev/block/bootdevice/by-name/bluetooth  /vendor/bt_firmware    vfat    ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0 wait,slotselect
-
-# -----------------------------------------------------------------------------
-# 4. Removable Storage
-# -----------------------------------------------------------------------------
-/devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto* /storage/usbotg        vfat    nosuid,nodev                                     wait,voldmanaged=usbotg:auto
+# -------------------------------------------------------------
+# USB OTG (VOLD Managed)
+# -------------------------------------------------------------
+/devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  /storage/usbotg  vfat  nosuid,nodev  wait,voldmanaged=usbotg:auto
