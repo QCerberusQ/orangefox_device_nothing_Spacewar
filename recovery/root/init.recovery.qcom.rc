@@ -90,11 +90,11 @@ service unified-script /system/bin/unified-script.sh
     seclabel u:r:recovery:s0
 
 #service wrapped-key /system/bin/wrappedkey-fix.sh
-#    user root
-#    group root
-#    disabled
-#    oneshot
-#    seclabel u:r:recovery:s0
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
 
 # -----------------------------------------------------------------------------
 # Boot
@@ -121,9 +121,9 @@ on property:dev.mnt.blk.firmware=*
 # -----------------------------------------------------------------------------
 # Decryption Helpers
 # -----------------------------------------------------------------------------
-#on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-#    chmod 0777 /system/bin/wrappedkey-fix.sh
-#    start wrapped-key
+on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
+    chmod 0777 /system/bin/wrappedkey-fix.sh
+    start wrapped-key
 
 #on property:prepdecrypt.vendor_mounted=1
 #    setprop crypto.ready 1
