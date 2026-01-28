@@ -1,54 +1,55 @@
 # =============================================================
 # Nothing Phone (1) - Spacewar
-# FINAL RECOVERY.FSTAB (OrangeFox / TWRP compatible)
+# FINAL STABLE recovery.fstab
+# OrangeFox / TWRP compatible
 # FBE + WRAPPEDKEY_V0 + Dynamic Partitions
 # =============================================================
 
 # -------------------------------------------------------------
-# Logical Partitions (Dynamic, Hybrid EROFS / EXT4)
+# Logical Partitions (Dynamic / Super)
 # -------------------------------------------------------------
-system        /system       erofs   ro   wait,logical
-system        /system       ext4    ro,barrier=1,discard   wait,logical
+system        /system       erofs   ro                                wait,logical
+system        /system       ext4    ro,barrier=1,discard              wait,logical
 
-system_ext    /system_ext   erofs   ro   wait,logical
-system_ext    /system_ext   ext4    ro,barrier=1,discard   wait,logical
+system_ext    /system_ext   erofs   ro                                wait,logical
+system_ext    /system_ext   ext4    ro,barrier=1,discard              wait,logical
 
-product       /product      erofs   ro   wait,logical
-product       /product      ext4    ro,barrier=1,discard   wait,logical
+product       /product      erofs   ro                                wait,logical
+product       /product      ext4    ro,barrier=1,discard              wait,logical
 
-vendor        /vendor       erofs   ro   wait,logical
-vendor        /vendor       ext4    ro,barrier=1,discard   wait,logical
+vendor        /vendor       erofs   ro                                wait,logical
+vendor        /vendor       ext4    ro,barrier=1,discard              wait,logical
 
-vendor_dlkm   /vendor_dlkm  erofs   ro   wait,logical
-vendor_dlkm   /vendor_dlkm  ext4    ro,barrier=1,discard   wait,logical
+vendor_dlkm   /vendor_dlkm  erofs   ro                                wait,logical
+vendor_dlkm   /vendor_dlkm  ext4    ro,barrier=1,discard              wait,logical
 
-odm           /odm          erofs   ro   wait,logical
-odm           /odm          ext4    ro,barrier=1,discard   wait,logical
+odm           /odm          erofs   ro                                wait,logical
+odm           /odm          ext4    ro,barrier=1,discard              wait,logical
 
 # -------------------------------------------------------------
-# Metadata (Required for FBE)
+# Metadata (FBE – REQUIRED)
 # -------------------------------------------------------------
 /dev/block/bootdevice/by-name/metadata  /metadata  ext4  noatime,nosuid,nodev,discard  wait,check,formattable,wrappedkey
 
 # -------------------------------------------------------------
-# Userdata (WrappedKey v0 – Recovery Safe)
+# Userdata (FBE – WrappedKey v0)
 # -------------------------------------------------------------
-/dev/block/bootdevice/by-name/userdata  /data  f2fs  noatime,nosuid,nodev,discard,inlinecrypt  wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption
+/dev/block/bootdevice/by-name/userdata  /data  f2fs  noatime,nosuid,nodev,discard,inlinecrypt  wait,check,formattable,quota,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption
 
 # -------------------------------------------------------------
 # Misc / Persist
 # -------------------------------------------------------------
-/dev/block/bootdevice/by-name/misc       /misc     emmc  defaults   defaults
-/dev/block/bootdevice/by-name/persist    /persist  ext4  noatime,nosuid,nodev,barrier=1  wait
+/dev/block/bootdevice/by-name/misc     /misc     emmc   defaults   defaults
+/dev/block/bootdevice/by-name/persist  /persist  ext4   noatime,nosuid,nodev,barrier=1  wait
 
 # -------------------------------------------------------------
-# Firmware (Physical Partitions – KEEP SLOTSELECT)
+# Firmware (DECRYPT TRIGGER – KEEP SLOTSELECT)
 # -------------------------------------------------------------
-/dev/block/bootdevice/by-name/modem      /vendor/firmware_mnt  vfat  ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0  wait,slotselect,mounttodecrypt
-/dev/block/bootdevice/by-name/dsp        /vendor/dsp           ext4  ro,nosuid,nodev,barrier=1  wait,slotselect
-/dev/block/bootdevice/by-name/bluetooth  /vendor/bt_firmware   vfat  ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0  wait,slotselect
+/dev/block/bootdevice/by-name/modem     /vendor/firmware_mnt  vfat  ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0  wait,slotselect,mounttodecrypt
+/dev/block/bootdevice/by-name/dsp       /vendor/dsp           ext4  ro,nosuid,nodev,barrier=1  wait,slotselect
+/dev/block/bootdevice/by-name/bluetooth /vendor/bt_firmware   vfat  ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0  wait,slotselect
 
 # -------------------------------------------------------------
-# USB OTG
+# USB OTG (VOLD Managed)
 # -------------------------------------------------------------
 /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  /storage/usbotg  vfat  nosuid,nodev  wait,voldmanaged=usbotg:auto
