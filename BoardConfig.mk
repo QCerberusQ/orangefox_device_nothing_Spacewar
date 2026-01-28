@@ -68,7 +68,7 @@ BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 # -----------------------------------------------------------------------------
 # Vendor Ramdisk
 # -----------------------------------------------------------------------------
-BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
+#BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
 BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
