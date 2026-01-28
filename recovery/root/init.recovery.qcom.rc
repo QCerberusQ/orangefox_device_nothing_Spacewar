@@ -1,18 +1,13 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# FINAL STABLE VERSION
-# FBE + WRAPPEDKEY_V0 + QTI GATEKEEPER + SAFE VIBRATOR
+# FINAL HARDWARE + DECRYPT STABLE
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
-# -----------------------------------------------------------------------------
-# Early Init
-# -----------------------------------------------------------------------------
 on early-init
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
 
-    # Firmware symlinks (fstab mount will be used)
     mkdir /firmware
     mkdir /vendor/firmware_mnt
     symlink /vendor/firmware_mnt /firmware
@@ -21,37 +16,30 @@ on early-init
 
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
-# -----------------------------------------------------------------------------
-# Init
-# -----------------------------------------------------------------------------
 on init
     mount_all /vendor/etc/charger_fw_fstab.qti --early
-
-    # Screen brightness (safe default)
     write /sys/class/backlight/panel0-backlight/brightness 200
-
-    # USB configfs
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
 
-# -----------------------------------------------------------------------------
-# FS
-# -----------------------------------------------------------------------------
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
 
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # Vendor DLKM
     mkdir /vendor_dlkm
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # Vendor DLKM modules (minimum required set)
+    # FIRMWARE (KRİTİK – DOKUNMATİK İÇİN ŞART)
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
+
+    # MODÜLLER (SIRA ÖNEMLİ)
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
     insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
     insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
@@ -59,99 +47,10 @@ on fs
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
     insmod /vendor_dlkm/lib/modules/goodix_fp.ko
 
-# -----------------------------------------------------------------------------
-# Post FS
-# -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
-
-# -----------------------------------------------------------------------------
-# Post FS Data (CRITICAL FOR DECRYPT)
-# -----------------------------------------------------------------------------
-on post-fs-data
-    # QTI Gatekeeper (must start AFTER metadata & firmware)
     start gatekeeper-1-0-qti
 
-# -----------------------------------------------------------------------------
-# Services
-# -----------------------------------------------------------------------------
-service set_permissive /system/bin/set_permissive.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-service keymasterd /system/bin/keymasterd
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-service unified-script /system/bin/unified-script.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-service wrapped-key /system/bin/wrappedkey-fix.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-# -----------------------------------------------------------------------------
-# Boot
-# -----------------------------------------------------------------------------
 on boot
     start health-hal-2-1
-
-    # SAFE vibrator tuning (no forced vibration)
-    wait /sys/class/leds/vibrator/gain
-    write /sys/class/leds/vibrator/vmax_mv 1200
-    write /sys/class/leds/vibrator/gain 32
-
-    # USB / ADB
     setprop sys.usb.config adb
-
-    chmod 0777 /system/bin/unified-script.sh
-    start unified-script
-
-# -----------------------------------------------------------------------------
-# ADSP Trigger
-# -----------------------------------------------------------------------------
-on property:dev.mnt.blk.firmware=*
-    wait /sys/kernel/boot_adsp/boot
-    write /sys/kernel/boot_adsp/boot 1
-
-# -----------------------------------------------------------------------------
-# Decryption Helpers
-# -----------------------------------------------------------------------------
-on property:crypto.ready=0 && property:ro.crypto.state=encrypted
-    chmod 0777 /system/bin/wrappedkey-fix.sh
-    start wrapped-key
-
-on property:prepdecrypt.vendor_mounted=1
-    setprop crypto.ready 1
-
-on property:ro.crypto.state=encrypted
-    setprop crypto.ready 1
-
-# -----------------------------------------------------------------------------
-# USB Controller Fix
-# -----------------------------------------------------------------------------
-on property:ro.boot.usbcontroller=*
-    setprop sys.usb.controller ${ro.boot.usbcontroller}
-    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
-    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
-
-# -----------------------------------------------------------------------------
-# QTI Gatekeeper Service
-# -----------------------------------------------------------------------------
-service gatekeeper-1-0-qti /vendor/bin/hw/android.hardware.gatekeeper@1.0-service-qti
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
