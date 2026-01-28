@@ -43,6 +43,7 @@ TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 # -----------------------------------------------------------------------------
 # Boot Header v4
