@@ -1,65 +1,33 @@
-# Android fstab (TWRP / OrangeFox GUI flags)
-# Nothing Phone (1) / Spacewar
-# FINAL STABLE – UPSTREAM READY
+# Android fstab file.
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-# -------------------------------------------------------------------------
-# Boot / Vendor Boot / DTBO
-# -------------------------------------------------------------------------
-/boot           emmc  /dev/block/bootdevice/by-name/boot          flags=slotselect;display="Boot";backup=1;flashimg=1
-/vendor_boot    emmc  /dev/block/bootdevice/by-name/vendor_boot   flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
-/dtbo           emmc  /dev/block/bootdevice/by-name/dtbo          flags=slotselect;display="DTBO";backup=1;flashimg=1
+# mount point    fstype     device                 device2                        flags
+# kernel
+/boot            emmc       /dev/block/bootdevice/by-name/boot                    flags=slotselect
+/vendor_boot     emmc       /dev/block/bootdevice/by-name/vendor_boot             flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
+/dtbo            emmc       /dev/block/bootdevice/by-name/dtbo                    flags=backup=1;display="Dtbo";slotselect;flashimg=1
 
-# -------------------------------------------------------------------------
-# Super
-# -------------------------------------------------------------------------
-/super          emmc  /dev/block/bootdevice/by-name/super         flags=display="Super";backup=1;flashimg=1
-
-# -------------------------------------------------------------------------
-# Metadata & Data (FBE + WRAPPEDKEY)
-# -------------------------------------------------------------------------
-/metadata       ext4  /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey;wipeingui
-
-/data           f2fs  /dev/block/bootdevice/by-name/userdata      flags=display="Data";backup=1;wipeingui;fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;metadata_encryption=aes-256-xts:wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption
-
-# Internal Storage (bind mount – GUI only)
-/storage        f2fs  /data/media/0                               flags=display="Internal Storage";storage;fsflags="bind";removable
-
-# -------------------------------------------------------------------------
 # AVB
-# -------------------------------------------------------------------------
-/vbmeta         emmc  /dev/block/bootdevice/by-name/vbmeta        flags=slotselect;display="VBMeta";backup=1;flashimg=1
-/vbmeta_system  emmc  /dev/block/bootdevice/by-name/vbmeta_system flags=slotselect;display="VBMeta System";backup=1;flashimg=1
+/vbmeta          emmc       /dev/block/bootdevice/by-name/vbmeta                  flags=backup=1;display="VBMeta";slotselect;flashimg=1
+/vbmeta_system   emmc       /dev/block/bootdevice/by-name/vbmeta_system           flags=backup=1;display="VBMeta_System";slotselect;flashimg=1
 
-# -------------------------------------------------------------------------
-# Firmware (DECRYPT TRIGGER – DO NOT WIPE)
-# -------------------------------------------------------------------------
-/firmware       vfat  /dev/block/bootdevice/by-name/modem         flags=slotselect;display="Firmware";mounttodecrypt;fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
+#Userdata
+/metadata        ext4       /dev/block/bootdevice/by-name/metadata	          flags=display="Metadata";backup=1;wipeingui
+/data            f2fs       /dev/block/bootdevice/by-name/userdata                flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts:wrappedkey_v0
+/storage         ext4       /data/media/0                                         flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
 
-# Backup-only modem partitions
-/modem          emmc  /dev/block/bootdevice/by-name/modem         flags=slotselect;backup=1;display="Modem"
-/bluetooth      emmc  /dev/block/bootdevice/by-name/bluetooth     flags=slotselect;backup=1;subpartitionof=/modem
-/dsp            emmc  /dev/block/bootdevice/by-name/dsp           flags=slotselect;backup=1;subpartitionof=/modem
+# Persist
+/persist         ext4       /dev/block/bootdevice/by-name/persist                 flags=backup=1;display="Persist"
+/prodpersist     ext4       /dev/block/bootdevice/by-name/prodpersist             flags=backup=1;display="Product Persist"
 
-# -------------------------------------------------------------------------
-# Persist / Misc / Logo
-# -------------------------------------------------------------------------
-/persist        ext4  /dev/block/bootdevice/by-name/persist       flags=display="Persist";backup=1
-/persist_image  emmc  /dev/block/bootdevice/by-name/persist       flags=display="Persist Image";backup=1;flashimg=1
-/prodpersist    ext4  /dev/block/bootdevice/by-name/prodpersist   flags=display="Product Persist";backup=1
-/misc           emmc  /dev/block/bootdevice/by-name/misc          flags=display="Misc";backup=1
+/firmware        ext4       /dev/block/bootdevice/by-name/modem                   flags=backup=1;display="Firmware";slotselect;mounttodecrypt
+/bt_firmware     ext4       /dev/block/bootdevice/by-name/bluetooth               flags=backup=1;display="Bluetooth";slotselect
+/dsp             ext4       /dev/block/bootdevice/by-name/dsp                     flags=backup=1;display="Dsp";slotselect
+/super           emmc       /dev/block/bootdevice/by-name/super                   flags=backup=1;display="Super";flashimg=1
+/metadata        ext4       /dev/block/bootdevice/by-name/metadata                flags=backup=1;display="Metadata"
+/logo            emmc       /dev/block/bootdevice/by-name/logo                    flags=backup=1;display="Boot Logo";slotselect;flashimg=1
+/keymaster       emmc       /dev/block/bootdevice/by-name/keymaster               flags=slotselect
 
-/logo           emmc  /dev/block/bootdevice/by-name/logo          flags=display="Boot Logo";backup=1;flashimg=1;slotselect
-/keymaster      emmc  /dev/block/bootdevice/by-name/keymaster     flags=display="Keymaster";backup=1;slotselect
-
-# -------------------------------------------------------------------------
-# EFS (IMEI – BACKUP ONLY)
-# -------------------------------------------------------------------------
-/efs1           emmc  /dev/block/bootdevice/by-name/modemst1      flags=display="EFS";backup=1
-/efs2           emmc  /dev/block/bootdevice/by-name/modemst2      flags=backup=1;subpartitionof=/efs1
-/efsc           emmc  /dev/block/bootdevice/by-name/fsc           flags=backup=1;subpartitionof=/efs1
-/efsg           emmc  /dev/block/bootdevice/by-name/fsg           flags=backup=1;subpartitionof=/efs1
-
-# -------------------------------------------------------------------------
-# USB OTG (VOLD MANAGED – SAFE)
-# -------------------------------------------------------------------------
-/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  flags=display="USB Storage";storage;removable;primarystorage
+# Removable storage
+/usbstorage    auto    /dev/block/sdg1                             flags=fsflags=utf8;display="USB Storage";storage;wipeingui;removable
