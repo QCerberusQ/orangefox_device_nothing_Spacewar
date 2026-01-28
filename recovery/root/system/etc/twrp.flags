@@ -62,4 +62,4 @@
 # -------------------------------------------------------------------------
 # USB OTG (VOLD MANAGED – SAFE)
 # -------------------------------------------------------------------------
-/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  flags=display="USB Storage";storage;removable
+/usb_otg        auto  /devices/platform/soc/*.ssusb/*.dwc3/xhci-hcd.*.auto*  flags=display="USB Storage";storage;removable;primarystorage
