@@ -1,10 +1,13 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Spacewar (Nothing Phone 1)
-# FINAL HARDWARE + DECRYPT STABLE
+# FINAL FULL VERSION – HARDWARE SAFE
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
+# -----------------------------------------------------------------------------
+# Early Init
+# -----------------------------------------------------------------------------
 on early-init
     exec u:r:set_permissive:s0 -- /system/bin/set_permissive.sh
 
@@ -16,12 +19,20 @@ on early-init
 
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
+# -----------------------------------------------------------------------------
+# Init
+# -----------------------------------------------------------------------------
 on init
     mount_all /vendor/etc/charger_fw_fstab.qti --early
+
     write /sys/class/backlight/panel0-backlight/brightness 200
+
     setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
 
+# -----------------------------------------------------------------------------
+# Filesystem & Modules
+# -----------------------------------------------------------------------------
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/vendor/lib64/modules
 
@@ -32,10 +43,10 @@ on fs
     wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
     mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
-    # FIRMWARE (KRİTİK – DOKUNMATİK İÇİN ŞART)
+    # Firmware (CRITICAL)
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
 
-    # MODÜLLER (SIRA ÖNEMLİ)
+    # Kernel modules (ORDER MATTERS)
     insmod /vendor_dlkm/lib/modules/msm_drm.ko
     insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
@@ -47,10 +58,80 @@ on fs
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
     insmod /vendor_dlkm/lib/modules/goodix_fp.ko
 
+# -----------------------------------------------------------------------------
+# Post FS
+# -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
     start gatekeeper-1-0-qti
 
+# -----------------------------------------------------------------------------
+# Services
+# -----------------------------------------------------------------------------
+service set_permissive /system/bin/set_permissive.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
+    user root
+    group root
+    disabled
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
+    seclabel u:r:recovery:s0
+
+service unified-script /system/bin/unified-script.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+service wrapped-key /system/bin/wrappedkey-fix.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+# -----------------------------------------------------------------------------
+# Boot
+# -----------------------------------------------------------------------------
 on boot
     start health-hal-2-1
+
+    start vendor.qti.vibrator
+    wait /sys/class/leds/vibrator/gain
+    write /sys/class/leds/vibrator/vmax_mv 1200
+    write /sys/class/leds/vibrator/gain 0x30
+
     setprop sys.usb.config adb
+    chmod 0777 /system/bin/unified-script.sh
+    start unified-script
+
+# -----------------------------------------------------------------------------
+# ADSP Trigger
+# -----------------------------------------------------------------------------
+on property:dev.mnt.blk.firmware=*
+    wait /sys/kernel/boot_adsp/boot
+    write /sys/kernel/boot_adsp/boot 1
+
+# -----------------------------------------------------------------------------
+# Decryption Helpers
+# -----------------------------------------------------------------------------
+on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
+    chmod 0777 /system/bin/wrappedkey-fix.sh
+    start wrapped-key
+
+on property:prepdecrypt.vendor_mounted=1
+    setprop crypto.ready 1
+
+# -----------------------------------------------------------------------------
+# USB Controller Fix
+# -----------------------------------------------------------------------------
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
+    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
