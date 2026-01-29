@@ -1,10 +1,5 @@
-# Gatekeeper
+# Gatekeeper (Required for QCOM recovery decryption)
 vendor.gatekeeper.disable_spu=true
 
-# USB Config
-vendor.usb.use_ffs_mtp=1
-
-# Recovery
-ro.vendor.recovery.force_nq_crypto=1
+# Recovery poweroff charging (optional)
 ro.vendor.recovery.poweroff_charge=true
-ro.vendor.recovery.enable_adb_init=true
