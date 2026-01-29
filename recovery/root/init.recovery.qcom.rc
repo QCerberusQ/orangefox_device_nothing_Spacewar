@@ -47,16 +47,14 @@ on fs
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
 
     # Kernel modules (ORDER MATTERS)
-    insmod /vendor/lib/modules/msm_drm.ko
-    insmod /vendor/lib/modules/q6_pdr_dlkm.ko
-    insmod /vendor/lib/modules/q6_notifier_dlkm.ko
-    insmod /vendor/lib/modules/snd_event_dlkm.ko
-    insmod /vendor/lib/modules/apr_dlkm.ko
-    insmod /vendor/lib/modules/adsp_loader_dlkm.ko
-    insmod /vendor/lib/modules/sensors_ssc.ko
-    insmod /vendor/lib/modules/qti_battery_charger_main.ko
-    insmod /vendor/lib/modules/fts_tp.ko
-    insmod /vendor/lib/modules/goodix_fp.ko
+    insmod /vendor_dlkm/lib/modules/msm_drm.ko
+    insmod /vendor_dlkm/lib/modules/q6_pdr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/q6_notifier_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/fts_tp.ko
+    insmod /vendor_dlkm/lib/modules/goodix_fp.ko
 
 
 # -----------------------------------------------------------------------------
