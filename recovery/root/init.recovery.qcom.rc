@@ -20,6 +20,13 @@ on early-init
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
 # -----------------------------------------------------------------------------
+# Early-Fs
+# -----------------------------------------------------------------------------
+on early-fs
+    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
+    write /proc/sys/kernel/sched_lib_mask_force 255
+
+# -----------------------------------------------------------------------------
 # Init
 # -----------------------------------------------------------------------------
 on init
