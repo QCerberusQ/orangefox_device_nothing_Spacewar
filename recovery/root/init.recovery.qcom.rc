@@ -39,9 +39,9 @@ on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-#    mkdir /vendor_dlkm
-#    wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
-#    mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
+    mkdir /vendor_dlkm
+    wait /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix}
+    mount erofs /dev/block/bootdevice/by-name/vendor_dlkm${ro.boot.slot_suffix} /vendor_dlkm ro
 
     # Firmware (CRITICAL)
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro context=u:object_r:firmware_file:s0
