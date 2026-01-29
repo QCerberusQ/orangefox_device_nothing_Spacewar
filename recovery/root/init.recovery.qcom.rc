@@ -53,6 +53,8 @@ on fs
     insmod /vendor_dlkm/lib/modules/snd_event_dlkm.ko
     insmod /vendor_dlkm/lib/modules/apr_dlkm.ko
     insmod /vendor_dlkm/lib/modules/adsp_loader_dlkm.ko
+    insmod /vendor_dlkm/lib/modules/sensors_ssc.ko
+    insmod /vendor_dlkm/lib/modules/qti_battery_charger_main.ko
     insmod /vendor_dlkm/lib/modules/fts_tp.ko
     insmod /vendor_dlkm/lib/modules/goodix_fp.ko
 
