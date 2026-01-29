@@ -38,15 +38,8 @@ TARGET_BOOTLOADER_BOARD_NAME := lahaina
 # -----------------------------------------------------------------------------
 # Kernel (Recovery only – no kernel build)
 # -----------------------------------------------------------------------------
-BOARD_DTB_OFFSET := 0x01f00000
-BOARD_RAMDISK_OFFSET := 0x01000000
-BOARD_KERNEL_OFFSET := 0x00008000
-BOARD_KERNEL_TAGS_OFFSET := 0x00000100
-BOARD_KERNEL_PAGESIZE := 4096
 TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 # -----------------------------------------------------------------------------
