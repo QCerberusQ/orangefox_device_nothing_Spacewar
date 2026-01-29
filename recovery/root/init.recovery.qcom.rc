@@ -132,6 +132,11 @@ on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
 
+# Modüller yüklendikten sonra (yedek)
+on property:twrp.modules.loaded=true
+    wait /sys/kernel/boot_adsp/boot
+    write /sys/kernel/boot_adsp/boot 1
+
 # -----------------------------------------------------------------------------
 # Decryption Helpers
 # -----------------------------------------------------------------------------
