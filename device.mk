@@ -138,7 +138,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # -----------------------------------------------------------------------------
 # Vendor DLKM Modules (Eski Dosyadan 'goodix_fp' Eklendi)
 # -----------------------------------------------------------------------------
-TW_LOAD_VENDOR_MODULES := "adsp_loader_dlkm.ko msm_drm.ko q6_notifier_dlkm.ko q6_pdr_dlkm.ko sensors_ssc.ko qti_battery_charger_main.ko fts_tp.ko goodix_fp.ko"
+TW_LOAD_VENDOR_MODULES := adsp_loader_dlkm.ko msm_drm.ko q6_notifier_dlkm.ko q6_pdr_dlkm.ko sensors_ssc.ko qti_battery_charger_main.ko fts_tp.ko goodix_fp.ko
 
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
