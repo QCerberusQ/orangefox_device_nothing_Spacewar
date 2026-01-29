@@ -138,7 +138,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # -----------------------------------------------------------------------------
 # Vendor DLKM Modules (Eski Dosyadan 'goodix_fp' Eklendi)
 # -----------------------------------------------------------------------------
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/prebuilt/vendor/lib/modules)\")
+TW_LOAD_VENDOR_MODULES := $(strip $(shell cat $(DEVICE_PATH)/modules.load.recovery))
 
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
