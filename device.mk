@@ -145,9 +145,6 @@ TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 # -----------------------------------------------------------------------------
 # OrangeFox / TWRP Options
 # -----------------------------------------------------------------------------
-TW_INCLUDE_RESETPROP := true
-TW_INCLUDE_REPACKTOOLS := true
-TW_EXCLUDE_APEX := true
 
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
