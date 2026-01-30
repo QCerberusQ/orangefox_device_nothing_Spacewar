@@ -1,37 +1,55 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Nothing Phone (1) / Spacewar
-# FINAL / SAFE MODE
-# Vendor_boot compatible – Bootloop prevention
+# HYBRID VERSION: Custom Features + Stock Hardware Triggers
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
 # -----------------------------------------------------------------------------
-# FS – Temel dosya sistemi (KRİTİK)
+# INIT – Temel Ayarlar (STOKTAN EKLENDİ)
+# -----------------------------------------------------------------------------
+on init
+    # Ekran Parlaklığı (Stok Değer)
+    write /sys/class/backlight/panel0-backlight/brightness 200
+    
+    # ConfigFS Hazırlığı (Stok Değer - USB İçin Şart)
+    setprop sys.usb.configfs 1
+
+# -----------------------------------------------------------------------------
+# FS – Temel Dosya Sistemi
 # -----------------------------------------------------------------------------
 on fs
     # HAL ve servisler için gerekli kütüphane yolları
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
 
-    # Bootdevice symlink (olmazsa diskler bulunmaz)
+    # Bootdevice symlink (Disklerin bulunması için şart)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
 # -----------------------------------------------------------------------------
-# Early-FS – Scheduler ayarları (zararsız, performans için)
+# USB CONTROLLER TRIGGER (STOKTAN EKLENDİ - ÇOK KRİTİK!)
+# Bu blok olmazsa USB portu "Dummy" modunda kalabilir.
+# -----------------------------------------------------------------------------
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    # Stok ROM burada mode'u peripheral yapıyor, biz de aynısını yapıyoruz.
+    write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
+
+# -----------------------------------------------------------------------------
+# Early-FS – Scheduler ayarları
 # -----------------------------------------------------------------------------
 on early-fs
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
 
 # -----------------------------------------------------------------------------
-# Post-FS – Boot HAL (ŞART)
+# Post-FS – Boot HAL
 # -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
 
 # -----------------------------------------------------------------------------
-# Services – Sadece tanım (manuel start YOK)
+# Services – Titreşim ve Sistem Servisleri
 # -----------------------------------------------------------------------------
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
@@ -41,11 +59,14 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     seclabel u:r:recovery:s0
 
 # -----------------------------------------------------------------------------
-# Boot – Recovery için gerekli minimumlar
+# Boot – Servislerin Başlatılması
 # -----------------------------------------------------------------------------
 on boot
     # Batarya / health bilgisi
     start health-hal-2-1
+    
+    # Titreşimi başlat (Servis tanımlı ama start eksikti, buraya ekledim)
+    start vendor.qti.vibrator
 
-    # ADB (Recovery’de olmazsa olmaz)
+    # ADB Başlangıcı
     setprop sys.usb.config adb
