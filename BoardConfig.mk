@@ -124,8 +124,8 @@ TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
 
 # DİKKAT: Eğer "Image too large" hatası alırsan alttaki 2 satırı sil.
-TW_INCLUDE_NTFS_3G := true
-TW_INCLUDE_PYTHON := true
+#TW_INCLUDE_NTFS_3G := true
+#TW_INCLUDE_PYTHON := true
 
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
 TW_MAX_BRIGHTNESS := 2047
