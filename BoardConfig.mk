@@ -45,18 +45,17 @@ BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
-
+BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
 # -----------------------------------------------------------------------------
 # Boot Header v4
 # -----------------------------------------------------------------------------
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x01f00000
+
 # ÇALIŞAN CMDLINE (FASTBOOT FIX İÇERİR)
 MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7 androidboot.init_fatal_reboot_target=recovery
 
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
-BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
 # -----------------------------------------------------------------------------
 # DTB / DTBO
 # -----------------------------------------------------------------------------
@@ -67,7 +66,7 @@ TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
 BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
 BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
-
+BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x01f00000
 # -----------------------------------------------------------------------------
 # Vendor Ramdisk
 # -----------------------------------------------------------------------------
