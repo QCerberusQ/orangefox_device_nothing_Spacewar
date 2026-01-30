@@ -138,7 +138,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # -----------------------------------------------------------------------------
 # Vendor DLKM Modules
 # -----------------------------------------------------------------------------
-TW_LOAD_VENDOR_MODULES := $(strip $(shell cat $(DEVICE_PATH)/modules.load.recovery))
+TW_LOAD_VENDOR_MODULES := "$(strip $(shell cat $(DEVICE_PATH)/modules.load.recovery))"
 
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 
