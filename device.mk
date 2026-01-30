@@ -1,6 +1,6 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# FINAL STABLE – Recovery Focused (Vendor Boot)
+# FINAL STABLE – Pure & Safe Edition
 #
 
 LOCAL_PATH := device/nothing/Spacewar
@@ -14,7 +14,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
 # -----------------------------------------------------------------------------
-# Vendor Boot (MANDATORY)
+# Vendor Boot (MANDATORY FOR V4)
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
@@ -59,30 +59,25 @@ AB_OTA_POSTINSTALL_CONFIG += \
 # -----------------------------------------------------------------------------
 # Boot Control (NP1 Custom)
 # -----------------------------------------------------------------------------
+# Boot kontrolü için bunlar ŞART, ama gereksiz update_engine servislerini sildik.
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.1-impl-qti.recovery \
     libgptutils.nothing \
     bootctl \
-    otapreopt_script \
-    update_engine \
-    update_engine_sideload \
-    update_verifier \
-    update_engine_client \
-    checkpoint_gc
+    otapreopt_script
 
 PRODUCT_PACKAGES_DEBUG += \
-    bootctl \
-    update_engine_client
+    bootctl
 
 # -----------------------------------------------------------------------------
 # Fastbootd
 # -----------------------------------------------------------------------------
+# Mock (Taklit) HAL silindi. Sadece binary kalsın.
 PRODUCT_PACKAGES += \
-    android.hardware.fastboot@1.0-impl-mock \
     fastbootd
 
 # -----------------------------------------------------------------------------
-# Crypto / Decryption (RECOVERY SAFE SET)
+# Crypto / Decryption
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.system.keystore2 \
@@ -106,7 +101,7 @@ RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # -----------------------------------------------------------------------------
-# Health HAL (Vibrator HAL intentionally EXCLUDED)
+# Health HAL
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
@@ -150,4 +145,5 @@ TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
 TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+# Çift tırnak hatası düzeltildi:
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
