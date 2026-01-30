@@ -1,11 +1,11 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
 # FINAL STABLE – Recovery (Vendor Boot v4)
-# Cleaned & Safe Mode
+# PROVEN WORKING CONFIGURATION
 #
 
 # -----------------------------------------------------------------------------
-# Build Sanity
+# Build sanity
 # -----------------------------------------------------------------------------
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_DUP_RULES := true
@@ -14,14 +14,18 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 DEVICE_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
-# Architecture (ONLY 64-BIT FOR RECOVERY)
+# Architecture
 # -----------------------------------------------------------------------------
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-2a-dotprod
 TARGET_CPU_ABI := arm64-v8a
 TARGET_CPU_VARIANT := cortex-a76
 
-# 32-Bit desteği (TARGET_2ND_ARCH) recovery için gereksizdir ve kaldırıldı.
+TARGET_2ND_ARCH := arm
+TARGET_2ND_ARCH_VARIANT := armv8-a
+TARGET_2ND_CPU_ABI := armeabi-v7a
+TARGET_2ND_CPU_VARIANT := cortex-a76
+
 TARGET_SUPPORTS_64_BIT_APPS := true
 TARGET_IS_64_BIT := true
 
@@ -33,13 +37,13 @@ BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOOTLOADER_BOARD_NAME := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel (No Kernel Build)
+# Kernel (Recovery only – no kernel build)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_PAGESIZE := 4096
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
 TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_HEADER_ARCH := arm64
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 # -----------------------------------------------------------------------------
@@ -48,13 +52,13 @@ BOARD_USES_GENERIC_KERNEL_IMAGE := true
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
-# SAFE CMDLINE: Console ve Earlycon silindi (Bootloop Fix)
-MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 earlycon=msm_geni_serial,0x880000 msm_rtb.filter=0x237 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=2048 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1 androidboot.selinux=permissive androidboot.init_fatal_reboot_target=recovery
+# ÇALIŞAN CMDLINE (FASTBOOT FIX İÇERİR)
+MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=2048 cgroup.memory=nokmem,nosocket loop.max_part=7 androidboot.init_fatal_reboot_target=recovery
 
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
 
 # -----------------------------------------------------------------------------
-# DTB / DTBO (Prebuilt)
+# DTB / DTBO
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
@@ -67,7 +71,7 @@ BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 # -----------------------------------------------------------------------------
 # Vendor Ramdisk
 # -----------------------------------------------------------------------------
-# BOARD_PREBUILT_VENDOR_RAMDISK devre dışı bırakıldı (Kendi init'imizi kullanmak için)
+#BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
 BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
@@ -113,27 +117,22 @@ TW_USE_FSCRYPT_POLICY := 1
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
 # -----------------------------------------------------------------------------
-# TWRP / OrangeFox Options
+# TWRP / OrangeFox
 # -----------------------------------------------------------------------------
 TW_THEME := portrait_hdpi
+RECOVERY_SDCARD_ON_DATA := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
-# Toolbox Yerine Toybox (Daha stabil)
-TW_USE_TOOLBOX := false
+TW_USE_TOOLBOX := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_NO_SCREEN_BLANK := true
 TW_EXCLUDE_APEX := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_REPACKTOOLS := true
-
-# DİKKAT: Eğer "Image too large" hatası alırsan alttaki 2 satırı sil.
-#TW_INCLUDE_NTFS_3G := true
-#TW_INCLUDE_PYTHON := true
-
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
 TW_MAX_BRIGHTNESS := 2047
 TW_DEFAULT_BRIGHTNESS := 1200
-RECOVERY_SDCARD_ON_DATA := true
+TW_INCLUDE_PYTHON := true
 TW_OVERRIDE_SYSTEM_PROPS := "ro.build.date.utc;ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
 
 # -----------------------------------------------------------------------------
