@@ -35,22 +35,9 @@ TARGET_BOOTLOADER_BOARD_NAME := lahaina
 # -----------------------------------------------------------------------------
 # Kernel (No Kernel Build)
 # -----------------------------------------------------------------------------
-BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 4096
-BOARD_KERNEL_OFFSET := 0x00008000
-BOARD_RAMDISK_OFFSET := 0x01000000
-BOARD_KERNEL_TAGS_OFFSET := 0x00000100
-BOARD_DTB_OFFSET := 0x01f00000
-
-BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
-BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
-BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
-BOARD_MKBOOTIMG_ARGS += --board ""
-
-
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_HEADER_ARCH := arm64
 TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
@@ -62,7 +49,7 @@ BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 # SAFE CMDLINE: Console ve Earlycon silindi (Bootloop Fix)
-MY_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=0 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1 buildvariant=user
+MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 earlycon=msm_geni_serial,0x880000 msm_rtb.filter=0x237 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=2048 loop.max_part=7 cgroup.memory=nokmem,nosocket pcie_ports=compat iptable_raw.raw_before_defrag=1 ip6table_raw.raw_before_defrag=1 androidboot.selinux=permissive androidboot.init_fatal_reboot_target=recovery
 
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
 
