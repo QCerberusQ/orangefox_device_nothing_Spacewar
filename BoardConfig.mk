@@ -51,7 +51,7 @@ BOARD_USES_GENERIC_KERNEL_IMAGE := true
 # -----------------------------------------------------------------------------
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-
+BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x01f00000
 # ÇALIŞAN CMDLINE (FASTBOOT FIX İÇERİR)
 MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7 androidboot.init_fatal_reboot_target=recovery
 
