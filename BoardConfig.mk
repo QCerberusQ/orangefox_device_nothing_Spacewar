@@ -35,6 +35,7 @@ TARGET_BOOTLOADER_BOARD_NAME := lahaina
 # -----------------------------------------------------------------------------
 # Kernel (No Kernel Build)
 # -----------------------------------------------------------------------------
+BOARD_KERNEL_PAGESIZE := 4096
 TARGET_NO_KERNEL := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
