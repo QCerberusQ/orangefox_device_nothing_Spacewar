@@ -122,7 +122,6 @@ PRODUCT_ENFORCE_VINTF_MANIFEST := true
 # Recovery Files
 # -----------------------------------------------------------------------------
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
     $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
     $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
 
