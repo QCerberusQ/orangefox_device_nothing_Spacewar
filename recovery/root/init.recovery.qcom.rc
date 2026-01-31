@@ -5,52 +5,34 @@
 
 import /init.recovery.qcom_decrypt.rc
 
-# -----------------------------------------------------------------------------
-# INIT – Temel Ayarlar (STOKTAN EKLENDİ)
-# -----------------------------------------------------------------------------
 on init
-    # Ekran Parlaklığı (Stok Değer)
     write /sys/class/backlight/panel0-backlight/brightness 200
-    
-    # ConfigFS Hazırlığı (Stok Değer - USB İçin Şart)
     setprop sys.usb.configfs 1
 
-# -----------------------------------------------------------------------------
-# FS – Temel Dosya Sistemi
-# -----------------------------------------------------------------------------
 on fs
-    # HAL ve servisler için gerekli kütüphane yolları
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-
-    # Bootdevice symlink (Disklerin bulunması için şart)
+    
+    # Bootdevice symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-# -----------------------------------------------------------------------------
-# USB CONTROLLER TRIGGER (STOKTAN EKLENDİ - ÇOK KRİTİK!)
-# Bu blok olmazsa USB portu "Dummy" modunda kalabilir.
-# -----------------------------------------------------------------------------
+    # --- KRİTİK: Scripti burada başlatıyoruz ---
+    # Donanım yolları hazırlandığına göre script /vendor'u mount edip kontrolü yapabilir.
+    chmod 0777 /system/bin/wrappedkey-fix.sh
+    start wrapped-key
+
 on property:ro.boot.usbcontroller=*
     setprop sys.usb.controller ${ro.boot.usbcontroller}
-    # Stok ROM burada mode'u peripheral yapıyor, biz de aynısını yapıyoruz.
     write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
 
-# -----------------------------------------------------------------------------
-# Early-FS – Scheduler ayarları
-# -----------------------------------------------------------------------------
 on early-fs
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
 
-# -----------------------------------------------------------------------------
-# Post-FS – Boot HAL
-# -----------------------------------------------------------------------------
 on post-fs
     start boot-hal-1-1
 
-# -----------------------------------------------------------------------------
-# Services – Titreşim ve Sistem Servisleri
-# -----------------------------------------------------------------------------
+# Titreşim Servisi
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
@@ -58,26 +40,14 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
     seclabel u:r:recovery:s0
 
-# -----------------------------------------------------------------------------
-# Boot – Servislerin Başlatılması
-# -----------------------------------------------------------------------------
 on boot
-    # Batarya / health bilgisi
     start health-hal-2-1
-    
-    # Titreşimi başlat (Servis tanımlı ama start eksikti, buraya ekledim)
     start vendor.qti.vibrator
-
-    # ADB Başlangıcı
     setprop sys.usb.config adb
 
 # -----------------------------------------------------------------------------
-# Wrappedkey
+# Wrappedkey Fix Servisi (Her açılışta bir kez çalışır)
 # -----------------------------------------------------------------------------
-on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-    chmod 0777 /system/bin/wrappedkey-fix.sh
-    start wrapped-key
-
 service wrapped-key /system/bin/wrappedkey-fix.sh
     user root
     group root
