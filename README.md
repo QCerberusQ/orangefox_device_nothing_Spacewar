@@ -4,7 +4,7 @@
 
 ```shell
 fastboot --set-active=a
-fastboot flash vendor_boot orangefox-nothing-spacewar.img
+fastboot flash vendor_boot OrangeFox-R11.3_VendorBoot-Beta-Spacewar
 fastboot reboot recovery
 ```
 
