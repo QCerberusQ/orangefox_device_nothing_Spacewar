@@ -67,6 +67,15 @@ BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
 BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x01f00000
+
+# -----------------------------------------------------------------------------
+# Dynamic Partitions (Dinamik Bölümler - EKSİK OLAN KISIM)
+# -----------------------------------------------------------------------------
+BOARD_SUPER_PARTITION_SIZE := 6442450944
+BOARD_SUPER_PARTITION_GROUPS := qti_dynamic_partitions
+BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := odm product system system_ext vendor vendor_dlkm
+BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 6438256640
+
 # -----------------------------------------------------------------------------
 # Vendor Ramdisk
 # -----------------------------------------------------------------------------
