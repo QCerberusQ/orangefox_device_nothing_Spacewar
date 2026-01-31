@@ -35,6 +35,8 @@ Güvenli Çıkış: OrangeFox’tan çıkarken Reboot menüsüne gelin, en altta
 
 
 🇺🇸 İngilizce (English)
+
+
 Note for First-Time OrangeFox Installation
 Flashing the ROM: After installing and launching OrangeFox for the first time, you must transfer your currently installed ROM to your device and flash it again. Skipping this step will cause your device to enter a bootloop, which cannot be resolved without flashing the ROM's original vendor_boot.img file.
 
