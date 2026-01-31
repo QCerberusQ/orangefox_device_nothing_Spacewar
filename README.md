@@ -9,7 +9,10 @@ fastboot reboot recovery
 ```
 
 ⚠️ ÖNEMLİ UYARILAR VE KURULUM NOTLARI / IMPORTANT WARNINGS & INSTALLATION NOTES
+
+
 🇹🇷 Türkçe (Turkish)
+
 OrangeFox İlk Kurulumu Yapacak Kullanıcılar İçin Not
 ROM Flaşlama: OrangeFox’u ilk kez kurup açtıktan sonra, cihazınızda hâlihazırda yüklü olan ROM’u cihazınıza atarak tekrar flaşlamalısınız. Bu adımı atlamanız durumunda cihazınız bootloop (başlangıç döngüsü) hatasına düşecektir. Bu hata, ROM’un orijinal vendor_boot.img dosyası flaşlanmadan düzelmez.
 
