@@ -42,7 +42,7 @@ Slot Mantığı: Bu cihaz A/B yapısına sahip olduğu için OrangeFox üzerinde
 
 -Flashing the ROM: After installing and launching OrangeFox for the first time, you must transfer your currently installed ROM to your device and flash it again. Skipping this step will cause your device to enter a bootloop, which cannot be resolved without flashing the ROM's original vendor_boot.img file.
 
--Data Reset: Since you are reinstalling the existing ROM, there is no need to perform Format Data.
+-Format Data: Since you are reinstalling the existing ROM, there is no need to perform Format Data.
 
 -When to Format Data? This step is only required when switching to a different ROM or if you wish to factory reset the system.
 
