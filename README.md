@@ -15,11 +15,13 @@ fastboot reboot recovery
 
 OrangeFox İlk Kurulumu Yapacak Kullanıcılar İçin Not:
 
--ROM Flaşlama: OrangeFox’u ilk kez kurup açtıktan sonra, cihazınızda hâlihazırda yüklü olan ROM’u cihazınıza atarak tekrar flaşlamalısınız. Bu adımı atlamanız durumunda cihazınız bootloop (başlangıç döngüsü) hatasına düşecektir. Bu hata, ROM’un orijinal vendor_boot.img dosyası flaşlanmadan düzelmez.
+-Halihazırda çalışan bir ROM’un üzerine OrangeFox kuruyorsanız ve /data
+sorunsuz şekilde mount ediliyorsa Format Data gerekmez.
 
--Veri Sıfırlama: Mevcut ROM’unuzu tekrar kurduğunuz için Format Data yapmanıza gerek yoktur.
+-Ancak /data mount edilemiyorsa, şifre sorunu ya da bootloop yaşanırsa
+Format Data yapılması gerekebilir.
 
--Format Data Ne Zaman Yapılır? Bu işlem yalnızca ROM değişikliklerinde veya sistemi tamamen sıfırlamak istediğinizde gereklidir.
+-Format Data Ne Zaman Yapılır? Bu işlem yalnızca ROM değişikliklerinde, /data mount edilemiyorsa veya sistemi tamamen sıfırlamak istediğinizde gereklidir.
 
 -Kritik Uyarı: Format Data adımı her zaman OrangeFox üzerinden gerçekleştirilmelidir. Eğer ROM'un kendi recovery'si veya başka bir custom recovery üzerinden Format Data yaparsanız, OrangeFox işlevsiz hâle gelecektir.
 
