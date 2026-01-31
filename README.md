@@ -39,3 +39,10 @@ Booting the System (Critical Step): Once you are in OrangeFox and have completed
 
 Safe Exit: To exit OrangeFox properly, go to the Reboot menu, select Switch Slot B at the bottom, and then tap Reboot System. This will ensure your device boots into the OS without any issues.
 ```
+
+
+### bugs
+
+- battery status %100
+- The vibration is not working
+- unknown
