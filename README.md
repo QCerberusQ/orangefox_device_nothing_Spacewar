@@ -1,10 +1,8 @@
-### flashing orangefox
+### Flashing orangefox
 
-- download `boot.img` from [lineage os build](https://download.lineageos.org/devices/Spacewar/builds)
-- download `orangefox_nothing_spacewar.img` from [releases](https://github.com/pocketblue/recovery/releases)
+- download `OrangeFox-R11.3_VendorBoot-Beta-Spacewar_` from [releases](https://github.com/""/recovery/releases)
 
 ```shell
 fastboot --set-active=a
-fastboot flash boot_a boot.img
-fastboot flash vendor_boot_a orangefox-nothing-spacewar.img
+fastboot flash vendor_boot orangefox-nothing-spacewar.img
 fastboot reboot recovery
