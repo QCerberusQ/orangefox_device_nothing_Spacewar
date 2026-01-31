@@ -1,7 +1,6 @@
 #
 # BoardConfig.mk – Nothing Phone (1) / Spacewar
-# FINAL STABLE – Recovery (Vendor Boot v4)
-# PROVEN WORKING CONFIGURATION
+# FINAL FIXED V3 EDITION (ROM Uyumlu)
 #
 
 # -----------------------------------------------------------------------------
@@ -37,7 +36,7 @@ BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOOTLOADER_BOARD_NAME := lahaina
 
 # -----------------------------------------------------------------------------
-# Kernel (Recovery only – no kernel build)
+# Kernel (Recovery only)
 # -----------------------------------------------------------------------------
 BOARD_KERNEL_PAGESIZE := 4096
 TARGET_NO_KERNEL := true
@@ -46,16 +45,18 @@ TARGET_KERNEL_ARCH := arm64
 TARGET_KERNEL_HEADER_ARCH := arm64
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
+
 # -----------------------------------------------------------------------------
-# Boot Header v4
+# Boot Header v3 (DÜZELTİLDİ: V4 -> V3)
 # -----------------------------------------------------------------------------
-BOARD_BOOT_HEADER_VERSION := 4
+BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
-# ÇALIŞAN CMDLINE (FASTBOOT FIX İÇERİR)
+# Cmdline
 MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7 androidboot.init_fatal_reboot_target=recovery
 
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
+
 # -----------------------------------------------------------------------------
 # DTB / DTBO
 # -----------------------------------------------------------------------------
@@ -69,7 +70,7 @@ BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x01f00000
 
 # -----------------------------------------------------------------------------
-# Dynamic Partitions (Dinamik Bölümler - EKSİK OLAN KISIM)
+# Dynamic Partitions
 # -----------------------------------------------------------------------------
 BOARD_SUPER_PARTITION_SIZE := 6442450944
 BOARD_SUPER_PARTITION_GROUPS := qti_dynamic_partitions
@@ -77,13 +78,15 @@ BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := odm product system system_ext ven
 BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 6438256640
 
 # -----------------------------------------------------------------------------
-# Vendor Ramdisk
+# Vendor Ramdisk (V3 Uyumlu Hale Getirildi)
 # -----------------------------------------------------------------------------
-#BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
 BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
-BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
+
+# ⚠️ KRİTİK DEĞİŞİKLİK:
+# V4'e özel olan bu komutlar V3'te hata verdiği için silindi/kapatıldı:
+# BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+# BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
 
 # -----------------------------------------------------------------------------
 # Partitions
@@ -99,13 +102,14 @@ BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_ODMIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
+
 TARGET_COPY_OUT_VENDOR := vendor
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 TARGET_COPY_OUT_ODM := odm
 TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_SYSTEM_EXT := system_ext
 
-#Vendor DLKM
+# Vendor DLKM
 BOARD_USES_VENDOR_DLKMIMAGE := true
 TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
