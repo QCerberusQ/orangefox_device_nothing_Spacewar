@@ -3,3 +3,6 @@ vendor.gatekeeper.disable_spu=true
 
 # Recovery poweroff charging (optional)
 ro.vendor.recovery.poweroff_charge=true
+
+# USB Config
+vendor.usb.use_ffs_mtp=1
