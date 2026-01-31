@@ -24,7 +24,7 @@ Sistemi Başlatma (Kritik Adım): OrangeFox açıldıktan sonra işlemlerinizi t
 Güvenli Çıkış: OrangeFox’tan çıkarken Reboot menüsüne gelin, alt kısımdaki seçeneklerden Switch Slot B yapın ve ardından Reboot System butonuna basın. Cihazınız bu şekilde sorunsuz açılacaktır.
 ```
 
-###🇺🇸 English (En)
+### en English (En)
 
 ```shell
 Important Note: Since this device features an A/B partition structure, you must carefully follow the steps below regarding ROM installation and slot switching.
