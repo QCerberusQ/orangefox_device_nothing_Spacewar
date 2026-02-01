@@ -77,13 +77,6 @@ BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := odm product system system_ext ven
 BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 6438256640
 
 # -----------------------------------------------------------------------------
-# Modules Load
-# -----------------------------------------------------------------------------
-BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(DEVICE_PATH)/modules.load))
-BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(DEVICE_PATH)/modules.load.recovery))
-BOOT_KERNEL_MODULES := $(BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD)
-
-# -----------------------------------------------------------------------------
 # Vendor Ramdisk
 # -----------------------------------------------------------------------------
 #BOARD_PREBUILT_VENDOR_RAMDISK := $(DEVICE_PATH)/prebuilt/vendor-ramdisk.cpio
