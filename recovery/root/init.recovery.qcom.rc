@@ -10,7 +10,6 @@ on init
     setprop sys.usb.configfs 1
 
 on fs
-    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
     
     # Bootdevice symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
