@@ -101,14 +101,6 @@ RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # -----------------------------------------------------------------------------
-# Health HAL
-# -----------------------------------------------------------------------------
-PRODUCT_PACKAGES += \
-    android.hardware.health@2.1-impl \
-    android.hardware.health@2.1-service \
-    libhealthd.$(PRODUCT_PLATFORM)
-
-# -----------------------------------------------------------------------------
 # Soong Namespaces
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
