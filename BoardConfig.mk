@@ -166,3 +166,19 @@ BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA4096
 BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
+
+
+# -----------------------------------------------------------------------------
+# TOUCH
+# -----------------------------------------------------------------------------
+# 1. Hangi modül dosyası fiziksel olarak kopyalansın?
+TARGET_RECOVERY_DEVICE_MODULES := fts_tp.ko
+
+# 2. Modül Ramdisk içinde nereye gitsin? (Standart GKI yolu)
+TW_LOAD_VENDOR_MODULES_TARGET := /lib/modules
+
+# 3. Recovery açılınca hangi modül "insmod" ile yüklensin?
+TW_LOAD_VENDOR_MODULES := "fts_tp.ko"
+
+# 4. Google'ın kendi modüllerini yükleyip çakışma yaratma (Sadece bizimkini yükle)
+TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
