@@ -5,65 +5,53 @@
 
 import /init.recovery.qcom_decrypt.rc
 
-# -----------------------------------------------------------------------------
-# BOOT MODE DETECTION (CRITICAL – breaks OrangeFox bootloop)
-# -----------------------------------------------------------------------------
+# --- BOOT MODE DETECTION (use sys.* properties, not ro.*) ---
 on early-init
+    # Evaluate boot reason/mode early and set a writable sys.* prop
     exec u:r:recovery:s0 -- /system/bin/sh -c '
-        case "$(getprop ro.boot.bootreason)" in
-            *recovery*)
-                setprop ro.orangefox.mode recovery
-                ;;
-            *)
-                setprop ro.orangefox.mode normal
-                ;;
-        esac
+        BR="$(getprop ro.boot.bootreason || true)"
+        BM="$(getprop ro.boot.mode || true)"
+        if [ "$BR" = "recovery" ] || [ "$BM" = "recovery" ]; then
+            setprop sys.orangefox.mode recovery
+        else
+            setprop sys.orangefox.mode normal
+        fi
     '
 
-# -----------------------------------------------------------------------------
-# INIT (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on init && property:ro.orangefox.mode=recovery
+# --- RECOVERY ONLY: core init actions ---
+on property:sys.orangefox.mode=recovery
+    # brightness + enable configfs usage (USB init script will mount configfs)
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
-# -----------------------------------------------------------------------------
-# FILESYSTEM STAGE (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on fs && property:ro.orangefox.mode=recovery
+# Filesystem stage (do this once vendor/blocks are available)
+on property:sys.orangefox.mode=recovery
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
 
     # Bootdevice symlink (required for fstab / vold / decrypt)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # Wrappedkey fix – MUST run only in recovery
+    # Ensure vendor is mounted before attempting wrappedkey/keymaster
+    # wrapped-key must run after vendor mount; init.recovery.qcom_decrypt.rc provides helpers
     chmod 0777 /system/bin/wrappedkey-fix.sh
     start wrapped-key
 
-# -----------------------------------------------------------------------------
-# USB CONTROLLER (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on property:ro.boot.usbcontroller=* && property:ro.orangefox.mode=recovery
+# USB controller mapping — only write the controller id (do not write ro.*)
+on property:ro.boot.usbcontroller=* && property:sys.orangefox.mode=recovery
     setprop sys.usb.controller ${ro.boot.usbcontroller}
-    write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
+    # do not try to write udc here, let init.recovery.usb.rc handle UDC bind after functions are created
 
-# -----------------------------------------------------------------------------
-# SCHED TUNING (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on early-fs && property:ro.orangefox.mode=recovery
+# scheduler tweaks (recovery)
+on property:sys.orangefox.mode=recovery
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
 
-# -----------------------------------------------------------------------------
-# POST-FS (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on post-fs && property:ro.orangefox.mode=recovery
+# post filesystems
+on property:sys.orangefox.mode=recovery
     start boot-hal-1-1
 
-# -----------------------------------------------------------------------------
-# SERVICES
-# -----------------------------------------------------------------------------
+# services (only declared here; they will be started by property triggers or later)
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
@@ -78,16 +66,13 @@ service wrapped-key /system/bin/wrappedkey-fix.sh
     oneshot
     seclabel u:r:recovery:s0
 
-# -----------------------------------------------------------------------------
-# BOOT (RECOVERY ONLY)
-# -----------------------------------------------------------------------------
-on boot && property:ro.orangefox.mode=recovery
+# On recovery boot, start health & vibrator and set default usb config to adb (will be adjusted by init.recovery.usb.rc)
+on property:sys.orangefox.mode=recovery
     start health-hal-2-1
     start vendor.qti.vibrator
     setprop sys.usb.config adb
 
-# -----------------------------------------------------------------------------
-# NORMAL BOOT GUARD (ABSOLUTE BOOTLOOP KILLER)
-# -----------------------------------------------------------------------------
-on init && property:ro.orangefox.mode=normal
-    setprop ro.recovery.skip true
+# NORMAL BOOT GUARD: run when boot reason says normal — ensure recovery services not started
+on property:sys.orangefox.mode=normal
+    # mark a writable property to tell any other scripts to skip recovery flow
+    setprop sys.orangefox.skip_recovery 1
