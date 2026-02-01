@@ -129,13 +129,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
 
-# -----------------------------------------------------------------------------
-# Vendor DLKM Modules
-# -----------------------------------------------------------------------------
-#TW_LOAD_VENDOR_MODULES := "fts_tp.ko"
-
-TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-
 
 # -----------------------------------------------------------------------------
 # OrangeFox / TWRP Options
