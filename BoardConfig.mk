@@ -168,7 +168,7 @@ BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
 TARGET_RECOVERY_DEVICE_MODULES := fts_tp.ko
 
 # 2. Modül Ramdisk içinde nereye gitsin? (Standart GKI yolu)
-TW_LOAD_VENDOR_MODULES_TARGET := /lib/modules
+TW_LOAD_VENDOR_MODULES_TARGET := /vendor/lib/modules
 
 # 3. Recovery açılınca hangi modül "insmod" ile yüklensin?
 TW_LOAD_VENDOR_MODULES := "fts_tp.ko"
