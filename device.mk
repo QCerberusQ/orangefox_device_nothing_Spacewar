@@ -73,8 +73,8 @@ PRODUCT_PACKAGES_DEBUG += \
 # Fastbootd
 # -----------------------------------------------------------------------------
 # Mock (Taklit) HAL silindi. Sadece binary kalsın.
-PRODUCT_PACKAGES += \
-    fastbootd
+#PRODUCT_PACKAGES += \
+#    fastbootd
 
 # -----------------------------------------------------------------------------
 # Crypto / Decryption
@@ -108,7 +108,7 @@ PRODUCT_SOONG_NAMESPACES += \
     hardware/qcom-caf/bootctrl \
     vendor/qcom/opensource/commonsys-intf/display
 
-PRODUCT_ENFORCE_VINTF_MANIFEST := true
+#PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
 # -----------------------------------------------------------------------------
 # Recovery Files
