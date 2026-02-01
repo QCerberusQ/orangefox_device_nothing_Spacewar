@@ -127,7 +127,7 @@ TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 BOARD_USES_QCOM_FBE_DECRYPTION := true
 TW_USE_FSCRYPT_POLICY := 1
-PRODUCT_ENFORCE_VINTF_MANIFEST := true
+#PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
 # -----------------------------------------------------------------------------
 # TWRP / OrangeFox
@@ -174,4 +174,4 @@ TW_LOAD_VENDOR_MODULES_TARGET := /vendor/lib/modules
 TW_LOAD_VENDOR_MODULES := "fts_tp.ko"
 
 # 4. Google'ın kendi modüllerini yükleyip çakışma yaratma (Sadece bizimkini yükle)
-TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
+#TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
