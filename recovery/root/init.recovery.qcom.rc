@@ -1,38 +1,69 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Nothing Phone (1) / Spacewar
-# HYBRID VERSION: Custom Features + Stock Hardware Triggers
+# FINAL STABLE – vendor_boot-as-recovery SAFE MODE
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
 
-on init
+# -----------------------------------------------------------------------------
+# BOOT MODE DETECTION (CRITICAL – breaks OrangeFox bootloop)
+# -----------------------------------------------------------------------------
+on early-init
+    exec u:r:recovery:s0 -- /system/bin/sh -c '
+        case "$(getprop ro.boot.bootreason)" in
+            *recovery*)
+                setprop ro.orangefox.mode recovery
+                ;;
+            *)
+                setprop ro.orangefox.mode normal
+                ;;
+        esac
+    '
+
+# -----------------------------------------------------------------------------
+# INIT (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on init && property:ro.orangefox.mode=recovery
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
-on fs
+# -----------------------------------------------------------------------------
+# FILESYSTEM STAGE (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on fs && property:ro.orangefox.mode=recovery
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-    
-    # Bootdevice symlink
+
+    # Bootdevice symlink (required for fstab / vold / decrypt)
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # --- KRİTİK: Scripti burada başlatıyoruz ---
-    # Donanım yolları hazırlandığına göre script /vendor'u mount edip kontrolü yapabilir.
+    # Wrappedkey fix – MUST run only in recovery
     chmod 0777 /system/bin/wrappedkey-fix.sh
     start wrapped-key
 
-on property:ro.boot.usbcontroller=*
+# -----------------------------------------------------------------------------
+# USB CONTROLLER (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on property:ro.boot.usbcontroller=* && property:ro.orangefox.mode=recovery
     setprop sys.usb.controller ${ro.boot.usbcontroller}
     write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
 
-on early-fs
+# -----------------------------------------------------------------------------
+# SCHED TUNING (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on early-fs && property:ro.orangefox.mode=recovery
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
     write /proc/sys/kernel/sched_lib_mask_force 255
 
-on post-fs
+# -----------------------------------------------------------------------------
+# POST-FS (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on post-fs && property:ro.orangefox.mode=recovery
     start boot-hal-1-1
 
-# Titreşim Servisi
+# -----------------------------------------------------------------------------
+# SERVICES
+# -----------------------------------------------------------------------------
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
@@ -40,17 +71,23 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
     seclabel u:r:recovery:s0
 
-on boot
-    start health-hal-2-1
-    start vendor.qti.vibrator
-    setprop sys.usb.config adb
-
-# -----------------------------------------------------------------------------
-# Wrappedkey Fix Servisi (Her açılışta bir kez çalışır)
-# -----------------------------------------------------------------------------
 service wrapped-key /system/bin/wrappedkey-fix.sh
     user root
     group root
     disabled
     oneshot
     seclabel u:r:recovery:s0
+
+# -----------------------------------------------------------------------------
+# BOOT (RECOVERY ONLY)
+# -----------------------------------------------------------------------------
+on boot && property:ro.orangefox.mode=recovery
+    start health-hal-2-1
+    start vendor.qti.vibrator
+    setprop sys.usb.config adb
+
+# -----------------------------------------------------------------------------
+# NORMAL BOOT GUARD (ABSOLUTE BOOTLOOP KILLER)
+# -----------------------------------------------------------------------------
+on init && property:ro.orangefox.mode=normal
+    setprop ro.recovery.skip true
