@@ -1,20 +1,56 @@
-# init.recovery.qcom.rc – Nothing Phone (1) / Spacewar
-# Pure vendor_boot OrangeFox – SAFE
+# -----------------------------------------------------------------------------
+# Qualcomm Recovery Init – Nothing Phone (1) / Spacewar
+# HYBRID VERSION: Custom Features + Stock Hardware Triggers
+# -----------------------------------------------------------------------------
+
+import /init.recovery.qcom_decrypt.rc
 
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     setprop sys.usb.configfs 1
 
 on fs
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
+    
+    # Bootdevice symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-on boot
-    setprop sys.usb.config adb,mtp
-    start health-hal-2-1
+    # --- KRİTİK: Scripti burada başlatıyoruz ---
+    # Donanım yolları hazırlandığına göre script /vendor'u mount edip kontrolü yapabilir.
+    chmod 0777 /system/bin/wrappedkey-fix.sh
+    start wrapped-key
 
-service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    write /sys/class/udc/${ro.boot.usbcontroller}/device/../mode peripheral
+
+on early-fs
+    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
+    write /proc/sys/kernel/sched_lib_mask_force 255
+
+on post-fs
+    start boot-hal-1-1
+
+# Titreşim Servisi
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
     disabled
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
+    seclabel u:r:recovery:s0
+
+on boot
+    start health-hal-2-1
+    start vendor.qti.vibrator
+    setprop sys.usb.config adb
+
+# -----------------------------------------------------------------------------
+# Wrappedkey Fix Servisi (Her açılışta bir kez çalışır)
+# -----------------------------------------------------------------------------
+service wrapped-key /system/bin/wrappedkey-fix.sh
+    user root
+    group root
+    disabled
+    oneshot
     seclabel u:r:recovery:s0
