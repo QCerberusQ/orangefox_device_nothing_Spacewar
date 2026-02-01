@@ -129,6 +129,8 @@ BOARD_USES_QCOM_FBE_DECRYPTION := true
 TW_USE_FSCRYPT_POLICY := 1
 #PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+
 # -----------------------------------------------------------------------------
 # TWRP / OrangeFox
 # -----------------------------------------------------------------------------
