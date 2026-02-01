@@ -62,7 +62,7 @@ export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
 # Features & Tools (Senin Dosyandan - Gelişmiş Araçlar)
 # -----------------------------------------------------------------------------
 export FOX_USE_BASH_SHELL=1
-export FOX_ASH_IS_BASH=1
+#export FOX_ASH_IS_BASH=1
 export FOX_USE_NANO_EDITOR=1
 export FOX_ENABLE_APP_MANAGER=1
 export FOX_DELETE_AROMAFM=1
@@ -79,7 +79,7 @@ export FOX_USE_FSCK_EROFS_BINARY=1
 # -----------------------------------------------------------------------------
 # Security & Encryption (Eski Dosyadan)
 # -----------------------------------------------------------------------------
-export OF_DEFAULT_KEYMASTER_VERSION=4.1
+#export OF_DEFAULT_KEYMASTER_VERSION=4.1
 
 # -----------------------------------------------------------------------------
 # Magisk & Boot Patching
