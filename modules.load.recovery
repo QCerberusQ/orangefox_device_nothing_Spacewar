@@ -1,10 +1,1 @@
-msm_drm
-q6_pdr_dlkm
-q6_notifier_dlkm
-snd_event_dlkm
-apr_dlkm
-adsp_loader_dlkm
-sensors_ssc
-qti_battery_charger_main
 fts_tp
-goodix_fp
