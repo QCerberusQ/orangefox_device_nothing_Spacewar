@@ -1,12 +1,12 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# FINAL – Pure vendor_boot OrangeFox (HAL-less, userspace decrypt)
+# FINAL STABLE – Pure & Safe Edition
 #
 
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
-# Base
+# Base Configuration
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
@@ -14,7 +14,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
 # -----------------------------------------------------------------------------
-# Vendor Boot (mandatory for v4)
+# Vendor Boot (MANDATORY FOR V4)
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
@@ -27,13 +27,14 @@ PRODUCT_PACKAGES += \
     resize2fs.vendor_ramdisk
 
 # -----------------------------------------------------------------------------
-# API / Dynamic partitions
+# API & Dynamic Partitions
 # -----------------------------------------------------------------------------
 PRODUCT_SHIPPING_API_LEVEL := 31
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
+TW_FRAMERATE := 120
 
 # -----------------------------------------------------------------------------
-# A/B OTA (minimal)
+# A/B OTA
 # -----------------------------------------------------------------------------
 AB_OTA_UPDATER := true
 AB_OTA_PARTITIONS += \
@@ -49,47 +50,84 @@ AB_OTA_PARTITIONS += \
     vendor_dlkm \
     vendor_boot
 
-# -----------------------------------------------------------------------------
-# Boot control (NO HAL)
-# -----------------------------------------------------------------------------
-PRODUCT_PACKAGES += \
-    bootctl \
-    libgptutils.nothing
+AB_OTA_POSTINSTALL_CONFIG += \
+    RUN_POSTINSTALL_system=true \
+    POSTINSTALL_PATH_system=system/bin/otapreopt_script \
+    FILESYSTEM_TYPE_system=ext4 \
+    POSTINSTALL_OPTIONAL_system=true
 
 # -----------------------------------------------------------------------------
-# Recovery display / UI libs (safe & minimal)
+# Boot Control (NP1 Custom)
+# -----------------------------------------------------------------------------
+# Boot kontrolü için bunlar ŞART, ama gereksiz update_engine servislerini sildik.
+PRODUCT_PACKAGES += \
+    android.hardware.boot@1.1-impl-qti.recovery \
+    libgptutils.nothing \
+    bootctl \
+    otapreopt_script
+
+PRODUCT_PACKAGES_DEBUG += \
+    bootctl
+
+# -----------------------------------------------------------------------------
+# Fastbootd
+# -----------------------------------------------------------------------------
+# Mock (Taklit) HAL silindi. Sadece binary kalsın.
+#PRODUCT_PACKAGES += \
+#    fastbootd
+
+# -----------------------------------------------------------------------------
+# Crypto / Decryption
+# -----------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    android.system.keystore2 \
+    qcom_decrypt \
+    qcom_decrypt_fbe
+
+# -----------------------------------------------------------------------------
+# Recovery Libraries & Display
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_DEVICE_MODULES += \
     libandroidicu \
-    libion
+    libdisplayconfig.qti \
+    libion \
+    vendor.display.config@1.0 \
+    vendor.display.config@2.0
 
 RECOVERY_LIBRARY_SOURCE_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libion.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/libdisplayconfig.qti.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@1.0.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # -----------------------------------------------------------------------------
-# Soong namespaces
+# Soong Namespaces
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH)
+    $(LOCAL_PATH) \
+    hardware/qcom-caf/bootctrl \
+    vendor/qcom/opensource/commonsys-intf/display
+
+#PRODUCT_ENFORCE_VINTF_MANIFEST := true
 
 # -----------------------------------------------------------------------------
-# Recovery scripts (NOT auto-called)
+# Recovery Files
 # -----------------------------------------------------------------------------
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
     $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
 
-# -----------------------------------------------------------------------------
-# Properties
-# -----------------------------------------------------------------------------
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
 
+
 # -----------------------------------------------------------------------------
-# OrangeFox / TWRP options
+# OrangeFox / TWRP Options
 # -----------------------------------------------------------------------------
+
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
 TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+# Çift tırnak hatası düzeltildi:
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
