@@ -1,41 +1,104 @@
-# -----------------------------------------------------------------------------
 # USB ConfigFS Init – Nothing Phone (1) / Spacewar
-# FINAL STABLE – OrangeFox Recovery
-# -----------------------------------------------------------------------------
+# FINAL STABLE – OrangeFox Recovery (vendor_boot-as-recovery)
+#
+# Key ideas:
+# - use sys.orangefox.mode (writable) for recovery guard
+# - create configfs early, create gadget, create functions
+# - mount FunctionFS for ADB (and fastboot if needed)
+# - set sys.usb.ffs.ready when FunctionFS ready
+# - only then do UDC bind in property trigger (avoids races)
+#
 
 on early-init
     setprop sys.usb.configfs 1
 
-on fs && property:ro.orangefox.mode=recovery
-    # FunctionFS for ADB
-    mkdir /dev/usb-ffs 0775 shell system
-    mkdir /dev/usb-ffs/adb 0770 shell system
-    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=1000
-
-on init && property:ro.orangefox.mode=recovery
+# Mount configfs as soon as filesystems available for recovery
+on fs && property:sys.orangefox.mode=recovery
     mount configfs none /config
+
+# Create gadget skeleton and functions (no UDC bind here)
+on property:sys.orangefox.mode=recovery
+    # ensure base dirs
+    mkdir /config 0775 root root
+    mkdir /config/usb_gadget 0775 root root
 
     mkdir /config/usb_gadget/g1 0777 root root
     write /config/usb_gadget/g1/bcdUSB 0x0200
-    write /config/usb_gadget/g1/idVendor 0x18d1
-    write /config/usb_gadget/g1/idProduct 0x4ee7
 
-    mkdir /config/usb_gadget/g1/strings/0x409
+    mkdir /config/usb_gadget/g1/strings/0x409 0770 root root
     write /config/usb_gadget/g1/strings/0x409/serialnumber ${ro.serialno}
     write /config/usb_gadget/g1/strings/0x409/manufacturer ${ro.product.manufacturer}
     write /config/usb_gadget/g1/strings/0x409/product "OrangeFox Recovery"
 
-    # FUNCTIONS (ONLY WHAT WE USE)
-    mkdir /config/usb_gadget/g1/functions/ffs.adb
-    mkdir /config/usb_gadget/g1/functions/mtp.gs0
+    # OS descriptor for Windows (optional but improves MTP on Windows)
+    write /config/usb_gadget/g1/os_desc/use 1
+    write /config/usb_gadget/g1/os_desc/b_vendor_code 0x1
+    write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
 
-    mkdir /config/usb_gadget/g1/configs/b.1
-    mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409
+    # prepare configs
+    mkdir /config/usb_gadget/g1/configs/b.1 0777 root root
+    mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770 root root
     write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "mtp_adb"
 
-    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
-    symlink /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f2
+    # FUNCTIONS (create but do not symlink yet)
+    mkdir /config/usb_gadget/g1/functions/ffs.adb 0775 root root
+    mkdir /config/usb_gadget/g1/functions/mtp.gs0 0775 root root
 
-on property:ro.boot.usbcontroller=* && property:ro.orangefox.mode=recovery
-    write /config/usb_gadget/g1/functions/mtp.gs0/stall 0
-    write /config/usb_gadget/g1/UDC ${ro.boot.usbcontroller}
+# FunctionFS mounts for ADB (mount separately so we can detect readiness)
+on fs && property:sys.orangefox.mode=recovery
+    mkdir /dev/usb-ffs 0775 shell system
+    mkdir /dev/usb-ffs/adb 0770 shell system
+    # mount functionfs for adb (uid/gid ensures correct access)
+    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=1000
+
+    # If you want fastboot in fastbootd mode, mount fastboot too:
+    # mkdir /dev/usb-ffs/fastboot 0770 shell system
+    # mount functionfs fastboot /dev/usb-ffs/fastboot uid=1000,gid=1000
+
+    # signal that FunctionFS is ready
+    setprop sys.usb.ffs.ready 1
+
+# Cleanup helper: remove old function links if present (avoid "File exists" race)
+on property:sys.usb.ffs.ready=1 && property:sys.orangefox.mode=recovery
+    rm /config/usb_gadget/g1/configs/b.1/f1  2>/dev/null || true
+    rm /config/usb_gadget/g1/configs/b.1/f2  2>/dev/null || true
+
+# ADB-only mode (FunctionFS ready + config=adb)
+on property:sys.usb.ffs.ready=1 && property:sys.usb.config=adb && property:sys.usb.configfs=1 && property:sys.orangefox.mode=recovery
+    write /config/usb_gadget/g1/strings/0x409/configuration "adb"
+    write /config/usb_gadget/g1/idVendor 0x18d1
+    write /config/usb_gadget/g1/idProduct 0x4ee7
+    # attach adb function
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
+    # bind UDC (use sysprop if available)
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state adb
+
+# MTP-only mode
+on property:sys.usb.ffs.ready=1 && property:sys.usb.config=mtp && property:sys.usb.configfs=1 && property:sys.orangefox.mode=recovery
+    write /config/usb_gadget/g1/strings/0x409/configuration "mtp"
+    write /config/usb_gadget/g1/idVendor 0x2717
+    write /config/usb_gadget/g1/idProduct 0xFF40
+    symlink /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state mtp
+
+# MTP + ADB combined (preferred for recovery file transfers)
+on property:sys.usb.ffs.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1 && property:sys.orangefox.mode=recovery
+    write /config/usb_gadget/g1/strings/0x409/configuration "mtp_adb"
+    write /config/usb_gadget/g1/idVendor 0x2717
+    write /config/usb_gadget/g1/idProduct 0xFF48
+    symlink /config/usb_gadget/g1/functions/mtp.gs0 /config/usb_gadget/g1/configs/b.1/f1
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state mtp,adb
+
+# Fastboot (if needed)
+on property:sys.usb.ffs.ready=1 && property:sys.usb.config=fastboot && property:sys.usb.configfs=1 && property:sys.orangefox.mode=recovery
+    write /config/usb_gadget/g1/strings/0x409/configuration "fastboot"
+    write /config/usb_gadget/g1/idVendor 0x18d1
+    write /config/usb_gadget/g1/idProduct 0x4ee0
+    # ensure fastboot function was mounted earlier if used
+    symlink /config/usb_gadget/g1/functions/ffs.fastboot /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state fastboot
