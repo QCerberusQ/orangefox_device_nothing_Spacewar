@@ -81,7 +81,7 @@ BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 6438256640
 # Vendor Ramdisk (V3 Uyumlu Hale Getirildi)
 # -----------------------------------------------------------------------------
 BOARD_RAMDISK_USE_LZ4 := true
-BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+#BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 
 # ⚠️ KRİTİK DEĞİŞİKLİK:
 # V4'e özel olan bu komutlar V3'te hata verdiği için silindi/kapatıldı:
