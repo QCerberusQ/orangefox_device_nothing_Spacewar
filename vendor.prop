@@ -5,4 +5,5 @@ vendor.gatekeeper.disable_spu=true
 #ro.vendor.recovery.poweroff_charge=true
 
 # USB Config
-#vendor.usb.use_ffs_mtp=1
+vendor.usb.use_ffs_mtp=1
+sys.usb.mtp.device_type=3
