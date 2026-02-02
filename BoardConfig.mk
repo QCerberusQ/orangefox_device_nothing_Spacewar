@@ -30,7 +30,7 @@ TARGET_2ND_CPU_VARIANT := cortex-a76
 
 TARGET_SUPPORTS_64_BIT_APPS := true
 TARGET_IS_64_BIT := true
-
+TARGET_USES_UEFI := true
 # -----------------------------------------------------------------------------
 # Bootloader / Platform
 # -----------------------------------------------------------------------------
