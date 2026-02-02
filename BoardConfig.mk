@@ -13,6 +13,8 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 
 DEVICE_PATH := device/nothing/Spacewar
 
+
+BOARD_USES_INIT_BOOT := true
 # -----------------------------------------------------------------------------
 # Architecture
 # -----------------------------------------------------------------------------
