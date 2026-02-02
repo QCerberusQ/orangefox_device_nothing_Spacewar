@@ -63,12 +63,6 @@ AB_OTA_POSTINSTALL_CONFIG += \
 PRODUCT_PACKAGES += \
     android.hardware.boot-service.qti \
     android.hardware.boot-service.qti.recovery \
-    libgptutils.nothing \
-    bootctl \
-    otapreopt_script
-
-PRODUCT_PACKAGES_DEBUG += \
-    bootctl
 
 # -----------------------------------------------------------------------------
 # Fastbootd
@@ -114,7 +108,6 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH) \
-    hardware/qcom-caf/bootctrl \
     vendor/qcom/opensource/commonsys-intf/display
 
 PRODUCT_ENFORCE_VINTF_MANIFEST := true
