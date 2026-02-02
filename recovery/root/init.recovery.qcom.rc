@@ -42,7 +42,7 @@ on early-fs
 
 on post-fs
     # Boot HAL 1.2 (Senin cihaz yapına uygun olan)
-    start android.hardware.boot-service.qti
+    start boot-hal-1-2
 
 on boot
     start health-hal-2-1
