@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # Qualcomm Recovery Init – Nothing Phone (1) / Spacewar
-# HYBRID VERSION: Custom Features + Stock Hardware Triggers
+# FINAL VERSION: Hybrid Logic + Stability Fixes (Wait commands & Permissions)
 # -----------------------------------------------------------------------------
 
 import /init.recovery.qcom_decrypt.rc
@@ -11,14 +11,25 @@ on init
 
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-    
+
     # Bootdevice symlink
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # --- KRİTİK: Scripti burada başlatıyoruz ---
-    # Donanım yolları hazırlandığına göre script /vendor'u mount edip kontrolü yapabilir.
-    chmod 0777 /system/bin/wrappedkey-fix.sh
+    # Dosya sistemi logları için klasör (Standart Recovery yapısı)
+    mkdir /dev/fscklogs 0770 root system
+    chown root system /dev/fscklogs/log
+    chmod 0770 /dev/fscklogs/log
+
+    # --- Firmware Mount (Daha Güvenli Yöntem) ---
+    # wait komutu, bölümün hazır olmasını bekler, hata riskini sıfırlar.
+    wait /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix}
+    mkdir /firmware 0755 root root
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
+
+    # --- WrappedKey Fix ---
+    # 0755 izni yeterli ve güvenlidir.
+    chmod 0755 /system/bin/wrappedkey-fix.sh
     start wrapped-key
 
 on property:ro.boot.usbcontroller=*
@@ -30,9 +41,29 @@ on early-fs
     write /proc/sys/kernel/sched_lib_mask_force 255
 
 on post-fs
+    # Boot HAL 1.2 (Senin cihaz yapına uygun olan)
     start boot-hal-1-2
 
-# Titreşim Servisi
+on boot
+    start health-hal-2-1
+    start vendor.qti.vibrator
+    
+    # Decryption için Keymaster servisi (Gerekli)
+    start keymasterd
+
+    setprop sys.usb.config adb
+
+# --- ADSP ve Batarya Tetikleyici ---
+# Modüller yüklendiğinde sistemi tam ayağa kaldırır
+on property:twrp.modules.loaded=true
+    wait /sys/kernel/boot_adsp/boot
+    write /sys/kernel/boot_adsp/boot 1
+    wait /sys/class/power_supply/battery
+
+# -----------------------------------------------------------------------------
+# Servisler
+# -----------------------------------------------------------------------------
+
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
@@ -40,17 +71,15 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
     seclabel u:r:recovery:s0
 
-on boot
-    start health-hal-2-1
-    start vendor.qti.vibrator
-    setprop sys.usb.config adb
-
-# -----------------------------------------------------------------------------
-# Wrappedkey Fix Servisi (Her açılışta bir kez çalışır)
-# -----------------------------------------------------------------------------
 service wrapped-key /system/bin/wrappedkey-fix.sh
     user root
     group root
     disabled
     oneshot
+    seclabel u:r:recovery:s0
+
+service keymasterd /system/bin/keymasterd
+    user root
+    group root
+    disabled
     seclabel u:r:recovery:s0
