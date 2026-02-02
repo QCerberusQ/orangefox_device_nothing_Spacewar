@@ -61,7 +61,7 @@ AB_OTA_POSTINSTALL_CONFIG += \
 # -----------------------------------------------------------------------------
 # Boot kontrolü için bunlar ŞART, ama gereksiz update_engine servislerini sildik.
 PRODUCT_PACKAGES += \
-    android.hardware.boot@1.1-impl-qti.recovery \
+    android.hardware.boot-service.qti \
     libgptutils.nothing \
     bootctl \
     otapreopt_script
