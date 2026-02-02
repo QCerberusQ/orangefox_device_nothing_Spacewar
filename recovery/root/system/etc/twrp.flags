@@ -1,35 +1,33 @@
-# twrp.flags — Nothing Phone (1) / Spacewar (vendor_boot-as-recovery)
-# mount point    fstype     device                                         device2                        flags
+# Android fstab file.
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-# Kernel / Boot related
-/boot            emmc       /dev/block/bootdevice/by-name/boot                    flags=slotselect;display="Boot";flashimg=1
+# mount point    fstype     device                 device2                        flags
+# kernel
+/boot            emmc       /dev/block/bootdevice/by-name/boot                    flags=slotselect
 /vendor_boot     emmc       /dev/block/bootdevice/by-name/vendor_boot             flags=slotselect;display="Vendor Boot";backup=1;flashimg=1
-/dtbo            emmc       /dev/block/bootdevice/by-name/dtbo                    flags=slotselect;display="DTBO";backup=1;flashimg=1
-/vbmeta          emmc       /dev/block/bootdevice/by-name/vbmeta                  flags=slotselect;display="VBMeta";backup=1;flashimg=1
-/vbmeta_system   emmc       /dev/block/bootdevice/by-name/vbmeta_system           flags=slotselect;display="VBMeta_System";backup=1;flashimg=1
-/logo            emmc       /dev/block/bootdevice/by-name/logo                    flags=slotselect;display="Boot Logo";backup=1;flashimg=1
+/dtbo            emmc       /dev/block/bootdevice/by-name/dtbo                    flags=backup=1;display="Dtbo";slotselect;flashimg=1
 
-# Userdata/Metadata
-/metadata        ext4       /dev/block/bootdevice/by-name/metadata                flags=display="Metadata";backup=1;formattable
-/data            f2fs       /dev/block/bootdevice/by-name/userdata                flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts:wrappedkey_v0;display="Data";backup=1;formattable
+# AVB
+/vbmeta          emmc       /dev/block/bootdevice/by-name/vbmeta                  flags=backup=1;display="VBMeta";slotselect;flashimg=1
+/vbmeta_system   emmc       /dev/block/bootdevice/by-name/vbmeta_system           flags=backup=1;display="VBMeta_System";slotselect;flashimg=1
 
-# Internal Storage (bind to /data/media/0)
-/storage         ext4       /data/media/0                                         flags=display="Internal Storage";usermrf;backup=1;fsflags="bind,utf8";removable
+#Userdata
+/metadata        ext4       /dev/block/bootdevice/by-name/metadata	              flags=display="Metadata";backup=1;wipeingui
+/data            f2fs       /dev/block/bootdevice/by-name/userdata                flags=fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0;keydirectory=/metadata/vold/metadata_encryption;metadata_encryption=aes-256-xts:wrappedkey_v0
+/storage         ext4       /data/media/0                                         flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
 
-# Persistent / Persist images
-/persist         ext4       /dev/block/bootdevice/by-name/persist                 flags=display="Persist";backup=1;fsflags=ro
-/prodpersist     ext4       /dev/block/bootdevice/by-name/prodpersist             flags=display="Product Persist";backup=1
+# Persist
+/persist         ext4       /dev/block/bootdevice/by-name/persist                 flags=backup=1;display="Persist"
+/prodpersist     ext4       /dev/block/bootdevice/by-name/prodpersist             flags=backup=1;display="Product Persist"
 
-# Firmware / DSP / BT (show in UI but don't assume mount semantics)
-/firmware        vfat       /dev/block/bootdevice/by-name/modem                   flags=slotselect;display="Firmware";mounttodecrypt;fsflags="ro,shortname=lower,uid=1000,gid=1000"
-/bt_firmware     vfat       /dev/block/bootdevice/by-name/bluetooth               flags=slotselect;display="Bluetooth";fsflags="ro,shortname=lower,uid=1002,gid=3002"
-/dsp             ext4       /dev/block/bootdevice/by-name/dsp                     flags=slotselect;display="DSP"
+/firmware        ext4       /dev/block/bootdevice/by-name/modem                   flags=backup=1;display="Firmware";slotselect;mounttodecrypt
+/bt_firmware     ext4       /dev/block/bootdevice/by-name/bluetooth               flags=backup=1;display="Bluetooth";slotselect
+/dsp             ext4       /dev/block/bootdevice/by-name/dsp                     flags=backup=1;display="Dsp";slotselect
+/super           emmc       /dev/block/bootdevice/by-name/super                   flags=backup=1;display="Super";flashimg=1
+/metadata        ext4       /dev/block/bootdevice/by-name/metadata                flags=backup=1;display="Metadata"
+/logo            emmc       /dev/block/bootdevice/by-name/logo                    flags=backup=1;display="Boot Logo";slotselect;flashimg=1
+/keymaster       emmc       /dev/block/bootdevice/by-name/keymaster               flags=slotselect
 
-# Keymaster (if present)
-/keymaster       emmc       /dev/block/bootdevice/by-name/keymaster               flags=slotselect;display="Keymaster"
-
-# Super / other
-/super           emmc       /dev/block/bootdevice/by-name/super                   flags=display="Super";backup=1;flashimg=1
-
-# USB OTG
-/usbstorage      vfat       /dev/block/sdg1                                       flags=fsflags=utf8;display="USB Storage";storage;wipeingui;removable
+# Removable storage
+/usbstorage      auto        /dev/block/sdg1                                      flags=fsflags=utf8;display="USB Storage";storage;wipeingui;removable
