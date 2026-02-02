@@ -31,7 +31,7 @@ export FOX_VENDOR_BOOT_RECOVERY=1
 export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
 
 # Versiyon etiketi
-export FOX_VARIANT="VendorBoot"
+export FOX_VARIANT="vBaR"
 
 # -----------------------------------------------------------------------------
 # Screen & UI Settings (Eski Dosyadan Optimize Edildi)
