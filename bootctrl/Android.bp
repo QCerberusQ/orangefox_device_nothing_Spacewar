@@ -16,6 +16,9 @@ cc_library_shared {
     // VARSAYILAN AYARLAR (DEFAULTS) GÜNCELLENDİ:
     defaults: ["android.hardware.boot@1.2-impl-qti_defaults"],
     
+    recovery_available: true,
+    vendor: true,
+    
     // Bizim düzenlediğimiz kütüphaneyi kullanmaya devam edecek:
     static_libs: ["libgptutils.nothing"],
 }
