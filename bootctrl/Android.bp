@@ -1,0 +1,21 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Nothing Phone 1 - Boot HAL 1.2 Update
+//
+
+cc_library_shared {
+    // İSİM GÜNCELLENDİ: 1.1 -> 1.2
+    name: "android.hardware.boot@1.2-impl-qti",
+    
+    // DOSYA ADI (STEM) GÜNCELLENDİ:
+    stem: "android.hardware.boot@1.0-impl-1.2-qti",
+    
+    // VARSAYILAN AYARLAR (DEFAULTS) GÜNCELLENDİ:
+    defaults: ["android.hardware.boot@1.2-impl-qti_defaults"],
+    
+    // Bizim düzenlediğimiz kütüphaneyi kullanmaya devam edecek:
+    static_libs: ["libgptutils.nothing"],
+}

@@ -1,0 +1,38 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Nothing Phone 1 (Spacewar) - Boot HAL 1.2 & SCSI Headers Fix
+//
+
+cc_library {
+    name: "libgptutils.nothing",
+    vendor: true,
+    recovery_available: true,
+    
+    srcs: [
+        "gpt-utils.cpp",
+        "recovery-ufs-bsg.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libz",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+
+    owner: "qti",
+
+    // 👇 BURASI DEĞİŞTİ 👇
+    // "scsi" yerine "scsi/ufs" yazdık.
+    // Böylece kodda #include "ufs.h" dediğimizde direkt bulacak.
+    local_include_dirs: [".", "scsi/ufs"],
+    export_include_dirs: [".", "scsi/ufs"],
+}
