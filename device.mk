@@ -124,6 +124,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.virtual_ab.skip_snapshot_creation=true \
     ro.virtual_ab.skip_verify_source_hash=true
 
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/system/bin/wrappedkey-fix.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/wrappedkey-fix.sh
 
 # -----------------------------------------------------------------------------
 # OrangeFox / TWRP Options
