@@ -26,6 +26,7 @@ OF_SKIP_MULTIUSER_FOLDERS_BACKUP := 1
 # -----------------------------------------------------------------------------
 # System & Partition Tools
 # -----------------------------------------------------------------------------
+OF_RECOVERY_AB_FULL_REFLASH_RAMDISK := 1
 OF_NO_ADDITIONAL_MIUI_PROPS_CHECK := 1
 OF_NO_TREBLE_COMPATIBILITY_CHECK := 1
 OF_ENABLE_LPTOOLS := 1
