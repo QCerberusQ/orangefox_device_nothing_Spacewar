@@ -21,6 +21,7 @@ export FOX_BUILD_TYPE="Beta"
 export FOX_VARIANT="vBaR"
 export FOX_VANILLA_BUILD=1
 export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
+export FOX_VENDOR_BOOT_RECOVERY=1
 
 # -----------------------------------------------------------------------
 # A/B & Virtual AB
