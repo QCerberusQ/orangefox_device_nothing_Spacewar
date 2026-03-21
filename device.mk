@@ -9,7 +9,7 @@ LOCAL_PATH := device/nothing/Spacewar
 # Base Configuration
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
-#$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
 
@@ -26,29 +26,18 @@ PRODUCT_PACKAGES += \
     tune2fs.vendor_ramdisk \
     resize2fs.vendor_ramdisk
 
-# -----------------------------------------------------------------------------
-# API & Dynamic Partitions
-# -----------------------------------------------------------------------------
-PRODUCT_SHIPPING_API_LEVEL := 31
+LOCAL_PATH := device/nothing/Spacewar
+
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
-TW_FRAMERATE := 120
+PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_TARGET_VNDK_VERSION := 31
+#PRODUCT_VIRTUAL_AB_COW_VERSION := 2
+
 
 # -----------------------------------------------------------------------------
 # A/B OTA
 # -----------------------------------------------------------------------------
-AB_OTA_UPDATER := true
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    odm \
-    product \
-    system \
-    system_ext \
-    vbmeta \
-    vbmeta_system \
-    vendor \
-    vendor_dlkm \
-    vendor_boot
+ENABLE_VIRTUAL_AB := true
 
 AB_OTA_POSTINSTALL_CONFIG += \
     RUN_POSTINSTALL_system=true \
@@ -56,19 +45,43 @@ AB_OTA_POSTINSTALL_CONFIG += \
     FILESYSTEM_TYPE_system=ext4 \
     POSTINSTALL_OPTIONAL_system=true
 
+AB_OTA_POSTINSTALL_CONFIG += \
+    RUN_POSTINSTALL_vendor=true \
+    POSTINSTALL_PATH_vendor=bin/checkpoint_gc \
+    FILESYSTEM_TYPE_vendor=erofs \
+    POSTINSTALL_OPTIONAL_vendor=true
+
 # -----------------------------------------------------------------------------
 # Boot Control (NP1 Custom)
 # -----------------------------------------------------------------------------
-# Boot kontrolü için bunlar ŞART, ama gereksiz update_engine servislerini sildik.
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-impl-qti \
-    android.hardware.boot-service.qti \
-    android.hardware.boot-service.qti.recovery \
+    android.hardware.boot@1.2-impl-qti.recovery \
+    android.hardware.boot@1.2-service \
+    libgptutils.nothing \
+    bootctl
+
+PRODUCT_PACKAGES_DEBUG += \
+    bootctl
+
+PRODUCT_PACKAGES += \
+    otapreopt_script \
+    checkpoint_gc \
+    cppreopts.sh \
+    update_engine \
+    update_verifier \
+    update_engine_sideload
+
+PRODUCT_PACKAGES += \
+	snapuserd \
+	liburing \
+	libz \
+	liblz4 \
+	libsnapshot_cow
 
 # -----------------------------------------------------------------------------
 # Fastbootd
 # -----------------------------------------------------------------------------
-# Mock (Taklit) HAL silindi. Sadece binary kalsın.
 PRODUCT_PACKAGES += \
     fastbootd
 
@@ -77,59 +90,55 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.system.keystore2 \
-    qcom_decrypt \
+	qcom_decrypt \
     qcom_decrypt_fbe
 
 # -----------------------------------------------------------------------------
 # Recovery Libraries & Display
 # -----------------------------------------------------------------------------
 TARGET_RECOVERY_DEVICE_MODULES += \
-    libandroidicu \
-    libdisplayconfig.qti \
     libion \
     vendor.display.config@1.0 \
     vendor.display.config@2.0
 
 RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
-    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/libdisplayconfig.qti.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@1.0.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # -----------------------------------------------------------------------------
 # Health HAL
 # -----------------------------------------------------------------------------
+# Health HAL
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
     android.hardware.health@2.1-service \
-    libhealthd.$(PRODUCT_PLATFORM)
+    libhealthd.lahaina
 
 # -----------------------------------------------------------------------------
 # Soong Namespaces
 # -----------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH) \
+    hardware/qcom-caf/bootctrl \
     vendor/qcom/opensource/commonsys-intf/display
 
-PRODUCT_ENFORCE_VINTF_MANIFEST := true
+# -----------------------------------------------------------------------------
+# differentiate legacy 'sg' or 'bsg' framework
+# -----------------------------------------------------------------------------
+SOONG_CONFIG_NAMESPACES += ufsbsg
+SOONG_CONFIG_ufsbsg += ufsframework
+SOONG_CONFIG_ufsbsg_ufsframework := bsg
+
+# Support to compile recovery without msm headers
+TARGET_HAS_GENERIC_KERNEL_HEADERS := true
 
 # -----------------------------------------------------------------------------
-# Recovery Files
+# TW
 # -----------------------------------------------------------------------------
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery/root/system/bin/unified-script.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/unified-script.sh \
-    $(LOCAL_PATH)/recovery/root/system/bin/runatboot.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/runatboot.sh
-
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.virtual_ab.skip_snapshot_creation=true \
-    ro.virtual_ab.skip_verify_source_hash=true
-
+TW_EXCLUDE_APEX := true
 
 # -----------------------------------------------------------------------------
-# OrangeFox / TWRP Options
+# FUSE PASSTHROUGH
 # -----------------------------------------------------------------------------
-
-TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
-TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
-TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
-TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
