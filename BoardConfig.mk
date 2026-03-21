@@ -94,10 +94,9 @@ BOARD_DTB_OFFSET           := 0x01f00000
 # -----------------------------------------------------------------------------
 # Boot Header v4
 # -----------------------------------------------------------------------------
-# ÇALIŞAN CMDLINE 
-MY_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7
+VENDOR_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7
 
-BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(MY_CMDLINE)"
+BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 # -----------------------------------------------------------------------------
 # DTB / DTBO
 # -----------------------------------------------------------------------------
@@ -116,6 +115,7 @@ BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 # -----------------------------------------------------------------------------
 # File systems
@@ -159,8 +159,9 @@ TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 # -----------------------------------------------------------------------------
 # Recovery
 # -----------------------------------------------------------------------------
-TARGET_NO_RECOVERY := true
-BOARD_USES_RECOVERY_AS_BOOT := true
+#TARGET_NO_RECOVERY := true
+BOARD_USES_RECOVERY_AS_BOOT :=
+BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_USES_METADATA_PARTITION := true
 
