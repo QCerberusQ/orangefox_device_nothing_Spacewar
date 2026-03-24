@@ -95,19 +95,27 @@ BOARD_RAMDISK_OFFSET       := 0x01000000
 # -----------------------------------------------------------------------------
 # Boot Header v4
 # -----------------------------------------------------------------------------
-VENDOR_CMDLINE := console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 service_locator.enable=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 swiotlb=0 cgroup.memory=nokmem,nosocket loop.max_part=7
+VENDOR_CMDLINE += androidboot.console=ttyMSM0
+VENDOR_CMDLINE += androidboot.hardware=qcom
+VENDOR_CMDLINE += androidboot.memcg=1
+VENDOR_CMDLINE += androidboot.usbcontroller=a600000.dwc3
+VENDOR_CMDLINE += cgroup.memory=nokmem,nosocket
+VENDOR_CMDLINE += console=ttyMSM0,115200n8
+VENDOR_CMDLINE += earlycon=msm_geni_serial,0x880000
+VENDOR_CMDLINE += ip6table_raw.raw_before_defrag=1
+VENDOR_CMDLINE += iptable_raw.raw_before_defrag=1
+VENDOR_CMDLINE += lpm_levels.sleep_disabled=1
+VENDOR_CMDLINE += msm_rtb.filter=0x237
+VENDOR_CMDLINE += pcie_ports=compat
+VENDOR_CMDLINE += service_locator.enable=1
+VENDOR_CMDLINE += swiotlb=0
 
-BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 # -----------------------------------------------------------------------------
-# DTB / DTBO
+# DTB 
 # -----------------------------------------------------------------------------
-BOARD_KERNEL_SEPARATED_DTBO := true
-BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
-
-TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtbs/Spacewar.dtb
-BOARD_INCLUDE_DTB_IN_VENDOR_BOOT := true
-BOARD_PREBUILT_DTBIMAGE := $(TARGET_PREBUILT_DTB)
-BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
+BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/dtbs
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 
 BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
@@ -123,7 +131,6 @@ BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
 # -----------------------------------------------------------------------------
 BOARD_RAMDISK_USE_LZ4 := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT := true
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
