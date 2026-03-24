@@ -111,11 +111,12 @@ VENDOR_CMDLINE += pcie_ports=compat
 VENDOR_CMDLINE += service_locator.enable=1
 VENDOR_CMDLINE += swiotlb=0
 VENDOR_CMDLINE += loop.max_part=7
+BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 
 # -----------------------------------------------------------------------------
 # DTB 
 # -----------------------------------------------------------------------------
-BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/dtbs
+BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtbs
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 
@@ -182,6 +183,7 @@ BOARD_USES_RECOVERY_AS_BOOT :=
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_USES_METADATA_PARTITION := true
+TARGET_RECOVERY_QCOM_RTC_FIX := true
 
 # -----------------------------------------------------------------------------
 # AVB
