@@ -13,6 +13,7 @@ DEVICE_PATH := device/nothing/Spacewar
 # Platform
 # -----------------------------------------------------------------------------
 TARGET_BOARD_PLATFORM := lahaina
+TARGET_HAS_GENERIC_KERNEL_HEADERS := true
 
 # -----------------------------------------------------------------------------
 # A/B
@@ -238,6 +239,7 @@ TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_USE_HEALTH_SERVICES_FOR_BATTERY := true
 TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
 TW_INCLUDE_FASTBOOTD := true
+TW_EXCLUDE_APEX := true
 
 # -----------------------------------------------------------------------------
 # Modules Load
