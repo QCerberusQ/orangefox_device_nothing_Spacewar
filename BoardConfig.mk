@@ -110,6 +110,7 @@ VENDOR_CMDLINE += msm_rtb.filter=0x237
 VENDOR_CMDLINE += pcie_ports=compat
 VENDOR_CMDLINE += service_locator.enable=1
 VENDOR_CMDLINE += swiotlb=0
+VENDOR_CMDLINE += loop.max_part=7
 
 # -----------------------------------------------------------------------------
 # DTB 
