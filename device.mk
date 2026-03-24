@@ -130,14 +130,6 @@ SOONG_CONFIG_NAMESPACES += ufsbsg
 SOONG_CONFIG_ufsbsg += ufsframework
 SOONG_CONFIG_ufsbsg_ufsframework := bsg
 
-# Support to compile recovery without msm headers
-TARGET_HAS_GENERIC_KERNEL_HEADERS := true
-
-# -----------------------------------------------------------------------------
-# TW
-# -----------------------------------------------------------------------------
-TW_EXCLUDE_APEX := true
-
 # -----------------------------------------------------------------------------
 # FUSE PASSTHROUGH
 # -----------------------------------------------------------------------------
