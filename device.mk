@@ -31,8 +31,6 @@ LOCAL_PATH := device/nothing/Spacewar
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
 PRODUCT_TARGET_VNDK_VERSION := 31
-#PRODUCT_VIRTUAL_AB_COW_VERSION := 2
-
 
 # -----------------------------------------------------------------------------
 # A/B OTA
@@ -109,7 +107,6 @@ RECOVERY_LIBRARY_SOURCE_FILES += \
 # -----------------------------------------------------------------------------
 # Health HAL
 # -----------------------------------------------------------------------------
-# Health HAL
 PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
     android.hardware.health@2.1-service \
