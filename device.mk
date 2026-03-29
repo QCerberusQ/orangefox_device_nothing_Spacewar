@@ -71,11 +71,8 @@ PRODUCT_PACKAGES += \
     update_engine_sideload
 
 PRODUCT_PACKAGES += \
-	snapuserd \
-	liburing \
-	libz \
-	liblz4 \
-	libsnapshot_cow
+    snapuserd \
+    libsnapshot_cow
 
 # -----------------------------------------------------------------------------
 # Fastbootd
