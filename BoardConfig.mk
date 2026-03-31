@@ -178,7 +178,7 @@ TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 # -----------------------------------------------------------------------------
 # Recovery
 # -----------------------------------------------------------------------------
-#TARGET_NO_RECOVERY := true
+TARGET_NO_RECOVERY := true
 BOARD_USES_RECOVERY_AS_BOOT :=
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
