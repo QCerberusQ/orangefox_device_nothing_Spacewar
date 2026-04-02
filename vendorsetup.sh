@@ -29,7 +29,7 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	# Device & Build Info
 	# -----------------------------------------------------------------------
 	export OF_MAINTAINER="QCerberusQ"
-	export FOX_BUILD_TYPE="Stable"
+	export FOX_BUILD_TYPE="Beta"
 	export FOX_VANILLA_BUILD=1
 	export FOX_VARIANT="vBaR"
 	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
