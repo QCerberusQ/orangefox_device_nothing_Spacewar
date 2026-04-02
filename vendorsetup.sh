@@ -87,5 +87,4 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	# Magisk / AVB Patch
 	# -----------------------------------------------------------------------
 	export FOX_USE_UPDATED_MAGISKBOOT=1
-	export FOX_PATCH_VBMETA_FLAG=1
 fi
