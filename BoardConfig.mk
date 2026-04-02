@@ -182,6 +182,7 @@ TARGET_NO_RECOVERY := true
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_USES_METADATA_PARTITION := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
+BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 
 # -----------------------------------------------------------------------------
 # AVB
