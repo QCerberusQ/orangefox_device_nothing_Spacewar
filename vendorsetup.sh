@@ -34,6 +34,8 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_VARIANT="vBaR"
 	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
 	export FOX_VENDOR_BOOT_RECOVERY=1
+	export OF_RECOVERY_AB_FULL_REFLASH_RAMDISK=1
+	export FOX_RECOVERY_VENDOR_BOOT_PARTITION="/dev/block/bootdevice/by-name/vendor_boot"
 	
 	export TARGET_DEVICE_ALT="spacewar"
 	export FOX_TARGET_DEVICES="Spacewar,$TARGET_DEVICE_ALT"
@@ -87,4 +89,5 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	# Magisk / AVB Patch
 	# -----------------------------------------------------------------------
 	export FOX_USE_UPDATED_MAGISKBOOT=1
+	export FOX_PATCH_VBMETA_FLAG=1
 fi
