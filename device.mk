@@ -24,7 +24,9 @@ PRODUCT_PACKAGES += \
     e2fsck.vendor_ramdisk \
     fsck.vendor_ramdisk \
     tune2fs.vendor_ramdisk \
-    resize2fs.vendor_ramdisk
+    resize2fs.vendor_ramdisk \
+    resize.f2fs.vendor_ramdisk \
+    dump.f2fs.vendor_ramdisk
 
 LOCAL_PATH := device/nothing/Spacewar
 
