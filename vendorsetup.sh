@@ -51,7 +51,6 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	# -----------------------------------------------------------------------
 	export OF_USE_DMCTL=1
 	export OF_NO_REFLASH_CURRENT_ORANGEFOX=1
-	export FOX_USE_DMSETUP=1
 
 	# -----------------------------------------------------------------------
 	# Tools & Features
