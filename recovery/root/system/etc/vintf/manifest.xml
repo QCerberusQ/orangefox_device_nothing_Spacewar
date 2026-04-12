@@ -1,4 +1,14 @@
+<!--
+    Recovery VINTF Manifest - Nothing Phone (1) / Spacewar
+    Sources:
+        - android.hidl.manager: required by hwservicemanager in recovery
+        - remaining HALs: Nothing Phone (1) stock system dump (framework manifest)
+    Note: android.hardware.boot and android.hardware.health are vendor HALs,
+          they are declared in vendor manifest, not here.
+-->
 <manifest version="4.0" type="framework">
+
+    <!-- Required by hwservicemanager in recovery environment -->
     <hal format="hidl">
         <name>android.hidl.manager</name>
         <transport>hwbinder</transport>
@@ -9,4 +19,144 @@
         </interface>
         <fqname>@1.2::IServiceManager/default</fqname>
     </hal>
+
+    <!-- Display service -->
+    <hal format="hidl" max-level="6">
+        <name>android.frameworks.displayservice</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IDisplayService</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::IDisplayService/default</fqname>
+    </hal>
+
+    <!-- Scheduler service -->
+    <hal format="hidl" max-level="5">
+        <name>android.frameworks.schedulerservice</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISchedulingPolicyService</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::ISchedulingPolicyService/default</fqname>
+    </hal>
+
+    <!-- Sensor service -->
+    <hal format="hidl">
+        <name>android.frameworks.sensorservice</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISensorManager</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::ISensorManager/default</fqname>
+    </hal>
+
+    <!-- Memory mapper -->
+    <hal format="hidl">
+        <name>android.hidl.memory</name>
+        <transport arch="32+64">passthrough</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IMapper</name>
+            <instance>ashmem</instance>
+        </interface>
+        <fqname>@1.0::IMapper/ashmem</fqname>
+    </hal>
+
+    <!-- Token manager -->
+    <hal format="hidl">
+        <name>android.hidl.token</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ITokenManager</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::ITokenManager/default</fqname>
+    </hal>
+
+    <!-- Network daemon -->
+    <hal format="hidl">
+        <name>android.system.net.netd</name>
+        <transport>hwbinder</transport>
+        <version>1.1</version>
+        <interface>
+            <name>INetd</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.1::INetd/default</fqname>
+    </hal>
+
+    <!-- WiFi keystore -->
+    <hal format="hidl">
+        <name>android.system.wifi.keystore</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IKeystore</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::IKeystore/default</fqname>
+    </hal>
+
+    <!-- Netutils -->
+    <hal format="native">
+        <name>netutils-wrapper</name>
+        <version>1.0</version>
+    </hal>
+
+    <!-- QTI system HALs - Nothing Phone (1) / Lahaina specific -->
+    <hal format="hidl">
+        <name>vendor.qti.hardware.qccsyshal</name>
+        <transport>hwbinder</transport>
+        <version>1.2</version>
+        <interface>
+            <name>IQccsyshal</name>
+            <instance>qccsyshal</instance>
+        </interface>
+        <fqname>@1.2::IQccsyshal/qccsyshal</fqname>
+    </hal>
+
+    <hal format="hidl">
+        <name>vendor.qti.hardware.radio.atcmdfwd</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IAtCmdFwd</name>
+            <instance>AtCmdFwdService</instance>
+        </interface>
+        <fqname>@1.0::IAtCmdFwd/AtCmdFwdService</fqname>
+    </hal>
+
+    <hal format="hidl">
+        <name>vendor.qti.hardware.systemhelper</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISystemEvent</name>
+            <instance>default</instance>
+        </interface>
+        <interface>
+            <name>ISystemResource</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::ISystemEvent/default</fqname>
+        <fqname>@1.0::ISystemResource/default</fqname>
+    </hal>
+
+    <system-sdk>
+        <version>29</version>
+        <version>30</version>
+        <version>31</version>
+        <version>32</version>
+        <version>33</version>
+        <version>34</version>
+        <version>35</version>
+    </system-sdk>
+
 </manifest>
