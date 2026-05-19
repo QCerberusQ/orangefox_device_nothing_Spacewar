@@ -1,13 +1,15 @@
 FDEVICE="Spacewar"
 
 fox_get_target_device() {
-local chkdev=$(echo "$BASH_SOURCE" | grep -w $FDEVICE)
-   if [ -n "$chkdev" ]; then 
-      FOX_BUILD_DEVICE="$FDEVICE"
-   else
-      chkdev=$(set | grep BASH_ARGV | grep -w $FDEVICE)
-      [ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
-   fi
+  if echo "$BASH_SOURCE" | grep -q "/$FDEVICE/"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif set | grep BASH_ARGV | grep -w \"$FDEVICE\"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif echo "${BASH_SOURCE[0]}" | grep -q "/$FDEVICE/"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif echo "$0" | grep -q "$FDEVICE"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  fi
 }
 
 if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
@@ -15,26 +17,15 @@ if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
 fi
 
 if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
-
-	if [ -z "$BASH_SOURCE" ]; then
-		echo "ERROR: This script requires bash."
-		return 1
-	fi
-
 	export LC_ALL="C"
 	export TARGET_ARCH="arm64"
 	export ALLOW_MISSING_DEPENDENCIES=true
-
-	# -----------------------------------------------------------------------
-	# Device & Build Info
-	# -----------------------------------------------------------------------
-	export OF_MAINTAINER="QCerberusQ"
+	
 	export FOX_BUILD_TYPE="Beta"
 	export FOX_VANILLA_BUILD=1
 	export FOX_VARIANT="vBaR"
 	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
 	export FOX_VENDOR_BOOT_RECOVERY=1
-	export OF_RECOVERY_AB_FULL_REFLASH_RAMDISK=1
 	export FOX_RECOVERY_VENDOR_BOOT_PARTITION="/dev/block/bootdevice/by-name/vendor_boot"
 	
 	export TARGET_DEVICE_ALT="spacewar"
@@ -53,11 +44,6 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_VIRTUAL_AB_DEVICE=1
 
 	# -----------------------------------------------------------------------
-	# Storage & Format Rescuers
-	# -----------------------------------------------------------------------
-	export OF_USE_DMCTL=1
-
-	# -----------------------------------------------------------------------
 	# Tools & Features
 	# -----------------------------------------------------------------------
 	export FOX_USE_BASH_SHELL=1
@@ -67,8 +53,6 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_DELETE_INITD_ADDON=1
 	export FOX_REPLACE_TOOLBOX_GETPROP=1
 	export FOX_ALLOW_EARLY_SETTINGS_LOAD=1
-	export OF_LOOP_DEVICE_ERRORS_TO_LOG=1
-	export OF_DONT_KEEP_LOG_HISTORY=1
 	export FOX_USE_GREP_BINARY=1
 	export FOX_USE_DATE_BINARY=1
 	export FOX_USE_PATCHELF_BINARY=1
@@ -86,13 +70,11 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_USE_FSCK_EROFS_BINARY=1
 
 	# -----------------------------------------------------------------------
-	# Security / Encryption
-	# -----------------------------------------------------------------------
-	export OF_DEFAULT_KEYMASTER_VERSION=4.1
-	
-	# -----------------------------------------------------------------------
 	# Magisk / AVB Patch
 	# -----------------------------------------------------------------------
 	export FOX_USE_UPDATED_MAGISKBOOT=1
-	export FOX_PATCH_VBMETA_FLAG=1
+else
+	if [ -z "$FOX_BUILD_DEVICE" -a -z "$BASH_SOURCE" ]; then
+		echo "I: This script requires bash. Not processing the $FDEVICE $(basename $0)"
+	fi
 fi
