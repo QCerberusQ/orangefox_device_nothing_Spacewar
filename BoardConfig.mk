@@ -124,6 +124,7 @@ BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 # -----------------------------------------------------------------------------
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtbs
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 
 BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
@@ -188,7 +189,6 @@ TARGET_NO_RECOVERY := true
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_USES_METADATA_PARTITION := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
-BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 
 # -----------------------------------------------------------------------------
 # AVB
