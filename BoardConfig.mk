@@ -1,4 +1,9 @@
 # -----------------------------------------------------------------------------
+# Device Path
+# -----------------------------------------------------------------------------
+DEVICE_PATH := device/nothing/Spacewar
+
+# -----------------------------------------------------------------------------
 # Broken rules
 # -----------------------------------------------------------------------------
 BUILD_BROKEN_DUP_RULES := true
@@ -6,8 +11,8 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_USES_NETWORK := true
 BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
+BUILD_BROKEN_ARTIFACT_PATH_REQUIREMENTS := true
 
-DEVICE_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
 # Platform
@@ -195,11 +200,6 @@ BOARD_AVB_VBMETA_SYSTEM_ALGORITHM := SHA256_RSA4096
 BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
-
-BOARD_AVB_VENDOR_BOOT_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
-BOARD_AVB_VENDOR_BOOT_ALGORITHM := SHA256_RSA4096
-BOARD_AVB_VENDOR_BOOT_ROLLBACK_INDEX := 0
-BOARD_AVB_VENDOR_BOOT_ROLLBACK_INDEX_LOCATION := 2
 
 # -----------------------------------------------------------------------------
 # Crypto
