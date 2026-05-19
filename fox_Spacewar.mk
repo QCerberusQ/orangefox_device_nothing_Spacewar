@@ -32,21 +32,22 @@ OF_NO_TREBLE_COMPATIBILITY_CHECK := 1
 OF_ENABLE_LPTOOLS := 1
 OF_ENABLE_ALL_PARTITION_TOOLS := 1
 OF_FBE_METADATA_MOUNT_IGNORE := 1
+OF_RECOVERY_AB_FULL_REFLASH_RAMDISK := 1
 
 # -----------------------------------------------------------------------------
-# Data Format & Encryption (SAF VE RİSKSİZ)
+# Data Format
 # -----------------------------------------------------------------------------
 OF_UNBIND_SDCARD_F2FS := 1
 OF_WIPE_METADATA_AFTER_DATAFORMAT := 1
 OF_SKIP_DECRYPTED_ADOPTED_STORAGE := 1
 OF_FORCE_CASEFOLDING := 1
+OF_VAB_ORS_WIPE_DATA_IS_FORMAT := 1
 
 # -----------------------------------------------------------------------------
 # Extras
 # -----------------------------------------------------------------------------
 OF_UNMOUNT_SDCARDS_BEFORE_REBOOT := 1
 OF_OPTIONS_LIST_NUM := 8
-OF_VAB_ORS_WIPE_DATA_IS_FORMAT := 1
 
 # -----------------------------------------------------------------------------
 # Maintainer & Storage Tools
