@@ -186,7 +186,7 @@ TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 # -----------------------------------------------------------------------------
 # Recovery
 # -----------------------------------------------------------------------------
-TARGET_NO_RECOVERY := true
+#TARGET_NO_RECOVERY := true
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_USES_METADATA_PARTITION := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
