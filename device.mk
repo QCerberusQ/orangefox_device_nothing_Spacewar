@@ -25,7 +25,9 @@ PRODUCT_PACKAGES += \
     tune2fs.vendor_ramdisk \
     resize2fs.vendor_ramdisk \
     resize.f2fs.vendor_ramdisk \
-    dump.f2fs.vendor_ramdisk
+    dump.f2fs.vendor_ramdisk \
+    fsck.f2fs.vendor_ramdisk \
+    defrag.f2fs.vendor_ramdisk
 
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
