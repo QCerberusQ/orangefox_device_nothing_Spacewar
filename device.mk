@@ -33,6 +33,9 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
 PRODUCT_TARGET_VNDK_VERSION := 31
 
+# Disable Userfaultfd GC for older kernels
+PRODUCT_ENABLE_UFFD_GC := false
+
 # -----------------------------------------------------------------------------
 # A/B OTA
 # -----------------------------------------------------------------------------
