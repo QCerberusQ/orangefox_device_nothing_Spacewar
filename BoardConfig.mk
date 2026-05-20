@@ -60,7 +60,7 @@ TARGET_2ND_CPU_VARIANT := cortex-a55
 ENABLE_CPUSETS := true
 ENABLE_SCHEDBOOST := true
 BOARD_USES_QCOM_HARDWARE := true
-TARGET_USES_64_BIT_BINDER := true
+#TARGET_USES_64_BIT_BINDER := true
 TARGET_SUPPORTS_64_BIT_APPS := true
 
 # -----------------------------------------------------------------------------
@@ -176,7 +176,6 @@ TARGET_COPY_OUT_VENDOR_BOOT := vendor_boot
 # -----------------------------------------------------------------------------
 BOARD_ROOT_EXTRA_FOLDERS := bluetooth dsp firmware persist
 BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 
 # -----------------------------------------------------------------------------
 # Properties
