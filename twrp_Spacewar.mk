@@ -35,6 +35,11 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 $(call inherit-product, $(DEVICE_PATH)/fox_Spacewar.mk)
 
 # -----------------------------------------------------------------------------
+# 6. UFFD GC Kapatma (Tüm dosyalardan SONRA okunmalı ki ezilmesin)
+# -----------------------------------------------------------------------------
+PRODUCT_ENABLE_UFFD_GC := false
+
+# -----------------------------------------------------------------------------
 # 7. Device Identifiers (MUST be last)
 # -----------------------------------------------------------------------------
 PRODUCT_DEVICE := $(PRODUCT_RELEASE_NAME)
