@@ -27,12 +27,12 @@ OF_SKIP_MULTIUSER_FOLDERS_BACKUP := 1
 # -----------------------------------------------------------------------------
 # System & Partition Tools
 # -----------------------------------------------------------------------------
+OF_USE_DMCTL := 1
 OF_NO_ADDITIONAL_MIUI_PROPS_CHECK := 1
 OF_NO_TREBLE_COMPATIBILITY_CHECK := 1
 OF_ENABLE_LPTOOLS := 1
 OF_ENABLE_ALL_PARTITION_TOOLS := 1
 OF_FBE_METADATA_MOUNT_IGNORE := 1
-OF_RECOVERY_AB_FULL_REFLASH_RAMDISK := 1
 
 # -----------------------------------------------------------------------------
 # Data Format
@@ -50,10 +50,9 @@ OF_UNMOUNT_SDCARDS_BEFORE_REBOOT := 1
 OF_OPTIONS_LIST_NUM := 8
 
 # -----------------------------------------------------------------------------
-# Maintainer & Storage Tools
+# Maintainer
 # -----------------------------------------------------------------------------
 OF_MAINTAINER := QCerberusQ
-OF_USE_DMCTL := 1
 
 # -----------------------------------------------------------------------------
 # Logging
