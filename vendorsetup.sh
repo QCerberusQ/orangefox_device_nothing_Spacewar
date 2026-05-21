@@ -24,7 +24,7 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_BUILD_TYPE="Beta"
 	export FOX_VANILLA_BUILD=1
 	export FOX_VARIANT="vBaR"
-	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
+	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=0
 	export FOX_VENDOR_BOOT_RECOVERY=1
 	export FOX_RECOVERY_VENDOR_BOOT_PARTITION="/dev/block/bootdevice/by-name/vendor_boot"
 	
