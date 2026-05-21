@@ -129,3 +129,10 @@ SOONG_CONFIG_ufsbsg_ufsframework := bsg
 # FUSE PASSTHROUGH
 # -----------------------------------------------------------------------------
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
+
+# -----------------------------------------------------------------------------
+# First Stage Ramdisk FSTAB
+# -----------------------------------------------------------------------------
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/system/etc/recovery.fstab:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/system/etc/fstab.default
+
