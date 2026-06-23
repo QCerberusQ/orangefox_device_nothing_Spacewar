@@ -41,6 +41,11 @@ AB_OTA_PARTITIONS := \
     vendor_boot
 
 # -----------------------------------------------------------------------------
+# APEX
+# -----------------------------------------------------------------------------
+DEXPREOPT_GENERATE_APEX_IMAGE := true
+
+# -----------------------------------------------------------------------------
 # Architecture
 # -----------------------------------------------------------------------------
 TARGET_ARCH := arm64
@@ -125,7 +130,6 @@ BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 # DTB 
 # -----------------------------------------------------------------------------
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtbs
-BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 
 BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
@@ -203,6 +207,17 @@ BOARD_AVB_VBMETA_SYSTEM_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
 BOARD_AVB_VBMETA_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
 
+BOARD_AVB_VBMETA_VENDOR := odm vendor vendor_dlkm
+BOARD_AVB_VBMETA_VENDOR_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
+BOARD_AVB_VBMETA_VENDOR_ALGORITHM := SHA256_RSA2048
+BOARD_AVB_VBMETA_VENDOR_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
+BOARD_AVB_VBMETA_VENDOR_ROLLBACK_INDEX_LOCATION := 2
+
+BOARD_AVB_BOOT_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem
+BOARD_AVB_BOOT_ALGORITHM := SHA256_RSA2048
+BOARD_AVB_BOOT_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)
+BOARD_AVB_BOOT_ROLLBACK_INDEX_LOCATION := 3
+
 # -----------------------------------------------------------------------------
 # Crypto
 # -----------------------------------------------------------------------------
@@ -266,8 +281,7 @@ TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 # -----------------------------------------------------------------------------
 # Modules Load
 # -----------------------------------------------------------------------------
-TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/prebuilt/modules)\")
+TW_LOAD_VENDOR_BOOT_MODULES := true
 
 # -----------------------------------------------------------------------------
 # Override System Properties
