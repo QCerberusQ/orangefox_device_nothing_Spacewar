@@ -130,6 +130,7 @@ BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "$(VENDOR_CMDLINE)"
 # DTB 
 # -----------------------------------------------------------------------------
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtbs
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_KERNEL_SEPARATED_DTBO := true
 
 BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
