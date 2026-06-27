@@ -283,6 +283,7 @@ TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 # Modules Load
 # -----------------------------------------------------------------------------
 TW_LOAD_VENDOR_BOOT_MODULES := true
+TW_LOAD_VENDOR_MODULES := "adsp_loader_dlkm.ko apr_dlkm.ko fts_tp.ko q6_dlkm.ko q6_notifier_dlkm.ko q6_pdr_dlkm.ko snd_event_dlkm.ko swr_haptics_dlkm.ko"
 
 # -----------------------------------------------------------------------------
 # Override System Properties
