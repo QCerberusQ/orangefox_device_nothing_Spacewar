@@ -33,7 +33,6 @@ on early-init
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     mkdir /dev/fscklogs 0770 root system
-    setprop sys.usb.configfs 1
     write /sys/class/power_supply/usb/otg_switch 1
 
 on early-fs
@@ -44,7 +43,6 @@ on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
 
-    # 1. Firmware Mount
     mkdir /firmware
     wait /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix}
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
@@ -54,9 +52,8 @@ on post-fs
     start boot-hal-1-2
 
 on boot
-    setprop sys.usb.config mtp,adb
+    setprop sys.usb.config adb
 
-# Firmware hazır olduğunda donanım servislerini ateşle
 on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
@@ -69,20 +66,8 @@ on property:dev.mnt.blk.firmware=*
     start health-hal-2-1
     start vendor.qti.vibrator
 
-on property:ro.boot.usbcontroller=*
-    setprop sys.usb.controller ${ro.boot.usbcontroller}
-
-    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
-    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
-
-    wait /sys/class/udc/${ro.boot.usbcontroller} 1
-
-    setprop sys.usb.config mtp,adb
-
 on property:hwservicemanager.ready=true
     setprop sys.boot_completed 1
-
-# --- Servis Tanımları ---
 
 service keymasterd /system/bin/keymasterd
     user root
