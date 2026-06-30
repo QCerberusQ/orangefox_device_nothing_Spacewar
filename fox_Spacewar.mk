@@ -46,6 +46,7 @@ OF_VAB_ORS_WIPE_DATA_IS_FORMAT := 1
 # -----------------------------------------------------------------------------
 # Extras
 # -----------------------------------------------------------------------------
+OF_NO_REFLASH_CURRENT_ORANGEFOX := 1
 OF_UNMOUNT_SDCARDS_BEFORE_REBOOT := 1
 OF_OPTIONS_LIST_NUM := 8
 
