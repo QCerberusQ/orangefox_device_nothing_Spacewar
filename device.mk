@@ -1,8 +1,10 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# FINAL STABLE – Pure & Safe Edition
-#
+# 
 
+# -----------------------------------------------------------------------------
+# Local Path
+# -----------------------------------------------------------------------------
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
@@ -29,6 +31,9 @@ PRODUCT_PACKAGES += \
     fsck.f2fs.vendor_ramdisk \
     defrag.f2fs.vendor_ramdisk
 
+# -----------------------------------------------------------------------------
+# Device basics
+# -----------------------------------------------------------------------------
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
 
@@ -59,9 +64,6 @@ PRODUCT_PACKAGES += \
     libgptutils.nothing \
     bootctl
 
-PRODUCT_PACKAGES_DEBUG += \
-    bootctl
-
 PRODUCT_PACKAGES += \
     otapreopt_script \
     checkpoint_gc \
@@ -79,6 +81,9 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     fastbootd
+
+PRODUCT_PACKAGES += \
+    android.hardware.fastboot@1.1-impl-mock
 
 # -----------------------------------------------------------------------------
 # Crypto / Decryption
