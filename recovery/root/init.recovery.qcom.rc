@@ -33,7 +33,6 @@ on early-init
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
     mkdir /dev/fscklogs 0770 root system
-    write /sys/class/power_supply/usb/otg_switch 1
 
 on early-fs
     write /proc/sys/walt/sched_lib_name "recovery,updater,update_engine,update_engine_sideload"
@@ -58,9 +57,8 @@ on property:dev.mnt.blk.firmware=*
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     
-    # Titreşim motoru ayarı
     wait /sys/class/qcom-haptics/fifo_vmax
-    write /sys/class/qcom-haptics/fifo_vmax 1500mv
+    write /sys/class/qcom-haptics/fifo_vmax 1000mv
 
     wait /sys/class/power_supply/battery
     start health-hal-2-1
