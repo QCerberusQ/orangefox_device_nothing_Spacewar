@@ -34,6 +34,7 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 # Device basics
 # -----------------------------------------------------------------------------
+PRODUCT_PLATFORM := lahaina
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
 
@@ -139,4 +140,14 @@ PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
 # -----------------------------------------------------------------------------
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/fstab.default:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default
+
+# -----------------------------------------------------------------------------
+# Overrides
+# -----------------------------------------------------------------------------
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    PRODUCT_NAME=$(PRODUCT_RELEASE_NAME) \
+    TARGET_DEVICE=$(PRODUCT_RELEASE_NAME)
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.product.device=$(PRODUCT_RELEASE_NAME)
 
