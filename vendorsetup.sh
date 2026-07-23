@@ -21,10 +21,9 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export TARGET_ARCH="arm64"
 	export ALLOW_MISSING_DEPENDENCIES=true
 	
-	export FOX_BUILD_TYPE="Beta"
+	export FOX_BUILD_TYPE="Stable"
 	export FOX_VANILLA_BUILD=1
 	export FOX_VARIANT="vBaR"
-	export FOX_INSTALLER_VENDOR_BOOT_RAMDISK_INSTALL=1
 	export FOX_VENDOR_BOOT_RECOVERY=1
 	export FOX_RECOVERY_VENDOR_BOOT_PARTITION="/dev/block/bootdevice/by-name/vendor_boot"
 	
@@ -32,9 +31,15 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_TARGET_DEVICES="Spacewar,$TARGET_DEVICE_ALT"
 
 	# -----------------------------------------------------------------------
+	# Partition Mapper
+	# -----------------------------------------------------------------------
+	export FOX_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
+	export FOX_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
+
+	# -----------------------------------------------------------------------
 	# Storage Theme Paths
 	# -----------------------------------------------------------------------
-	export FOX_SETTINGS_ROOT_DIRECTORY=/data/recovery
+	export FOX_SETTINGS_ROOT_DIRECTORY=/persist/recovery
 	export FOX_MISCELLANEOUS_ROOT_DIRECTORY=/sdcard
 
 	# -----------------------------------------------------------------------
@@ -64,6 +69,7 @@ if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export FOX_USE_SED_BINARY=1
 	export FOX_USE_XZ_UTILS=1
 	export FOX_USE_LZ4_BINARY=1
+	export OF_USE_LZ4_COMPRESSION=1
 	export FOX_USE_ZSTD_BINARY=1
 	export FOX_USE_BUSYBOX_BINARY=1
 	export FOX_USE_FSCK_EROFS_BINARY=1

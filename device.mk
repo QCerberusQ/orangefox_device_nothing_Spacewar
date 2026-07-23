@@ -1,8 +1,10 @@
 #
 # device.mk – Nothing Phone (1) / Spacewar
-# FINAL STABLE – Pure & Safe Edition
-#
+# 
 
+# -----------------------------------------------------------------------------
+# Local Path
+# -----------------------------------------------------------------------------
 LOCAL_PATH := device/nothing/Spacewar
 
 # -----------------------------------------------------------------------------
@@ -29,12 +31,12 @@ PRODUCT_PACKAGES += \
     fsck.f2fs.vendor_ramdisk \
     defrag.f2fs.vendor_ramdisk
 
+# -----------------------------------------------------------------------------
+# Device basics
+# -----------------------------------------------------------------------------
+PRODUCT_PLATFORM := lahaina
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
-PRODUCT_TARGET_VNDK_VERSION := 31
-
-# Disable Userfaultfd GC for older kernels
-PRODUCT_ENABLE_UFFD_GC := false
 
 # -----------------------------------------------------------------------------
 # A/B OTA
@@ -63,9 +65,6 @@ PRODUCT_PACKAGES += \
     libgptutils.nothing \
     bootctl
 
-PRODUCT_PACKAGES_DEBUG += \
-    bootctl
-
 PRODUCT_PACKAGES += \
     otapreopt_script \
     checkpoint_gc \
@@ -83,6 +82,9 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     fastbootd
+
+PRODUCT_PACKAGES += \
+    android.hardware.fastboot@1.1-impl-mock
 
 # -----------------------------------------------------------------------------
 # Crypto / Decryption
@@ -132,3 +134,20 @@ SOONG_CONFIG_ufsbsg_ufsframework := bsg
 # FUSE PASSTHROUGH
 # -----------------------------------------------------------------------------
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.fuse.passthrough.enable=true
+
+# -----------------------------------------------------------------------------
+# First Stage Ramdisk FSTAB
+# -----------------------------------------------------------------------------
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/fstab.default:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default
+
+# -----------------------------------------------------------------------------
+# Overrides
+# -----------------------------------------------------------------------------
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    PRODUCT_NAME=$(PRODUCT_RELEASE_NAME) \
+    TARGET_DEVICE=$(PRODUCT_RELEASE_NAME)
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.product.device=$(PRODUCT_RELEASE_NAME)
+
