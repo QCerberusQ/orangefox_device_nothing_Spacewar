@@ -52,7 +52,6 @@ TARGET_2ND_CPU_VARIANT := cortex-a76
 
 ENABLE_CPUSETS := true
 ENABLE_SCHEDBOOST := true
-TARGET_USES_64_BIT_BINDER := true
 TARGET_SUPPORTS_64_BIT_APPS := true
 
 # -----------------------------------------------------------------------------
