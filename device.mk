@@ -37,6 +37,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PLATFORM := lahaina
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_ENABLE_UFFD_GC := true
 
 # -----------------------------------------------------------------------------
 # A/B OTA
