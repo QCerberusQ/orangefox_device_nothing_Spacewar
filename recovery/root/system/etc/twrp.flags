@@ -1,7 +1,4 @@
-# Android fstab file.
-
-# Android fstab file.
-# Spacewar (Nothing Phone 1) - Stock Fstab Verified & Optimized
+# Spacewar (Nothing Phone 1)
 
 # mount point    fstype   device                                              flags
 
@@ -18,7 +15,7 @@
 /metadata        ext4     /dev/block/bootdevice/by-name/metadata              flags=display="Metadata";backup=1
 /storage         f2fs     /data/media/0                                       flags=display="Internal Storage";usermrf;fsflags="bind,utf8";removable
 
-# Kritik Bölüntüler (Persist)
+# Persist
 /persist         ext4     /dev/block/bootdevice/by-name/persist               flags=display="Persist";backup=1
 /persist_image   emmc     /dev/block/bootdevice/by-name/persist               flags=display="Persist Image";backup=0;flashimg=1
 
@@ -29,11 +26,11 @@
 /efsg            emmc     /dev/block/bootdevice/by-name/fsg                   flags=backup=1;subpartitionof=/efs1
 
 # Modem, Bluetooth ve DSP
-/modem           vfat     /dev/block/bootdevice/by-name/modem                 flags=display=Modem;slotselect;fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337,context=u:object_r:firmware_file:s0"
-/modem_img       emmc     /dev/block/bootdevice/by-name/modem                 flags=backup=1;display="Modem Image";slotselect;flashimg=1
-/dsp             ext4     /dev/block/bootdevice/by-name/dsp                   flags=display=Dsp;slotselect
+/firmware        vfat     /dev/block/bootdevice/by-name/modem                 flags=slotselect;display="Firmware";fsflags="ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337"
+/modem           emmc     /dev/block/bootdevice/by-name/modem                 flags=slotselect;backup=1;display="Modem";flashimg=1
+/dsp             ext4     /dev/block/bootdevice/by-name/dsp                   flags=display="DSP";slotselect
 /dsp_image       emmc     /dev/block/bootdevice/by-name/dsp                   flags=display="DSP Image";slotselect;backup=1;flashimg=1
-/bluetooth       vfat     /dev/block/bootdevice/by-name/bluetooth             flags=display=Bluetooth;slotselect;fsflags="ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337,context=u:object_r:bt_firmware_file:s0"
+/bluetooth       vfat     /dev/block/bootdevice/by-name/bluetooth             flags=display="Bluetooth";slotselect;fsflags="ro,shortname=lower,uid=1002,gid=3002,dmask=227,fmask=337"
 /bluetooth_image emmc     /dev/block/bootdevice/by-name/bluetooth             flags=display="Bluetooth Image";slotselect;backup=1;flashimg=1
 
 # Diğer Donanım Bölüntüleri
