@@ -1,19 +1,31 @@
 FDEVICE="Spacewar"
 
 fox_get_target_device() {
-  if echo "$BASH_SOURCE" | grep -q "/$FDEVICE/"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif set | grep BASH_ARGV | grep -w \"$FDEVICE\"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif echo "${BASH_SOURCE[0]}" | grep -q "/$FDEVICE/"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif echo "$0" | grep -q "$FDEVICE"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  fi
+	local chkdev=""
+	if echo "$BASH_SOURCE" | grep -q "/$FDEVICE/"; then
+		FOX_BUILD_DEVICE="$FDEVICE"
+		return
+	fi
+
+	if echo "${BASH_SOURCE[0]}" | grep -q "/$FDEVICE/"; then
+		FOX_BUILD_DEVICE="$FDEVICE"
+		return
+	fi
+
+	chkdev=$(set | grep BASH_ARGV | grep -w "$FDEVICE")
+	if [ -n "$chkdev" ]; then
+		FOX_BUILD_DEVICE="$FDEVICE"
+		return
+	fi
+	
+	if echo "$0" | grep -q "$FDEVICE"; then
+		FOX_BUILD_DEVICE="$FDEVICE"
+		return
+	fi
 }
 
 if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
-   fox_get_target_device
+	fox_get_target_device
 fi
 
 if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
