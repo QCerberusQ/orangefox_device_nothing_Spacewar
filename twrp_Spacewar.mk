@@ -11,7 +11,7 @@
 # 1. Base Android Configuration (CRITICAL)
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 
 # -----------------------------------------------------------------------------
 # 2. Device Definitions
@@ -25,14 +25,14 @@ DEVICE_PATH := device/nothing/$(PRODUCT_RELEASE_NAME)
 $(call inherit-product, $(DEVICE_PATH)/device.mk)
 
 # -----------------------------------------------------------------------------
-# 4. Inherit Common TWRP / OrangeFox Configuration (Orta - override yapar)
-# -----------------------------------------------------------------------------
-$(call inherit-product, vendor/twrp/config/common.mk)
-
-# -----------------------------------------------------------------------------
-# 5. Inherit OrangeFox Config (SON - en yüksek öncelik)
+# 4. Inherit OrangeFox Config
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(DEVICE_PATH)/fox_Spacewar.mk)
+
+# -----------------------------------------------------------------------------
+# 5. Inherit Common TWRP
+# -----------------------------------------------------------------------------
+$(call inherit-product, vendor/twrp/config/common.mk)
 
 # -----------------------------------------------------------------------------
 # 7. Device Identifiers (MUST be last)
