@@ -263,13 +263,8 @@ TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone50/temp"
 TW_USE_HEALTH_SERVICES_FOR_BATTERY := true
 TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 
-# -----------------------------------------------------------------------------
 # Modules Load
-# -----------------------------------------------------------------------------
-TW_LOAD_VENDOR_BOOT_MODULES := true
 TW_LOAD_VENDOR_MODULES := "adsp_loader_dlkm.ko apr_dlkm.ko fts_tp.ko q6_dlkm.ko q6_notifier_dlkm.ko q6_pdr_dlkm.ko snd_event_dlkm.ko swr_haptics_dlkm.ko"
 
-# -----------------------------------------------------------------------------
 # Override System Properties
-# -----------------------------------------------------------------------------
 TW_OVERRIDE_SYSTEM_PROPS := "ro.build.date.utc;ro.build.product;ro.build.fingerprint=ro.system.build.fingerprint;ro.build.version.incremental;ro.product.device=ro.product.system.device;ro.product.model=ro.product.system.model;ro.product.name=ro.product.system.name"
