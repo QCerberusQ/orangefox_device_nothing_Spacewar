@@ -16,7 +16,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_ven
 $(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
 
 # -----------------------------------------------------------------------------
-# Vendor Boot (MANDATORY FOR V4)
+# Vendor Boot
 # -----------------------------------------------------------------------------
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 
@@ -87,7 +87,7 @@ PRODUCT_PACKAGES += \
 # -----------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     android.system.keystore2 \
-	qcom_decrypt \
+    qcom_decrypt \
     qcom_decrypt_fbe
 
 # -----------------------------------------------------------------------------
