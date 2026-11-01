@@ -41,3 +41,4 @@
 
 # Taşınabilir Depolama
 /usb_otg         auto     /dev/block/sdg1        /dev/block/sdg               flags=fsflags=utf8;display="USB Storage";storage;wipeingui;removable
+/usb_otg2        auto     /dev/block/sdg2                                     flags=fsflags=utf8;display="USB Storage 2";storage;wipeingui;removable
